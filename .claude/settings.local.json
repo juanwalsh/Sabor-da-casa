@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(node check-console-errors.js:*)",
+      "Bash(node verify-fixes.js:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(start /B npm run dev)",
+      "Bash(npm run dev:*)",
+      "mcp__magic__logo_search",
+      "mcp__magic__21st_magic_component_inspiration"
+    ]
+  }
+}

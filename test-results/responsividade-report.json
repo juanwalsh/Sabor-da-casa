@@ -1,0 +1,331 @@
+{
+  "timestamp": "2025-12-29T20:43:18.718Z",
+  "consoleErrors": [],
+  "responsiveIssues": [
+    {
+      "page": "Home",
+      "viewport": "Mobile (iPhone)",
+      "issue": "2 elementos fora da tela"
+    },
+    {
+      "page": "Home",
+      "viewport": "Mobile (iPhone)",
+      "issue": "33 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Home",
+      "viewport": "Mobile (iPhone)",
+      "issue": "52 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Mobile (iPhone)",
+      "issue": "4 elementos fora da tela"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Mobile (iPhone)",
+      "issue": "75 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Mobile (iPhone)",
+      "issue": "87 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Checkout",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Login",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Login",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Mobile (iPhone)",
+      "issue": "12 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Mobile (iPhone)",
+      "issue": "11 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Carreiras",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Carreiras",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Entrega",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Entrega",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Termos",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Termos",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Privacidade",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Privacidade",
+      "viewport": "Mobile (iPhone)",
+      "issue": "6 textos muito pequenos (<12px)"
+    },
+    {
+      "page": "Home",
+      "viewport": "Tablet (iPad)",
+      "issue": "2 elementos fora da tela"
+    },
+    {
+      "page": "Home",
+      "viewport": "Tablet (iPad)",
+      "issue": "52 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Tablet (iPad)",
+      "issue": "88 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Checkout",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Login",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Tablet (iPad)",
+      "issue": "12 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Tablet (iPad)",
+      "issue": "11 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Carreiras",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Entrega",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Termos",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Privacidade",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Home",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Cardapio",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Checkout",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Login",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "FAQ",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Blog",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Carreiras",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Entrega",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Termos",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Privacidade",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Dashboard",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Pedidos",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Produtos",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Produtos",
+      "viewport": "Mobile (iPhone)",
+      "issue": "28 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Admin Usuarios",
+      "viewport": "Mobile (iPhone)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Usuarios",
+      "viewport": "Mobile (iPhone)",
+      "issue": "19 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Admin Dashboard",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Pedidos",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Pedidos",
+      "viewport": "Tablet (iPad)",
+      "issue": "11 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Admin Produtos",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Produtos",
+      "viewport": "Tablet (iPad)",
+      "issue": "30 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Admin Usuarios",
+      "viewport": "Tablet (iPad)",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Usuarios",
+      "viewport": "Tablet (iPad)",
+      "issue": "21 alvos de toque pequenos (<44px)"
+    },
+    {
+      "page": "Admin Dashboard",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Pedidos",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Produtos",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    },
+    {
+      "page": "Admin Usuarios",
+      "viewport": "Desktop",
+      "issue": "1 elementos fora da tela"
+    }
+  ],
+  "summary": {
+    "totalConsoleErrors": 0,
+    "uniqueConsoleErrors": 0,
+    "totalResponsiveIssues": 64
+  }
+}
