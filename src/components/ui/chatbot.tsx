@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot, User, Loader2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,76 @@ interface Message {
   quickReplies?: string[];
 }
 
-// Base de conhecimento do chatbot
+// Base de conhecimento do chatbot ADMIN
+const ADMIN_KNOWLEDGE_BASE = {
+  greeting: {
+    patterns: ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hey', 'eae', 'e ai'],
+    response: 'Olá, Admin! Sou seu assistente de gestão. Posso ajudar com métricas, relatórios e informações do negócio.',
+    quickReplies: ['Faturamento', 'Pedidos hoje', 'SLA de entrega', 'Produtos populares'],
+  },
+  revenue: {
+    patterns: ['faturamento', 'receita', 'vendas', 'ganho', 'lucro', 'dinheiro', 'quanto vendi'],
+    response: 'Faturamento do mês: R$ 47.580,00 (+12% vs mês anterior). Ticket médio: R$ 68,50. Meta mensal: 85% atingida. Melhor dia: Sábado (R$ 8.200).',
+    quickReplies: ['Faturamento semanal', 'Comparar períodos', 'Exportar relatório'],
+  },
+  orders: {
+    patterns: ['pedidos', 'pedido', 'quantos pedidos', 'vendas hoje', 'demanda'],
+    response: 'Hoje: 45 pedidos (R$ 3.082). Ontem: 52 pedidos. Pedidos pendentes: 3. Em preparo: 5. Em entrega: 2. Taxa de cancelamento: 2.1%.',
+    quickReplies: ['Ver pendentes', 'Histórico semanal', 'Pedidos cancelados'],
+  },
+  sla: {
+    patterns: ['sla', 'tempo', 'entrega', 'atraso', 'média', 'demora'],
+    response: 'SLA de entrega: 94% no prazo. Tempo médio: 32 min (meta: 40 min). Entregas atrasadas hoje: 2. Região mais rápida: Centro (25 min).',
+    quickReplies: ['Entregas atrasadas', 'Por região', 'Melhorar SLA'],
+  },
+  products: {
+    patterns: ['produto', 'produtos', 'mais vendido', 'popular', 'estoque', 'cardápio'],
+    response: 'Top 5 produtos: 1) Feijoada (89 vendas), 2) Picanha (76), 3) Moqueca (65), 4) Frango (58), 5) Lasanha (52). Produto com baixo estoque: Camarão.',
+    quickReplies: ['Editar cardápio', 'Alertas estoque', 'Produtos inativos'],
+  },
+  customers: {
+    patterns: ['cliente', 'clientes', 'usuário', 'usuários', 'cadastro', 'novos'],
+    response: 'Total de clientes: 1.847. Novos este mês: 156 (+8%). Clientes recorrentes: 62%. NPS: 4.7/5. Clientes VIP (>10 pedidos): 89.',
+    quickReplies: ['Clientes novos', 'Clientes inativos', 'Programa fidelidade'],
+  },
+  ratings: {
+    patterns: ['avaliação', 'avaliações', 'nota', 'estrela', 'feedback', 'reclamação'],
+    response: 'Avaliação média: 4.7/5 (892 avaliações). Este mês: 4.8/5. Reclamações abertas: 3. Principais elogios: sabor e rapidez. Principal crítica: embalagem.',
+    quickReplies: ['Ver reclamações', 'Avaliações negativas', 'Responder feedback'],
+  },
+  costs: {
+    patterns: ['custo', 'custos', 'despesa', 'gasto', 'margem', 'lucro líquido'],
+    response: 'Custos do mês: R$ 28.500. Margem bruta: 40%. Custo por pedido: R$ 41. Maiores custos: Ingredientes (45%), Entrega (25%), Embalagem (15%).',
+    quickReplies: ['Detalhes custos', 'Otimizar margem', 'Fornecedores'],
+  },
+  peak: {
+    patterns: ['pico', 'horário', 'movimento', 'rush', 'quando', 'melhor horário'],
+    response: 'Horários de pico: 12h-14h (almoço) e 19h-21h (jantar). Dia mais movimentado: Sábado. Menor movimento: Segunda-feira. Sugestão: promoções na segunda.',
+    quickReplies: ['Ajustar equipe', 'Promoções horário'],
+  },
+  coupons: {
+    patterns: ['cupom', 'cupons', 'desconto', 'promoção', 'código'],
+    response: 'Cupons ativos: 3. BEMVINDO10: 234 usos (R$ 2.100 desconto). SABOR15: 156 usos. Taxa de conversão cupons: 18%. ROI cupons: 3.2x.',
+    quickReplies: ['Criar cupom', 'Desativar cupom', 'Análise cupons'],
+  },
+  help: {
+    patterns: ['ajuda', 'help', 'comandos', 'o que pode', 'funcionalidades'],
+    response: 'Posso ajudar com: Faturamento e vendas, Pedidos e SLA, Produtos e estoque, Clientes e avaliações, Custos e margens, Cupons e promoções.',
+    quickReplies: ['Faturamento', 'Pedidos', 'Clientes', 'Custos'],
+  },
+  thanks: {
+    patterns: ['obrigado', 'obrigada', 'valeu', 'thanks', 'agradeço'],
+    response: 'Disponha! Qualquer dúvida sobre gestão, estou aqui para ajudar.',
+    quickReplies: ['Ver dashboard', 'Mais métricas'],
+  },
+  bye: {
+    patterns: ['tchau', 'até mais', 'ate mais', 'bye', 'adeus', 'encerrar', 'sair'],
+    response: 'Até mais! Bons negócios!',
+    quickReplies: [],
+  },
+};
+
+// Base de conhecimento do chatbot CLIENTE
 const KNOWLEDGE_BASE = {
   greeting: {
     patterns: ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hey', 'eae', 'e ai'],
@@ -85,10 +155,11 @@ const KNOWLEDGE_BASE = {
   },
 };
 
-function findBestResponse(input: string): { response: string; quickReplies: string[] } {
+function findBestResponse(input: string, isAdmin: boolean): { response: string; quickReplies: string[] } {
   const normalizedInput = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const knowledgeBase = isAdmin ? ADMIN_KNOWLEDGE_BASE : KNOWLEDGE_BASE;
 
-  for (const [key, data] of Object.entries(KNOWLEDGE_BASE)) {
+  for (const [key, data] of Object.entries(knowledgeBase)) {
     for (const pattern of data.patterns) {
       const normalizedPattern = pattern.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       if (normalizedInput.includes(normalizedPattern)) {
@@ -98,6 +169,13 @@ function findBestResponse(input: string): { response: string; quickReplies: stri
   }
 
   // Default response
+  if (isAdmin) {
+    return {
+      response: 'Não entendi. Posso ajudar com: faturamento, pedidos, SLA, produtos, clientes, avaliações, custos e cupons.',
+      quickReplies: ['Faturamento', 'Pedidos', 'SLA', 'Clientes'],
+    };
+  }
+
   return {
     response: 'Desculpe, não entendi sua pergunta. Posso ajudar com informações sobre cardápio, horários, entrega, pagamento e promoções. Como posso ajudar?',
     quickReplies: ['Ver cardápio', 'Horário', 'Taxa de entrega', 'Falar com atendente'],
@@ -105,6 +183,9 @@ function findBestResponse(input: string): { response: string; quickReplies: stri
 }
 
 export function Chatbot() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin') || false;
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -118,18 +199,25 @@ export function Chatbot() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Welcome message
-      setMessages([
-        {
-          id: '1',
-          type: 'bot',
-          content: 'Olá! Sou o assistente virtual do Sabor da Casa. Como posso ajudar você hoje?',
-          timestamp: new Date(),
-          quickReplies: ['Ver cardápio', 'Horário de funcionamento', 'Taxa de entrega', 'Fazer pedido'],
-        },
-      ]);
+      // Welcome message baseado no contexto
+      const welcomeMessage = isAdmin
+        ? {
+            id: '1',
+            type: 'bot' as const,
+            content: 'Olá, Admin! Sou seu assistente de gestão. Posso ajudar com métricas, relatórios e informações do negócio.',
+            timestamp: new Date(),
+            quickReplies: ['Faturamento', 'Pedidos hoje', 'SLA de entrega', 'Produtos populares'],
+          }
+        : {
+            id: '1',
+            type: 'bot' as const,
+            content: 'Olá! Sou o assistente virtual do Sabor da Casa. Como posso ajudar você hoje?',
+            timestamp: new Date(),
+            quickReplies: ['Ver cardápio', 'Horário de funcionamento', 'Taxa de entrega', 'Fazer pedido'],
+          };
+      setMessages([welcomeMessage]);
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen, messages.length, isAdmin]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -153,7 +241,7 @@ export function Chatbot() {
 
     // Simulate typing delay
     setTimeout(() => {
-      const { response, quickReplies } = findBestResponse(messageText);
+      const { response, quickReplies } = findBestResponse(messageText, isAdmin);
 
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
@@ -196,9 +284,21 @@ export function Chatbot() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex items-center justify-center"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex flex-col items-center justify-center"
       >
-        <MessageCircle className="w-6 h-6" />
+        {/* Coroa fofinha */}
+        <svg
+          viewBox="0 0 20 10"
+          className="w-6 h-3 absolute top-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2 8L4 4L7 6L10 3L13 6L16 4L18 8" />
+        </svg>
+        <MessageCircle className="w-6 h-6 mt-2" />
         {!isOpen && (
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center">
             <span className="text-[10px] font-bold text-accent-foreground">?</span>
@@ -222,8 +322,8 @@ export function Chatbot() {
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Assistente Virtual</p>
-                  <p className="text-xs opacity-80">Online agora</p>
+                  <p className="font-semibold">{isAdmin ? 'Assistente Admin' : 'Assistente Virtual'}</p>
+                  <p className="text-xs opacity-80">{isAdmin ? 'Métricas e gestão' : 'Online agora'}</p>
                 </div>
               </div>
               <Button
