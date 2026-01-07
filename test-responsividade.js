@@ -76,21 +76,29 @@ async function testPage(page, pageInfo, viewport, viewportName) {
     // Verificar elementos cortados ou fora da tela
     const elementsOutOfView = await page.evaluate(() => {
       const elements = document.querySelectorAll('button, a, input, img');
-      let outOfView = 0;
+      const outOfView = [];
       elements.forEach(el => {
+        // Ignorar elementos de acessibilidade ocultos
+        if (el.classList.contains('sr-only')) return;
+        
         const rect = el.getBoundingClientRect();
         if (rect.right > window.innerWidth || rect.left < 0) {
-          outOfView++;
+          outOfView.push({
+            tag: el.tagName,
+            class: el.className,
+            left: rect.left,
+            right: rect.right
+          });
         }
       });
       return outOfView;
     });
 
-    if (elementsOutOfView > 0) {
+    if (elementsOutOfView.length > 0) {
       allIssues.push({
         page: pageInfo.name,
         viewport: viewportName,
-        issue: `${elementsOutOfView} elementos fora da tela`
+        issue: `${elementsOutOfView.length} elementos fora da tela: ${elementsOutOfView.map(e => `${e.tag}.${e.class.split(' ')[0]}`).join(', ')}`
       });
     }
 
@@ -121,23 +129,36 @@ async function testPage(page, pageInfo, viewport, viewportName) {
     if (viewportName.includes('Mobile') || viewportName.includes('Tablet')) {
       const smallTouchTargets = await page.evaluate(() => {
         const touchTargets = document.querySelectorAll('button, a, input[type="checkbox"], input[type="radio"]');
-        let tooSmall = 0;
+        const tooSmall = [];
         touchTargets.forEach(el => {
+          // Ignorar elementos de acessibilidade ocultos
+          if (el.classList.contains('sr-only')) return;
+          
+          // Ignorar elementos ocultos por estilo
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) return;
+          
           const rect = el.getBoundingClientRect();
           if ((rect.width < 44 || rect.height < 44) && rect.width > 0 && rect.height > 0) {
             // Ignorar links inline em textos
             if (el.tagName === 'A' && el.closest('p')) return;
-            tooSmall++;
+            tooSmall.push({
+              tag: el.tagName,
+              class: el.className,
+              width: rect.width,
+              height: rect.height,
+              text: el.textContent.trim().substring(0, 20)
+            });
           }
         });
         return tooSmall;
       });
 
-      if (smallTouchTargets > 10) {
+      if (smallTouchTargets.length > 10) {
         allIssues.push({
           page: pageInfo.name,
           viewport: viewportName,
-          issue: `${smallTouchTargets} alvos de toque pequenos (<44px)`
+          issue: `${smallTouchTargets.length} alvos de toque pequenos: ${smallTouchTargets.slice(0, 5).map(t => `${t.tag}.${t.class.split(' ')[0]} ("${t.text}")`).join(', ')}`
         });
       }
     }

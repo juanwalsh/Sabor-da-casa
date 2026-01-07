@@ -47,7 +47,7 @@ export default function MenuHighlights() {
     <>
       <section id="cardapio" className="py-24 bg-muted/30 relative overflow-hidden">
         {/* Background Decorations */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute bottom-20 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
         </div>
@@ -138,7 +138,7 @@ export default function MenuHighlights() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={(e) => handleAddToCart(product, e)}
-                      className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
+                      className="absolute bottom-3 right-3 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
                     >
                       <Plus className="w-5 h-5" />
                     </motion.button>
@@ -162,7 +162,7 @@ export default function MenuHighlights() {
                     </p>
 
                     {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-[10px] sm:text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-xs text-muted-foreground">
                       {product.preparationTime && (
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -192,7 +192,7 @@ export default function MenuHighlights() {
                         size="sm"
                         variant="outline"
                         onClick={(e) => handleAddToCart(product, e)}
-                        className="rounded-xl hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all text-xs sm:text-sm shrink-0"
+                        className="rounded-xl hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all text-xs sm:text-sm shrink-0 h-11 lg:h-9"
                       >
                         Adicionar
                       </Button>
@@ -210,16 +210,17 @@ export default function MenuHighlights() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center mt-12"
           >
-            <Link href="/cardapio">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all group"
-              >
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all group"
+            >
+              <Link href="/cardapio">
                 Ver Cardápio Completo
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </motion.div>
         </div>
       </section>

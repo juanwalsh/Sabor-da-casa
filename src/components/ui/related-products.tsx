@@ -132,7 +132,7 @@ export function RelatedProducts({
                   </button>
 
                   {/* Category */}
-                  <span className="absolute bottom-2 left-2 text-[10px] text-white/80 font-medium">
+                  <span className="absolute bottom-2 left-2 text-xs text-white/80 font-medium">
                     {category?.name}
                   </span>
                 </div>
@@ -143,7 +143,7 @@ export function RelatedProducts({
                     {product.name}
                   </h4>
 
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                     {product.preparationTime && (
                       <span className="flex items-center gap-0.5">
                         <Clock className="w-3 h-3" />

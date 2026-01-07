@@ -28,14 +28,14 @@ export default function Hero() {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl opacity-60" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-40" />
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
 
       {/* Floating Food Items - Decorative */}
       <motion.div
         animate={{ y: [0, -20, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-32 right-[15%] hidden lg:block"
+        className="absolute top-32 right-[15%] hidden lg:block pointer-events-none"
       >
         <div className="w-20 h-20 rounded-full bg-accent/30 backdrop-blur-sm flex items-center justify-center text-4xl shadow-2xl">
           🍲
@@ -44,7 +44,7 @@ export default function Hero() {
       <motion.div
         animate={{ y: [0, 15, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute bottom-40 left-[10%] hidden lg:block"
+        className="absolute bottom-40 left-[10%] hidden lg:block pointer-events-none"
       >
         <div className="w-16 h-16 rounded-full bg-primary/30 backdrop-blur-sm flex items-center justify-center text-3xl shadow-2xl">
           🥘
@@ -53,7 +53,7 @@ export default function Hero() {
       <motion.div
         animate={{ y: [0, -15, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-1/2 right-[8%] hidden xl:block"
+        className="absolute top-1/2 right-[8%] hidden xl:block pointer-events-none"
       >
         <div className="w-14 h-14 rounded-full bg-secondary/30 backdrop-blur-sm flex items-center justify-center text-2xl shadow-2xl">
           🍛
@@ -166,24 +166,26 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row items-center gap-4"
             >
-              <Link href="/cardapio" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all group"
-                >
+              <Button
+                asChild
+                size="lg"
+                className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all group"
+              >
+                <Link href="/cardapio">
                   Pedir Agora
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="#cardapio" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-muted/50 transition-all"
-                >
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-muted/50 transition-all"
+              >
+                <Link href="#cardapio">
                   Ver Cardápio
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </motion.div>
           </div>
 

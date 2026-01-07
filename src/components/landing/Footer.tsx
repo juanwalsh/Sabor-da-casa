@@ -119,7 +119,7 @@ export default function Footer() {
                   href={`https://instagram.com/${RESTAURANT_INFO.social.instagram.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all"
+                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   <Instagram className="w-5 h-5" />
                 </a>
@@ -127,7 +127,7 @@ export default function Footer() {
                   href={`https://facebook.com/${RESTAURANT_INFO.social.facebook}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all"
+                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   <Facebook className="w-5 h-5" />
                 </a>
@@ -137,12 +137,12 @@ export default function Footer() {
             {/* Menu Links */}
             <div>
               <h4 className="font-semibold text-foreground mb-4">Cardápio</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-1">
                 {footerLinks.menu.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group py-3 min-h-[44px]"
                     >
                       {link.label}
                       <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -155,12 +155,12 @@ export default function Footer() {
             {/* Company Links */}
             <div>
               <h4 className="font-semibold text-foreground mb-4">Empresa</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-1">
                 {footerLinks.company.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group py-3 min-h-[44px]"
                     >
                       {link.label}
                       <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -173,12 +173,12 @@ export default function Footer() {
             {/* Support Links */}
             <div>
               <h4 className="font-semibold text-foreground mb-4">Suporte</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-1">
                 {footerLinks.support.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 group py-3 min-h-[44px]"
                     >
                       {link.label}
                       <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -194,7 +194,7 @@ export default function Footer() {
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground break-words">
                     {RESTAURANT_INFO.address}
                   </span>
                 </li>
@@ -202,7 +202,7 @@ export default function Footer() {
                   <Phone className="w-5 h-5 text-primary shrink-0" />
                   <a
                     href={`tel:${RESTAURANT_INFO.phone}`}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors py-1"
                   >
                     {RESTAURANT_INFO.phone}
                   </a>
@@ -211,7 +211,7 @@ export default function Footer() {
                   <Mail className="w-5 h-5 text-primary shrink-0" />
                   <a
                     href={`mailto:${RESTAURANT_INFO.email}`}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors break-all py-1"
                   >
                     {RESTAURANT_INFO.email}
                   </a>
@@ -235,16 +235,16 @@ export default function Footer() {
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Sabor da Casa. Todos os direitos reservados.
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-6 sm:gap-3">
                 <p className="text-sm text-muted-foreground flex items-center gap-1">
                   Feito com <Heart className="w-4 h-4 text-primary fill-primary" /> em São Paulo
                 </p>
                 <Link
                   href="/login"
-                  className="text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                  className="text-muted-foreground/40 hover:text-muted-foreground transition-colors p-2"
                   title="Área restrita"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-5 h-5" />
                 </Link>
               </div>
             </div>

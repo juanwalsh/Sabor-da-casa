@@ -99,7 +99,7 @@ export function OrderHistoryList({ className }: OrderHistoryListProps) {
       <Button
         variant="outline"
         onClick={() => setIsOpen(true)}
-        className={`gap-2 ${className}`}
+        className={`gap-2 h-11 lg:h-9 ${className}`}
       >
         <History className="w-4 h-4" />
         Meus Pedidos
@@ -187,7 +187,7 @@ export function OrderHistoryList({ className }: OrderHistoryListProps) {
                               className="object-cover"
                             />
                             {item.quantity > 1 && (
-                              <span className="absolute bottom-0 right-0 bg-primary text-primary-foreground text-[10px] px-1 rounded-tl">
+                              <span className="absolute bottom-0 right-0 bg-primary text-primary-foreground text-xs px-1 rounded-tl">
                                 {item.quantity}x
                               </span>
                             )}
@@ -272,7 +272,7 @@ export function OrderHistoryButton() {
     <Button variant="ghost" size="icon" className="relative">
       <History className="w-5 h-5" />
       {orders.length > 0 && (
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
           {orders.length > 9 ? '9+' : orders.length}
         </span>
       )}

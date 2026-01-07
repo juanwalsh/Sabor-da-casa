@@ -1,7 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Plus, Minus, Trash2, ShoppingBag, ArrowRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
@@ -9,10 +8,7 @@ import { formatPrice, FREE_DELIVERY_MIN } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { Separator } from '@/components/ui/separator';
-import { DeliveryTime } from '@/components/ui/delivery-time';
-import { ShareCart } from '@/components/ui/share-cart';
-import ComboSuggestions from '@/components/menu/ComboSuggestions';
+import { toast } from 'sonner';
 
 export default function CartSidebar() {
   const {
@@ -26,6 +22,13 @@ export default function CartSidebar() {
     getTotal,
     getItemCount,
   } = useCartStore();
+
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
+    const result = updateQuantity(productId, newQuantity);
+    if (!result.success && result.message) {
+      toast.error(result.message);
+    }
+  };
 
   const subtotal = getSubtotal();
   const deliveryFee = getDeliveryFee();
@@ -55,13 +58,9 @@ export default function CartSidebar() {
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-4 sm:p-6">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-muted flex items-center justify-center mb-4 sm:mb-6"
-            >
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-muted flex items-center justify-center mb-4 sm:mb-6">
               <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground" />
-            </motion.div>
+            </div>
             <h3 className="font-sans text-lg sm:text-xl font-semibold mb-2">Carrinho vazio</h3>
             <p className="text-sm text-muted-foreground mb-4 sm:mb-6">
               Adicione itens deliciosos ao seu carrinho
@@ -74,50 +73,32 @@ export default function CartSidebar() {
           <>
             {/* Free Delivery Progress */}
             {remainingForFreeDelivery > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-secondary/10 rounded-xl p-3 sm:p-4 mx-4 sm:mx-6 mb-3 sm:mb-4"
-              >
+              <div className="bg-secondary/10 rounded-xl p-3 sm:p-4 mx-4 sm:mx-6 mb-3 sm:mb-4">
                 <p className="text-xs sm:text-sm text-secondary-foreground mb-2">
                   Faltam <span className="font-bold">{formatPrice(remainingForFreeDelivery)}</span> para frete grátis!
                 </p>
                 <div className="h-1.5 sm:h-2 bg-secondary/20 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min((subtotal / FREE_DELIVERY_MIN) * 100, 100)}%` }}
-                    transition={{ duration: 0.5 }}
-                    className="h-full bg-secondary rounded-full"
+                  <div
+                    style={{ width: `${Math.min((subtotal / FREE_DELIVERY_MIN) * 100, 100)}%` }}
+                    className="h-full bg-secondary rounded-full transition-all duration-500"
                   />
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {deliveryFee === 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-secondary/10 border border-secondary/20 rounded-xl p-3 sm:p-4 mx-4 sm:mx-6 mb-3 sm:mb-4 text-center"
-              >
+              <div className="bg-secondary/10 border border-secondary/20 rounded-xl p-3 sm:p-4 mx-4 sm:mx-6 mb-3 sm:mb-4 text-center">
                 <p className="text-xs sm:text-sm font-medium text-secondary">
                   Parabens! Voce ganhou <span className="font-bold">frete gratis!</span>
                 </p>
-              </motion.div>
+              </div>
             )}
-
-            {/* Combo Suggestions */}
-            <ComboSuggestions />
 
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-              <AnimatePresence>
-                {items.map((item, index) => (
-                  <motion.div
+                {items.map((item) => (
+                  <div
                     key={item.product.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: index * 0.05 }}
                     className="flex gap-2 sm:gap-3 py-3 sm:py-4 border-b border-border last:border-0"
                   >
                     {/* Product Image */}
@@ -144,29 +125,42 @@ export default function CartSidebar() {
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="flex items-center rounded-lg border border-border overflow-hidden">
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-muted transition-colors"
+                            onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
+                            className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-muted transition-colors"
                           >
-                            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Minus className="w-4 h-4 sm:w-4 sm:h-4" />
                           </button>
-                          <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-medium">
+                          <span className="w-8 sm:w-8 text-center text-sm sm:text-sm font-medium">
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-muted transition-colors"
+                            onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
+                            disabled={item.product.stock !== undefined && item.quantity >= item.product.stock}
+                            className={`w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center transition-colors ${
+                              item.product.stock !== undefined && item.quantity >= item.product.stock
+                                ? 'opacity-50 cursor-not-allowed bg-muted'
+                                : 'hover:bg-muted'
+                            }`}
                           >
-                            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Plus className="w-4 h-4 sm:w-4 sm:h-4" />
                           </button>
                         </div>
 
                         <button
                           onClick={() => removeItem(item.product.id)}
-                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                          className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                         >
-                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <Trash2 className="w-4 h-4 sm:w-4 sm:h-4" />
                         </button>
                       </div>
+
+                      {/* Stock indicator */}
+                      {item.product.stock !== undefined && item.quantity >= item.product.stock && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+                          <AlertCircle className="w-3 h-3" />
+                          Limite maximo ({item.product.stock})
+                        </p>
+                      )}
                     </div>
 
                     {/* Item Total */}
@@ -175,54 +169,52 @@ export default function CartSidebar() {
                         {formatPrice(item.product.price * item.quantity)}
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </AnimatePresence>
             </div>
 
-            {/* Cart Summary */}
-            <div className="pt-3 sm:pt-4 border-t border-border mt-auto px-4 sm:px-6 pb-4 sm:pb-6">
-              <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
-                <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
+            {/* Cart Summary - Compacto */}
+            <div className="border-t border-border mt-auto px-4 sm:px-6 py-3 sm:py-4 bg-muted/30">
+              {/* Resumo */}
+              <div className="flex items-center justify-between mb-3 text-xs sm:text-sm">
+                <div className="space-y-0.5">
+                  <div className="flex gap-2">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="font-medium">{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="text-muted-foreground">Entrega:</span>
+                    <span className={`font-medium ${deliveryFee === 0 ? 'text-secondary' : ''}`}>
+                      {deliveryFee === 0 ? 'Grátis' : formatPrice(deliveryFee)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-muted-foreground">Entrega</span>
-                  <span className={`font-medium ${deliveryFee === 0 ? 'text-secondary' : ''}`}>
-                    {deliveryFee === 0 ? 'Grátis' : formatPrice(deliveryFee)}
-                  </span>
-                </div>
-                <DeliveryTime className="py-2" />
-                <Separator />
-                <div className="flex justify-between text-base sm:text-lg font-bold">
-                  <span>Total</span>
-                  <span className="text-primary">{formatPrice(total)}</span>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-lg font-bold text-primary">{formatPrice(total)}</p>
                 </div>
               </div>
 
+              {/* Botao principal */}
               <Link href="/checkout" onClick={closeCart}>
                 <Button
                   size="lg"
-                  className="w-full h-11 sm:h-14 rounded-xl text-sm sm:text-base font-semibold shadow-lg shadow-primary/30 group"
+                  className="w-full h-11 rounded-xl text-sm font-semibold shadow-lg shadow-primary/30 group"
                 >
                   <span>Finalizar Pedido</span>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
 
+              {/* Continuar comprando */}
               <Button
                 variant="ghost"
-                className="w-full mt-2 text-sm"
+                size="sm"
+                className="w-full mt-2 text-xs h-8"
                 onClick={closeCart}
               >
                 Continuar Comprando
               </Button>
-
-              {/* Compartilhar carrinho */}
-              <div className="mt-3 pt-3 border-t border-border">
-                <ShareCart className="w-full justify-center" />
-              </div>
             </div>
           </>
         )}

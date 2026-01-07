@@ -24,7 +24,7 @@ export default function CartButton() {
       whileTap={{ scale: 0.95 }}
       animate={isAnimating ? { scale: [1, 1.2, 1], rotate: [0, -10, 10, 0] } : {}}
       transition={{ duration: 0.4 }}
-      className="relative p-2.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
+      className="relative p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
     >
       <ShoppingBag className="w-5 h-5" />
       <AnimatePresence>
@@ -37,7 +37,7 @@ export default function CartButton() {
           >
             <Badge
               variant="secondary"
-              className="h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold bg-secondary text-secondary-foreground border-2 border-background"
+              className="h-5 w-5 p-0 flex items-center justify-center text-xs font-bold bg-secondary text-secondary-foreground border-2 border-background"
             >
               {itemCount > 9 ? '9+' : itemCount}
             </Badge>

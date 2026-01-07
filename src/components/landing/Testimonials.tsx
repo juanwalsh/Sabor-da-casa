@@ -54,7 +54,7 @@ export default function Testimonials() {
     <section id="depoimentos" className="py-24 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Section Header */}
@@ -169,7 +169,7 @@ export default function Testimonials() {
               </Button>
 
               {/* Dots */}
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 {testimonials.map((_, index) => (
                   <button
                     key={index}
@@ -177,12 +177,15 @@ export default function Testimonials() {
                       setDirection(index > currentIndex ? 1 : -1);
                       setCurrentIndex(index);
                     }}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                    className="w-11 h-11 flex items-center justify-center transition-all duration-300"
+                    aria-label={`Ir para depoimento ${index + 1}`}
+                  >
+                    <div className={`rounded-full transition-all duration-300 ${
                       index === currentIndex
-                        ? 'bg-primary w-8'
-                        : 'bg-muted hover:bg-muted-foreground/30'
-                    }`}
-                  />
+                        ? 'bg-primary w-6 h-2.5'
+                        : 'bg-muted hover:bg-muted-foreground/30 w-2.5 h-2.5'
+                    }`} />
+                  </button>
                 ))}
               </div>
 

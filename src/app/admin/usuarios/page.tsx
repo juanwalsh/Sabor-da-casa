@@ -103,7 +103,7 @@ function UserCard({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-sm sm:text-base lg:text-lg truncate">{user.name}</h3>
-                    <Badge variant="secondary" className={`${levelInfo.bg} ${levelInfo.color} text-[10px] sm:text-xs px-1.5 py-0`}>
+                    <Badge variant="secondary" className={`${levelInfo.bg} ${levelInfo.color} text-xs sm:text-xs px-1.5 py-0`}>
                       {levelInfo.label}
                     </Badge>
                   </div>
@@ -127,20 +127,20 @@ function UserCard({
             {/* Stats - Compact on mobile */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Ganho</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Ganho</p>
                 <p className="font-semibold text-xs sm:text-sm flex items-center justify-center gap-0.5 sm:gap-1">
                   <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                   <span className="truncate">{user.totalPointsEarned.toLocaleString('pt-BR')}</span>
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Desde</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Desde</p>
                 <p className="font-semibold text-xs sm:text-sm">
                   {new Date(user.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                 </p>
               </div>
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Trans.</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Trans.</p>
                 <p className="font-semibold text-xs sm:text-sm">{user.pointsHistory.length}</p>
               </div>
             </div>
@@ -151,7 +151,7 @@ function UserCard({
             <Button
               size="sm"
               onClick={() => onAddPoints(user)}
-              className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 flex-1 sm:flex-none"
+              className="gap-1 text-xs sm:text-sm h-11 lg:h-9 px-2 sm:px-3 flex-1 sm:flex-none"
             >
               <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="sm:hidden">+</span>
@@ -161,7 +161,7 @@ function UserCard({
               size="sm"
               variant="outline"
               onClick={() => onRemovePoints(user)}
-              className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 flex-1 sm:flex-none"
+              className="gap-1 text-xs sm:text-sm h-11 lg:h-9 px-2 sm:px-3 flex-1 sm:flex-none"
             >
               <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="sm:hidden">-</span>
@@ -171,7 +171,7 @@ function UserCard({
               size="sm"
               variant="ghost"
               onClick={() => setShowHistory(!showHistory)}
-              className="gap-1 text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 ml-auto"
+              className="gap-1 text-xs sm:text-sm h-11 lg:h-9 px-2 sm:px-3 ml-auto"
             >
               <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Historico</span>
@@ -220,7 +220,7 @@ function UserCard({
                             </div>
                             <div className="min-w-0">
                               <p className="font-medium truncate text-xs sm:text-sm">{entry.description}</p>
-                              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                              <p className="text-xs sm:text-xs text-muted-foreground truncate">
                                 {new Date(entry.date).toLocaleDateString('pt-BR')}
                               </p>
                             </div>
@@ -432,7 +432,7 @@ export default function AdminUsuariosPage() {
               </div>
               <div>
                 <p className="text-lg sm:text-2xl font-bold">{stats.totalUsers}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Total</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Total</p>
               </div>
             </div>
           </CardContent>
@@ -446,7 +446,7 @@ export default function AdminUsuariosPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-lg sm:text-2xl font-bold truncate">{stats.totalPoints.toLocaleString('pt-BR')}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Pontos</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Pontos</p>
               </div>
             </div>
           </CardContent>
@@ -460,7 +460,7 @@ export default function AdminUsuariosPage() {
               </div>
               <div>
                 <p className="text-lg sm:text-2xl font-bold">{stats.levelCounts.platinum + stats.levelCounts.gold}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">VIP</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">VIP</p>
               </div>
             </div>
           </CardContent>
@@ -474,7 +474,7 @@ export default function AdminUsuariosPage() {
               </div>
               <div>
                 <p className="text-lg sm:text-2xl font-bold">{stats.levelCounts.silver + stats.levelCounts.bronze}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">Regular</p>
+                <p className="text-xs sm:text-xs text-muted-foreground">Regular</p>
               </div>
             </div>
           </CardContent>
@@ -591,14 +591,14 @@ export default function AdminUsuariosPage() {
                   }`}>
                     <div className="flex items-center justify-center gap-2 sm:gap-3">
                       <div className="text-center">
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">Atual</p>
+                        <p className="text-xs sm:text-xs text-muted-foreground">Atual</p>
                         <p className="text-base sm:text-xl font-bold">{pointsPreview.current.toLocaleString('pt-BR')}</p>
                       </div>
                       <ArrowRight className={`w-4 h-4 sm:w-6 sm:h-6 ${
                         dialogMode === 'add' ? 'text-green-500' : 'text-red-500'
                       }`} />
                       <div className="text-center">
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">Novo</p>
+                        <p className="text-xs sm:text-xs text-muted-foreground">Novo</p>
                         <p className={`text-lg sm:text-2xl font-bold ${
                           dialogMode === 'add' ? 'text-green-600' : 'text-red-600'
                         }`}>

@@ -8,7 +8,6 @@ import { useCartStore } from '@/store/cartStore';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import ThemeToggle from './ThemeToggle';
 import CartButton from './CartButton';
-import UserMenu from './UserMenu';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +64,7 @@ export default function Navbar() {
               <h1 className="font-serif text-xl font-bold text-foreground leading-tight">
                 Sabor da Casa
               </h1>
-              <p className="text-[10px] text-muted-foreground tracking-widest uppercase">
+              <p className="text-xs text-muted-foreground tracking-widest uppercase">
                 Comida Caseira
               </p>
             </div>
@@ -82,7 +81,7 @@ export default function Navbar() {
               >
                 <Link
                   href={link.href}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors group ${
+                  className={`relative px-4 py-3 text-sm font-medium transition-colors group ${
                     activeSection === link.sectionId
                       ? 'text-primary'
                       : 'text-muted-foreground hover:text-foreground'
@@ -104,9 +103,6 @@ export default function Navbar() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-
-            {/* User Menu */}
-            <UserMenu />
 
             {/* Cart Button */}
             <CartButton />
@@ -154,12 +150,15 @@ export default function Navbar() {
                   </nav>
 
                   <div className="mt-auto pt-6 border-t border-border">
-                    <Link href="/cardapio" onClick={() => setIsMobileOpen(false)}>
-                      <Button className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/30">
+                    <Button
+                      asChild
+                      className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/30"
+                    >
+                      <Link href="/cardapio" onClick={() => setIsMobileOpen(false)}>
                         <ShoppingBag className="w-5 h-5 mr-2" />
                         Ver Cardápio
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </SheetContent>

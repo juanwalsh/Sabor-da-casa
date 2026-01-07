@@ -638,7 +638,7 @@ export default function ProdutosPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button className="h-10 sm:h-12 rounded-lg sm:rounded-xl w-full sm:w-auto sm:self-start" onClick={() => setIsNewProductOpen(true)}>
+          <Button className="h-11 sm:h-12 rounded-lg sm:rounded-xl w-full sm:w-auto sm:self-start" onClick={() => setIsNewProductOpen(true)}>
             <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
             <span className="text-sm">Novo Produto</span>
           </Button>
@@ -706,13 +706,13 @@ export default function ProdutosPage() {
                     {/* Badges */}
                     <div className="absolute top-1 sm:top-2 left-1 sm:left-2 flex gap-0.5 sm:gap-1 flex-wrap">
                       {product.featured && (
-                        <Badge className="bg-accent text-accent-foreground text-[10px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
+                        <Badge className="bg-accent text-accent-foreground text-xs sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
                           <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                           <span className="hidden sm:inline">Destaque</span>
                         </Badge>
                       )}
                       {!product.active && (
-                        <Badge variant="destructive" className="text-[10px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
+                        <Badge variant="destructive" className="text-xs sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
                           <span className="hidden sm:inline">Inativo</span>
                           <span className="sm:hidden">Off</span>
                         </Badge>
@@ -726,9 +726,9 @@ export default function ProdutosPage() {
                           <Button
                             variant="secondary"
                             size="icon"
-                            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full"
+                            className="w-11 h-11 lg:w-8 lg:h-8 rounded-full"
                           >
-                            <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <MoreVertical className="w-4 h-4 sm:w-4 sm:h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -761,7 +761,7 @@ export default function ProdutosPage() {
 
                     {/* Category */}
                     <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2">
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
+                      <Badge variant="secondary" className="text-xs sm:text-xs px-1 sm:px-2 py-0 sm:py-0.5">
                         {getCategoryName(product.categoryId)}
                       </Badge>
                     </div>

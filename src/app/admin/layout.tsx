@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="min-w-0">
             <h1 className="font-serif font-bold text-sm sm:text-base truncate">Sabor da Casa</h1>
-            <p className="text-[10px] text-muted-foreground">Painel Admin</p>
+            <p className="text-xs text-muted-foreground">Painel Admin</p>
           </div>
         </Link>
       </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, UtensilsCrossed, ShoppingBag, User, Search } from 'lucide-react';
+import { Home, UtensilsCrossed, ShoppingBag, Search } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { Badge } from '@/components/ui/badge';
 
@@ -57,7 +57,6 @@ export function BottomNav() {
     { href: '/cardapio', label: 'Cardapio', icon: UtensilsCrossed },
     { href: '#search', label: 'Buscar', icon: Search },
     { href: '#cart', label: 'Carrinho', icon: ShoppingBag, badge: itemCount },
-    { href: '/login', label: 'Conta', icon: User },
   ];
 
   const handleNavClick = (e: React.MouseEvent, item: NavItem) => {
@@ -116,13 +115,13 @@ export function BottomNav() {
                           }`}
                         />
                         {item.badge !== undefined && item.badge > 0 && (
-                          <span className="absolute -top-1 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-medium">
+                          <span className="absolute -top-1 -right-2 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-medium">
                             {item.badge > 9 ? '9+' : item.badge}
                           </span>
                         )}
                       </div>
                       <span
-                        className={`text-[10px] mt-1 ${
+                        className={`text-xs mt-1 ${
                           isActive
                             ? 'text-primary font-medium'
                             : 'text-muted-foreground'
@@ -155,13 +154,13 @@ export function BottomNav() {
                         }`}
                       />
                       {item.badge !== undefined && item.badge > 0 && (
-                        <span className="absolute -top-1 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-medium">
+                        <span className="absolute -top-1 -right-2 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-medium">
                           {item.badge > 9 ? '9+' : item.badge}
                         </span>
                       )}
                     </div>
                     <span
-                      className={`text-[10px] mt-1 transition-colors ${
+                      className={`text-xs mt-1 transition-colors ${
                         isActive
                           ? 'text-primary font-medium'
                           : 'text-muted-foreground'

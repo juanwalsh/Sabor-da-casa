@@ -15,7 +15,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+      <div className="w-11 h-11 rounded-full bg-muted animate-pulse" />
     );
   }
 
@@ -24,7 +24,7 @@ export default function ThemeToggle() {
   return (
     <motion.button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="relative w-10 h-10 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors overflow-hidden border border-border/50"
+      className="relative w-11 h-11 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors overflow-hidden border border-border/50"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}

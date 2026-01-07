@@ -73,6 +73,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
             <Button
               variant="ghost"
               size="icon"
+              type="button"
               className="h-8 w-8"
               onClick={handleClear}
             >
@@ -81,6 +82,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
             <Button
               variant="outline"
               size="sm"
+              type="button"
               onClick={() => setIsOpen(true)}
             >
               Alterar
@@ -89,6 +91,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
         ) : (
           <Button
             variant="outline"
+            type="button"
             className="w-full justify-start gap-2"
             onClick={() => setIsOpen(true)}
           >
@@ -100,7 +103,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
 
       {/* Schedule Sheet */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="w-full sm:max-w-md">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
@@ -125,6 +128,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
                   return (
                     <motion.button
                       key={date.toISOString()}
+                      data-date={date.toISOString()}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
@@ -170,6 +174,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
                         return (
                           <motion.button
                             key={time}
+                            data-time={time}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setSelectedTime(time)}
@@ -211,12 +216,14 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
               <Button
                 variant="outline"
                 className="flex-1"
+                type="button"
                 onClick={() => setIsOpen(false)}
               >
                 Cancelar
               </Button>
               <Button
                 className="flex-1"
+                type="button"
                 disabled={!selectedDate || !selectedTime}
                 onClick={handleConfirm}
               >

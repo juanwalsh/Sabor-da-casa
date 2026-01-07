@@ -284,24 +284,26 @@ export function Chatbot() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex flex-col items-center justify-center"
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 flex ${isAdmin ? 'flex-col' : ''} items-center justify-center`}
       >
-        {/* Coroa fofinha */}
-        <svg
-          viewBox="0 0 20 10"
-          className="w-6 h-3 absolute top-1"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M2 8L4 4L7 6L10 3L13 6L16 4L18 8" />
-        </svg>
-        <MessageCircle className="w-6 h-6 mt-2" />
-        {!isOpen && (
+        {/* Coroa apenas no admin */}
+        {isAdmin && (
+          <svg
+            viewBox="0 0 20 10"
+            className="w-6 h-3 absolute top-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 8L4 4L7 6L10 3L13 6L16 4L18 8" />
+          </svg>
+        )}
+        <MessageCircle className={`w-6 h-6 ${isAdmin ? 'mt-2' : ''}`} />
+        {!isOpen && !isAdmin && (
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center">
-            <span className="text-[10px] font-bold text-accent-foreground">?</span>
+            <span className="text-xs font-bold text-accent-foreground">?</span>
           </span>
         )}
       </motion.button>
@@ -351,7 +353,7 @@ export function Chatbot() {
                     } p-3`}
                   >
                     <p className="text-sm">{message.content}</p>
-                    <p className={`text-[10px] mt-1 ${message.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                    <p className={`text-xs mt-1 ${message.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                       {message.timestamp.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </p>
 

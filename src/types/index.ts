@@ -23,6 +23,9 @@ export interface Product {
   preparationTime?: number; // em minutos
   serves?: number; // quantidade de pessoas
   tags?: string[];
+  // Firebase/Firestore fields
+  stock?: number; // estoque disponivel
+  emoji?: string; // emoji do produto
   // Dietary properties
   isVegetarian?: boolean;
   isVegan?: boolean;

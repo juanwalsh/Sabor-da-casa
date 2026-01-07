@@ -107,8 +107,7 @@ export function CouponInput({ subtotal }: CouponInputProps) {
       </AnimatePresence>
 
       {!appliedCoupon && (
-        <p className="text-[10px] text-muted-foreground text-center">
-          Cupons disponiveis: BEMVINDO10, SABOR15
+                          <p className="text-xs text-muted-foreground text-center">          Cupons disponiveis: BEMVINDO10, SABOR15
         </p>
       )}
     </div>

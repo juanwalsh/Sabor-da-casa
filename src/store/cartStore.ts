@@ -10,9 +10,9 @@ interface CartState {
   isAnimating: boolean;
 
   // Actions
-  addItem: (product: Product, quantity?: number, notes?: string) => void;
+  addItem: (product: Product, quantity?: number, notes?: string) => { success: boolean; message?: string };
   removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  updateQuantity: (productId: string, quantity: number) => { success: boolean; message?: string };
   updateNotes: (productId: string, notes: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
@@ -25,6 +25,7 @@ interface CartState {
   getDeliveryFee: () => number;
   getTotal: () => number;
   getItemCount: () => number;
+  getAvailableStock: (productId: string, productStock?: number) => number;
 }
 
 export const useCartStore = create<CartState>()(
@@ -36,33 +37,48 @@ export const useCartStore = create<CartState>()(
       isAnimating: false,
 
       addItem: (product: Product, quantity = 1, notes?: string) => {
-        set((state) => {
-          const existingItem = state.items.find(
-            (item) => item.product.id === product.id
-          );
+        const state = get();
+        const existingItem = state.items.find(
+          (item) => item.product.id === product.id
+        );
 
-          // Trigger animation
-          setTimeout(() => {
-            set({ isAnimating: true, lastAddedProductId: product.id });
-            setTimeout(() => {
-              set({ isAnimating: false, lastAddedProductId: null });
-            }, 600);
-          }, 0);
+        const maxStock = product.stock ?? 999; // Default alto se nao tiver estoque definido
+        const currentQuantity = existingItem?.quantity ?? 0;
+        const newQuantity = currentQuantity + quantity;
 
-          if (existingItem) {
-            return {
-              items: state.items.map((item) =>
-                item.product.id === product.id
-                  ? { ...item, quantity: item.quantity + quantity, notes: notes || item.notes }
-                  : item
-              ),
-            };
+        // Verificar se ultrapassa o estoque
+        if (newQuantity > maxStock) {
+          const availableToAdd = maxStock - currentQuantity;
+          if (availableToAdd <= 0) {
+            return { success: false, message: `Estoque maximo (${maxStock}) ja atingido` };
           }
+          // Adiciona apenas o que esta disponivel
+          quantity = availableToAdd;
+        }
 
-          return {
+        // Trigger animation
+        setTimeout(() => {
+          set({ isAnimating: true, lastAddedProductId: product.id });
+          setTimeout(() => {
+            set({ isAnimating: false, lastAddedProductId: null });
+          }, 600);
+        }, 0);
+
+        if (existingItem) {
+          set({
+            items: state.items.map((item) =>
+              item.product.id === product.id
+                ? { ...item, quantity: item.quantity + quantity, notes: notes || item.notes }
+                : item
+            ),
+          });
+        } else {
+          set({
             items: [...state.items, { product, quantity, notes }],
-          };
-        });
+          });
+        }
+
+        return { success: true };
       },
 
       removeItem: (productId: string) => {
@@ -74,14 +90,27 @@ export const useCartStore = create<CartState>()(
       updateQuantity: (productId: string, quantity: number) => {
         if (quantity <= 0) {
           get().removeItem(productId);
-          return;
+          return { success: true };
         }
 
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.product.id === productId ? { ...item, quantity } : item
+        const state = get();
+        const item = state.items.find((i) => i.product.id === productId);
+        if (!item) return { success: false, message: 'Produto nao encontrado' };
+
+        const maxStock = item.product.stock ?? 999;
+
+        // Verificar se ultrapassa o estoque
+        if (quantity > maxStock) {
+          return { success: false, message: `Estoque maximo: ${maxStock} unidades` };
+        }
+
+        set({
+          items: state.items.map((i) =>
+            i.product.id === productId ? { ...i, quantity } : i
           ),
-        }));
+        });
+
+        return { success: true };
       },
 
       updateNotes: (productId: string, notes: string) => {
@@ -130,6 +159,14 @@ export const useCartStore = create<CartState>()(
 
       getItemCount: () => {
         return get().items.reduce((count, item) => count + item.quantity, 0);
+      },
+
+      getAvailableStock: (productId: string, productStock?: number) => {
+        const state = get();
+        const item = state.items.find((i) => i.product.id === productId);
+        const currentQuantity = item?.quantity ?? 0;
+        const maxStock = productStock ?? item?.product.stock ?? 999;
+        return Math.max(0, maxStock - currentQuantity);
       },
     }),
     {

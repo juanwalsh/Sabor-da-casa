@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -164,7 +163,7 @@ export default function CardapioPage() {
                   <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg>
                 {itemCount > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[11px] sm:text-[10px]">
                       {itemCount > 9 ? '9+' : itemCount}
                     </Badge>
                   )}
@@ -233,7 +232,7 @@ export default function CardapioPage() {
             <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                className={`px-4 py-3 lg:py-2 min-h-[44px] lg:min-h-[auto] rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === 'all'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted hover:bg-muted/80'
@@ -245,7 +244,7 @@ export default function CardapioPage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  className={`px-4 py-3 lg:py-2 min-h-[44px] lg:min-h-[auto] rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     selectedCategory === cat.id
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted hover:bg-muted/80'
@@ -295,15 +294,9 @@ export default function CardapioPage() {
               </p>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <AnimatePresence mode="popLayout">
                   {filteredAndSortedProducts.map((product, index) => (
-                    <motion.div
+                    <div
                       key={product.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3, delay: index * 0.05 }}
                       className="group cursor-pointer"
                       onClick={() => {
                         setSelectedProduct(product);
@@ -347,14 +340,12 @@ export default function CardapioPage() {
                           </div>
 
                           {/* Quick Add */}
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                          <button
                             onClick={(e) => handleAddToCart(product, e)}
-                            className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all"
+                            className="absolute bottom-3 right-3 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
                           >
                             <Plus className="w-5 h-5" />
-                          </motion.button>
+                          </button>
 
                           <div className="absolute bottom-3 left-3">
                             <span className="text-xs text-white/80 font-medium">
@@ -374,7 +365,7 @@ export default function CardapioPage() {
                           </p>
 
                           {/* Meta */}
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-[10px] sm:text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-xs text-muted-foreground">
                             {product.preparationTime && (
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -402,16 +393,15 @@ export default function CardapioPage() {
                               size="sm"
                               variant="outline"
                               onClick={(e) => handleAddToCart(product, e)}
-                              className="rounded-xl hover:bg-primary hover:text-primary-foreground hover:border-primary text-xs sm:text-sm px-3 shrink-0"
+                              className="rounded-xl hover:bg-primary hover:text-primary-foreground hover:border-primary text-xs sm:text-sm px-3 shrink-0 h-11 lg:h-8"
                             >
                               Adicionar
                             </Button>
                           </div>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </AnimatePresence>
               </div>
             </>
           )}

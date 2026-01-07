@@ -204,7 +204,7 @@ export function AdvancedFilters({ filters, onFiltersChange, className }: Advance
                   <button
                     key={option.label}
                     onClick={() => updateFilter('maxPrepTime', option.value)}
-                    className={`p-2 rounded-lg border text-sm font-medium transition-all ${
+                    className={`p-2 sm:p-3 lg:p-2 min-h-[44px] lg:min-h-[auto] rounded-lg border text-sm font-medium transition-all ${
                       localFilters.maxPrepTime === option.value
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-card hover:border-primary/30'
@@ -231,7 +231,7 @@ export function AdvancedFilters({ filters, onFiltersChange, className }: Advance
                   <button
                     key={option.value}
                     onClick={() => updateFilter('spiceLevel', option.value)}
-                    className={`p-2 rounded-lg border text-sm transition-all ${
+                    className={`p-2 sm:p-3 lg:p-2 min-h-[44px] lg:min-h-[auto] rounded-lg border text-sm transition-all ${
                       localFilters.spiceLevel === option.value
                         ? 'bg-primary text-primary-foreground border-primary'
                         : 'bg-card hover:border-primary/30'
@@ -307,7 +307,7 @@ function QuickFilterPill({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+      className={`inline-flex items-center justify-center gap-1.5 px-4 py-3 lg:py-1.5 min-h-[44px] lg:min-h-[auto] rounded-full text-xs font-medium transition-all ${
         active
           ? 'bg-primary text-primary-foreground'
           : 'bg-muted hover:bg-muted/80'
