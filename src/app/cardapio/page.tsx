@@ -175,22 +175,23 @@ export default function CardapioPage() {
 
         {/* Search and Filters */}
         <div className="sticky top-16 z-30 bg-background border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+            {/* Search + Sort (mobile) / Search + Selects (desktop) */}
+            <div className="flex gap-2 sm:gap-4">
               {/* Search */}
               <div className="relative flex-1 flex items-center gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                   <Input
                     placeholder="Buscar pratos..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-10 h-12 rounded-xl"
+                    className="pl-9 sm:pl-10 pr-8 sm:pr-10 h-10 sm:h-12 rounded-xl text-sm"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-10 top-1/2 -translate-y-1/2"
+                      className="absolute right-8 sm:right-10 top-1/2 -translate-y-1/2"
                     >
                       <X className="w-4 h-4 text-muted-foreground" />
                     </button>
@@ -199,9 +200,23 @@ export default function CardapioPage() {
                 <VoiceSearch onResult={(text) => setSearchQuery(text)} />
               </div>
 
-              {/* Category Filter */}
+              {/* Sort (mobile) */}
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <SelectTrigger className="w-[100px] sm:hidden h-10 rounded-xl text-xs">
+                  <SlidersHorizontal className="w-4 h-4 mr-1" />
+                  <SelectValue placeholder="Ordenar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Destaques</SelectItem>
+                  <SelectItem value="price-asc">Menor preço</SelectItem>
+                  <SelectItem value="price-desc">Maior preço</SelectItem>
+                  <SelectItem value="name">Nome A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Category Filter (desktop only) */}
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-48 h-12 rounded-xl">
+                <SelectTrigger className="hidden sm:flex w-48 h-12 rounded-xl">
                   <SelectValue placeholder="Categoria" />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,9 +229,9 @@ export default function CardapioPage() {
                 </SelectContent>
               </Select>
 
-              {/* Sort */}
+              {/* Sort (desktop only) */}
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-                <SelectTrigger className="w-full sm:w-48 h-12 rounded-xl">
+                <SelectTrigger className="hidden sm:flex w-48 h-12 rounded-xl">
                   <SelectValue placeholder="Ordenar" />
                 </SelectTrigger>
                 <SelectContent>
@@ -229,10 +244,10 @@ export default function CardapioPage() {
             </div>
 
             {/* Category Pills */}
-            <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-1.5 sm:gap-2 mt-2 sm:mt-4 overflow-x-auto pb-1 sm:pb-2 scrollbar-hide">
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-4 py-3 lg:py-2 min-h-[44px] lg:min-h-[auto] rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === 'all'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted hover:bg-muted/80'
@@ -244,7 +259,7 @@ export default function CardapioPage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-3 lg:py-2 min-h-[44px] lg:min-h-[auto] rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all ${
                     selectedCategory === cat.id
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted hover:bg-muted/80'
@@ -255,12 +270,14 @@ export default function CardapioPage() {
               ))}
             </div>
 
-            {/* Advanced Filters */}
-            <AdvancedFilters
-              filters={advancedFilters}
-              onFiltersChange={setAdvancedFilters}
-              className="mt-4"
-            />
+            {/* Advanced Filters (desktop only) */}
+            <div className="hidden sm:block">
+              <AdvancedFilters
+                filters={advancedFilters}
+                onFiltersChange={setAdvancedFilters}
+                className="mt-4"
+              />
+            </div>
           </div>
         </div>
 
