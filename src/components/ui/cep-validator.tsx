@@ -137,7 +137,7 @@ export function CepValidator({
             aria-label="CEP para verificar entrega"
           />
         </div>
-        <Button onClick={validateCep} disabled={isValidating}>
+        <Button type="button" onClick={validateCep} disabled={isValidating}>
           {isValidating ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
@@ -168,6 +168,7 @@ export function CepValidator({
           />
         </div>
         <Button
+          type="button"
           onClick={validateCep}
           disabled={isValidating}
           size="lg"

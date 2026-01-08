@@ -127,6 +127,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
                     selectedDate?.toDateString() === date.toDateString();
                   return (
                     <motion.button
+                      type="button"
                       key={date.toISOString()}
                       data-date={date.toISOString()}
                       whileHover={{ scale: 1.02 }}
@@ -173,6 +174,7 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
                         const isSelected = selectedTime === time;
                         return (
                           <motion.button
+                            type="button"
                             key={time}
                             data-time={time}
                             whileHover={{ scale: 1.05 }}

@@ -66,6 +66,7 @@ export function CouponInput({ subtotal }: CouponInputProps) {
               </div>
             </div>
             <button
+              type="button"
               onClick={handleRemove}
               className="p-1.5 rounded-full hover:bg-secondary/20 transition-colors"
             >
@@ -91,6 +92,7 @@ export function CouponInput({ subtotal }: CouponInputProps) {
               />
             </div>
             <Button
+              type="button"
               onClick={handleApply}
               disabled={!code.trim() || isLoading}
               variant="outline"
