@@ -1,0 +1,267 @@
+import { Product } from '@/types';
+
+export const bebidas: Product[] = [
+  // === DRINKS ALCOOLICOS ===
+  {
+    id: 'prod-40',
+    name: 'Caipirinha',
+    description: 'Caipirinha tradicional de limao.',
+    price: 18.90,
+    image: 'https://images.unsplash.com/photo-1541546006121-5c3bc5e8c7b9?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: true,
+    preparationTime: 5,
+    serves: 1,
+    tags: ['drink', 'alcoolico'],
+    stock: 100
+  },
+  {
+    id: 'prod-41',
+    name: 'Caipivodka',
+    description: 'Caipirinha feita com vodka.',
+    price: 22.90,
+    image: 'https://images.unsplash.com/photo-1587223962930-cb7f31384c19?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 5,
+    serves: 1,
+    tags: ['drink', 'alcoolico'],
+    stock: 100
+  },
+  {
+    id: 'prod-42',
+    name: 'Copao com Smirnoff',
+    description: 'Copao de vodka Smirnoff com energetico ou suco.',
+    price: 15.00,
+    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 3,
+    serves: 1,
+    tags: ['drink', 'alcoolico'],
+    stock: 100
+  },
+  {
+    id: 'prod-43',
+    name: 'Copao com Red Label ou Jack Daniels',
+    description: 'Copao com whisky Red Label ou Jack Daniels.',
+    price: 25.00,
+    image: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: true,
+    preparationTime: 3,
+    serves: 1,
+    tags: ['drink', 'premium'],
+    stock: 100
+  },
+  {
+    id: 'prod-44',
+    name: 'Copao com Gin Tanqueray',
+    description: 'Copao com gin Tanqueray e agua tonica.',
+    price: 30.00,
+    image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: true,
+    preparationTime: 3,
+    serves: 1,
+    tags: ['drink', 'premium'],
+    stock: 100
+  },
+  {
+    id: 'prod-45',
+    name: 'Dose de Cachaca',
+    description: 'Dose de cachaca de qualidade.',
+    price: 8.50,
+    image: 'https://images.unsplash.com/photo-1624438371476-e3d0ff61b0f4?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['destilado', 'alcoolico'],
+    stock: 100
+  },
+
+  // === CERVEJAS ===
+  {
+    id: 'prod-46',
+    name: 'Cerveja Latao',
+    description: 'Cerveja latao 473ml (Imperio, Antarctica ou Amstel).',
+    price: 8.50,
+    image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['cerveja', 'alcoolico'],
+    stock: 100
+  },
+  {
+    id: 'prod-47',
+    name: 'Cerveja Long Neck',
+    description: 'Cerveja long neck (Budweiser, Stella ou Heineken).',
+    price: 11.00,
+    image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['cerveja', 'premium'],
+    stock: 100
+  },
+
+  // === ENERGETICOS ===
+  {
+    id: 'prod-48',
+    name: 'Energetico Red Bull',
+    description: 'Energetico Red Bull 250ml.',
+    price: 13.99,
+    image: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['energetico'],
+    stock: 100
+  },
+  {
+    id: 'prod-49',
+    name: 'Energetico Monster',
+    description: 'Energetico Monster 473ml.',
+    price: 13.99,
+    image: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['energetico'],
+    stock: 100
+  },
+  {
+    id: 'prod-50',
+    name: 'Energetico TNT 473ml',
+    description: 'Energetico TNT lata 473ml.',
+    price: 14.99,
+    image: 'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['energetico'],
+    stock: 100
+  },
+
+  // === SUCOS ===
+  {
+    id: 'prod-51',
+    name: 'Suco Del Valle',
+    description: 'Suco Del Valle diversos sabores.',
+    price: 7.99,
+    image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['suco'],
+    stock: 100
+  },
+  {
+    id: 'prod-52',
+    name: 'Suco Natural',
+    description: 'Suco natural da fruta feito na hora.',
+    price: 12.00,
+    image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: true,
+    preparationTime: 5,
+    serves: 1,
+    tags: ['suco', 'natural'],
+    stock: 100
+  },
+
+  // === REFRIGERANTES ===
+  {
+    id: 'prod-53',
+    name: 'Refrigerante Lata',
+    description: 'Refrigerante lata 350ml diversos sabores.',
+    price: 7.99,
+    image: 'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['refrigerante'],
+    stock: 100
+  },
+  {
+    id: 'prod-54',
+    name: 'H2O Limao ou Limoneto',
+    description: 'Agua saborizada H2O Limao ou Limoneto.',
+    price: 8.99,
+    image: 'https://images.unsplash.com/photo-1603394630850-69b3916b02d0?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['agua'],
+    stock: 100
+  },
+  {
+    id: 'prod-55',
+    name: 'Guaravita',
+    description: 'Guaravita 290ml.',
+    price: 3.49,
+    image: 'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['refrigerante'],
+    stock: 100
+  },
+
+  // === AGUAS ===
+  {
+    id: 'prod-56',
+    name: 'Agua Sem Gas',
+    description: 'Agua mineral sem gas 500ml.',
+    price: 3.99,
+    image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['agua'],
+    stock: 100
+  },
+  {
+    id: 'prod-57',
+    name: 'Agua Com Gas',
+    description: 'Agua mineral com gas 500ml.',
+    price: 4.99,
+    image: 'https://images.unsplash.com/photo-1559839914-17aae19cec71?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['agua'],
+    stock: 100
+  }
+];
