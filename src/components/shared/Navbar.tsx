@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, ChefHat } from 'lucide-react';
+import { ShoppingBag, Menu } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import ThemeToggle from './ThemeToggle';
@@ -49,23 +50,26 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <motion.div
-              whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
               className="relative"
             >
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:shadow-xl group-hover:shadow-primary/40 transition-shadow">
-                <ChefHat className="w-7 h-7 text-primary-foreground" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-secondary flex items-center justify-center">
-                <span className="text-[8px] text-secondary-foreground font-bold">SC</span>
+              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg shadow-primary/30 group-hover:shadow-xl group-hover:shadow-primary/40 transition-shadow">
+                <Image
+                  src="/logo.jpg"
+                  alt="EP LOPES Logo"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </motion.div>
             <div className="hidden sm:block">
               <h1 className="font-serif text-xl font-bold text-foreground leading-tight">
-                Sabor da Casa
+                EP LOPES
               </h1>
               <p className="text-xs text-muted-foreground tracking-widest uppercase">
-                Comida Caseira
+                Forte do Gelo
               </p>
             </div>
           </Link>
@@ -117,12 +121,18 @@ export default function Navbar() {
               <SheetContent side="right" className="w-80 bg-background/95 backdrop-blur-xl">
                 <div className="flex flex-col h-full pt-8">
                   <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                      <ChefHat className="w-7 h-7 text-primary-foreground" />
+                    <div className="w-12 h-12 rounded-2xl overflow-hidden">
+                      <Image
+                        src="/logo.jpg"
+                        alt="EP LOPES Logo"
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div>
-                      <h2 className="font-serif text-lg font-bold">Sabor da Casa</h2>
-                      <p className="text-xs text-muted-foreground">Comida Caseira</p>
+                      <h2 className="font-serif text-lg font-bold">EP LOPES</h2>
+                      <p className="text-xs text-muted-foreground">Forte do Gelo</p>
                     </div>
                   </div>
 

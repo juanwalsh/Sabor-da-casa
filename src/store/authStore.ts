@@ -7,25 +7,10 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => void;
 }
-
-// Mock admin user for demo
-const MOCK_ADMIN: User = {
-  id: 'admin-1',
-  name: 'Administrador',
-  email: 'admin@sabordacasa.com.br',
-  role: 'admin',
-  createdAt: new Date(),
-};
-
-// Simple demo credentials
-const DEMO_CREDENTIALS = {
-  email: 'admin@sabordacasa.com.br',
-  password: 'admin123',
-};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -34,19 +19,30 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
 
-      login: async (email: string, password: string) => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      login: async (username: string, password: string) => {
+        try {
+          const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
 
-        if (
-          email === DEMO_CREDENTIALS.email &&
-          password === DEMO_CREDENTIALS.password
-        ) {
-          set({ user: MOCK_ADMIN, isAuthenticated: true, isLoading: false });
-          return true;
+          const data = await response.json();
+
+          if (data.success && data.user) {
+            const user: User = {
+              ...data.user,
+              createdAt: new Date(),
+            };
+            set({ user, isAuthenticated: true, isLoading: false });
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          console.error('Erro no login:', error);
+          return false;
         }
-
-        return false;
       },
 
       logout: () => {
@@ -59,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'sabor-da-casa-auth',
+      name: 'ep-lopes-auth',
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   TrendingUp,
@@ -8,6 +9,7 @@ import {
   DollarSign,
   Clock,
   Users,
+  Loader2,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -20,33 +22,66 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { dashboardStats, chartData, formatPrice } from '@/data/mockData';
-import { useOrderStore } from '@/store/orderStore';
+import { formatPrice } from '@/data/mockData';
+import { useOrders } from '@/hooks/useOrders';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminDashboard() {
-  const { orders } = useOrderStore();
+  const { orders, isLoading, getTodayStats } = useOrders();
+
+  const dashboardStats = useMemo(() => getTodayStats(), [getTodayStats]);
+
+  // Calcula dados do grafico baseado nos pedidos reais
+  const chartData = useMemo(() => {
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    const today = new Date();
+    const weekData = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+
+      const dayOrders = orders.filter(o => {
+        const orderDate = new Date(o.createdAt);
+        orderDate.setHours(0, 0, 0, 0);
+        return orderDate.getTime() === date.getTime();
+      });
+
+      weekData.push({
+        day: days[date.getDay()],
+        orders: dayOrders.length,
+        revenue: dayOrders.reduce((sum, o) => sum + o.total, 0),
+      });
+    }
+
+    return weekData;
+  }, [orders]);
 
   const stats = [
     {
       title: 'Pedidos Hoje',
       value: dashboardStats.ordersToday,
-      change: ((dashboardStats.ordersToday - dashboardStats.ordersYesterday) / dashboardStats.ordersYesterday) * 100,
+      change: dashboardStats.ordersYesterday > 0
+        ? ((dashboardStats.ordersToday - dashboardStats.ordersYesterday) / dashboardStats.ordersYesterday) * 100
+        : 0,
       icon: ShoppingBag,
       color: 'primary',
     },
     {
       title: 'Receita Hoje',
       value: formatPrice(dashboardStats.revenueToday),
-      change: ((dashboardStats.revenueToday - dashboardStats.revenueYesterday) / dashboardStats.revenueYesterday) * 100,
+      change: dashboardStats.revenueYesterday > 0
+        ? ((dashboardStats.revenueToday - dashboardStats.revenueYesterday) / dashboardStats.revenueYesterday) * 100
+        : 0,
       icon: DollarSign,
       color: 'secondary',
     },
     {
       title: 'Ticket Médio',
       value: formatPrice(dashboardStats.averageTicket),
-      change: 5.2,
+      change: null,
       icon: TrendingUp,
       color: 'accent',
     },
@@ -58,6 +93,14 @@ export default function AdminDashboard() {
       color: 'destructive',
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const recentOrders = orders.slice(0, 5);
 

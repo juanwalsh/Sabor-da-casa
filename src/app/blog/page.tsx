@@ -136,7 +136,7 @@ export default function BlogPage() {
         {/* Hero */}
         <div className="text-center mb-12">
           <h2 className="font-serif text-3xl sm:text-4xl font-bold mb-4">
-            Sabor da Casa Blog
+            EP LOPES Blog
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Receitas, dicas, historias e muito mais sobre a culinaria brasileira

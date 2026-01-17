@@ -1,7 +1,7 @@
 {
-  "name": "Sabor da Casa",
-  "short_name": "Sabor da Casa",
-  "description": "Comida caseira com sabor de fazenda. Delivery em São Paulo.",
+  "name": "EP LOPES - Forte do Gelo",
+  "short_name": "EP LOPES",
+  "description": "Deposito de bebidas. Cerveja gelada, drinks e muito mais!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FDF8F4",

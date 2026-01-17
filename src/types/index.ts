@@ -1,4 +1,4 @@
-// Tipos do Restaurante Sabor da Casa
+// Tipos do Restaurante EP LOPES
 
 export interface Category {
   id: string;
@@ -133,4 +133,17 @@ export interface ChartData {
   day: string;
   orders: number;
   revenue: number;
+}
+
+// Cliente com sistema de pontos
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  points: number;
+  totalSpent: number;
+  ordersCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

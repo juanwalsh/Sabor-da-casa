@@ -8,16 +8,21 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FavoriteButton } from '@/components/ui/favorite-button';
-import { getFeaturedProducts, formatPrice, categories } from '@/data/mockData';
+import { formatPrice, categories } from '@/data/mockData';
 import { useCartStore } from '@/store/cartStore';
 import { toast } from 'sonner';
 import { Product } from '@/types';
 import ProductModal from '@/components/menu/ProductModal';
+import { useProducts } from '@/hooks/useProducts';
 
 export default function MenuHighlights() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const featuredProducts = getFeaturedProducts();
+  
+  // Use useProducts hook for dynamic data
+  const { products } = useProducts();
+  const featuredProducts = products.filter(p => p.featured);
+
   const { addItem } = useCartStore();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

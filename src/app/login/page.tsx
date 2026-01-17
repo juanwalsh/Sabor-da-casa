@@ -4,16 +4,15 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
-  ChefHat,
   Eye,
   EyeOff,
   Loader2,
   ArrowLeft,
-  Mail,
+  User,
   Lock,
   Shield,
-  Sparkles,
   KeyRound,
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -26,8 +25,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalido'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  username: z.string().min(1, 'Digite o usuario'),
+  password: z.string().min(1, 'Digite a senha'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -48,7 +47,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    const success = await login(data.email, data.password);
+    const success = await login(data.username, data.password);
     setIsLoading(false);
 
     if (success) {
@@ -56,7 +55,7 @@ export default function LoginPage() {
       router.push('/admin');
     } else {
       toast.error('Credenciais invalidas', {
-        description: 'Verifique seu email e senha',
+        description: 'Verifique seu usuario e senha',
       });
     }
   };
@@ -130,7 +129,7 @@ export default function LoginPage() {
               Painel Administrativo
             </h2>
             <p className="text-lg text-white/80">
-              Gerencie seu restaurante com facilidade. Controle pedidos, produtos e acompanhe suas metricas em tempo real.
+              Gerencie seu deposito com facilidade. Controle pedidos, produtos e acompanhe suas metricas em tempo real.
             </p>
 
             {/* Indicadores */}
@@ -186,12 +185,18 @@ export default function LoginPage() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, type: 'spring' }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/25 mb-4"
+              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-primary/25 mb-4"
             >
-              <ChefHat className="w-8 h-8 text-primary-foreground" />
+              <Image
+                src="/logo.jpg"
+                alt="EP LOPES Logo"
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+              />
             </motion.div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Bem-vindo de volta
+              EP LOPES
             </h1>
             <p className="text-muted-foreground">
               Acesse o painel administrativo
@@ -206,28 +211,28 @@ export default function LoginPage() {
             className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-xl shadow-black/5"
           >
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Campo Email */}
+              {/* Campo Usuario */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email
+                <Label htmlFor="username" className="text-sm font-medium text-foreground">
+                  Usuario
                 </Label>
                 <div className="relative group">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
-                    id="email"
-                    type="email"
-                    {...register('email')}
+                    id="username"
+                    type="text"
+                    {...register('username')}
                     className="h-11 pl-10 rounded-xl border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    placeholder="admin@email.com"
+                    placeholder="Digite seu usuario"
                   />
                 </div>
-                {errors.email && (
+                {errors.username && (
                   <motion.p
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-sm text-destructive flex items-center gap-1"
                   >
-                    {errors.email.message}
+                    {errors.username.message}
                   </motion.p>
                 )}
               </div>
@@ -285,37 +290,6 @@ export default function LoginPage() {
                   'Acessar Painel'
                 )}
               </Button>
-
-              {/* Divisor */}
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-3 text-muted-foreground flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3" />
-                    Demonstracao
-                  </span>
-                </div>
-              </div>
-
-              {/* Credenciais Demo */}
-              <div className="p-4 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border border-border/50">
-                <div className="flex flex-col gap-2.5 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Email:</span>
-                    <code className="bg-background/80 px-2.5 py-1 rounded-lg text-xs font-mono text-foreground">
-                      admin@sabordacasa.com.br
-                    </code>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Senha:</span>
-                    <code className="bg-background/80 px-2.5 py-1 rounded-lg text-xs font-mono text-foreground">
-                      admin123
-                    </code>
-                  </div>
-                </div>
-              </div>
             </form>
 
             {/* Link voltar */}

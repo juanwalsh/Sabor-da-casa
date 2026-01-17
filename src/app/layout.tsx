@@ -11,39 +11,39 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Sabor da Casa | Comida Caseira com Sabor de Fazenda',
-    template: '%s | Sabor da Casa',
+    default: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
+    template: '%s | EP LOPES FORTE DO GELO',
   },
   description:
-    'Há mais de 15 anos trazendo o verdadeiro sabor da comida brasileira para a sua mesa. Delivery de comida caseira em São Paulo. Feijoada, escondidinho, frango caipira e muito mais!',
+    'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks, energeticos e muito mais! Delivery rapido e precos imbativeis.',
   keywords: [
-    'comida caseira',
+    'deposito de bebidas',
     'delivery',
-    'restaurante',
-    'São Paulo',
-    'feijoada',
-    'marmita',
-    'comida brasileira',
-    'entrega de comida',
+    'cerveja gelada',
+    'bebidas',
+    'drinks',
+    'energeticos',
+    'forte do gelo',
+    'ep lopes',
   ],
-  authors: [{ name: 'Sabor da Casa' }],
-  creator: 'Sabor da Casa',
-  publisher: 'Sabor da Casa',
+  authors: [{ name: 'EP LOPES' }],
+  creator: 'EP LOPES',
+  publisher: 'EP LOPES',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://sabordacasa.com.br'),
+  metadataBase: new URL('https://eplopes.com.br'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Sabor da Casa | Comida Caseira com Sabor de Fazenda',
+    title: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
     description:
-      'Há mais de 15 anos trazendo o verdadeiro sabor da comida brasileira para a sua mesa. Delivery de comida caseira em São Paulo.',
-    url: 'https://sabordacasa.com.br',
-    siteName: 'Sabor da Casa',
+      'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks, energeticos e muito mais!',
+    url: 'https://eplopes.com.br',
+    siteName: 'EP LOPES FORTE DO GELO',
     locale: 'pt_BR',
     type: 'website',
     images: [
@@ -51,15 +51,15 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Sabor da Casa - Comida Caseira',
+        alt: 'EP LOPES FORTE DO GELO - Deposito de Bebidas',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sabor da Casa | Comida Caseira com Sabor de Fazenda',
+    title: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
     description:
-      'Há mais de 15 anos trazendo o verdadeiro sabor da comida brasileira para a sua mesa.',
+      'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks e muito mais!',
     images: ['/og-image.jpg'],
   },
   robots: {

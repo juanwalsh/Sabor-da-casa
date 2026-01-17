@@ -55,7 +55,7 @@ export const useOrderStore = create<OrderState>()(
       },
     }),
     {
-      name: 'sabor-da-casa-orders',
+      name: 'ep-lopes-orders',
     }
   )
 );

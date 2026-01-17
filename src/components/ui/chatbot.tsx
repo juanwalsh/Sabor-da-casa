@@ -90,7 +90,7 @@ const ADMIN_KNOWLEDGE_BASE = {
 const KNOWLEDGE_BASE = {
   greeting: {
     patterns: ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hey', 'eae', 'e ai'],
-    response: 'Olá! Sou o assistente virtual do Sabor da Casa. Como posso ajudar você hoje?',
+    response: 'Olá! Sou o assistente virtual do EP LOPES. Como posso ajudar você hoje?',
     quickReplies: ['Ver cardápio', 'Horário de funcionamento', 'Taxa de entrega', 'Fazer pedido'],
   },
   menu: {
@@ -150,7 +150,7 @@ const KNOWLEDGE_BASE = {
   },
   bye: {
     patterns: ['tchau', 'até mais', 'ate mais', 'bye', 'adeus', 'encerrar', 'sair'],
-    response: 'Até mais! Bom apetite e volte sempre ao Sabor da Casa!',
+    response: 'Até mais! Bom apetite e volte sempre ao EP LOPES!',
     quickReplies: [],
   },
 };
@@ -211,7 +211,7 @@ export function Chatbot() {
         : {
             id: '1',
             type: 'bot' as const,
-            content: 'Olá! Sou o assistente virtual do Sabor da Casa. Como posso ajudar você hoje?',
+            content: 'Olá! Sou o assistente virtual do EP LOPES. Como posso ajudar você hoje?',
             timestamp: new Date(),
             quickReplies: ['Ver cardápio', 'Horário de funcionamento', 'Taxa de entrega', 'Fazer pedido'],
           };

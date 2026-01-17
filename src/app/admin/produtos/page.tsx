@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import {
@@ -20,7 +20,8 @@ import {
   Upload,
   Loader2,
 } from 'lucide-react';
-import { products as initialProducts, categories, formatPrice } from '@/data/mockData';
+import { categories, formatPrice } from '@/data/mockData';
+import { useProducts } from '@/hooks/useProducts';
 import { Product } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -522,11 +523,21 @@ function ProductForm({
 export default function ProdutosPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [productsList, setProductsList] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isNewProductOpen, setIsNewProductOpen] = useState(false);
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>(emptyProduct);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const {
+    products: productsList,
+    isLoading,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    toggleActive,
+    toggleFeatured,
+  } = useProducts();
 
   const filteredProducts = useMemo(() => {
     return productsList.filter((product) => {
@@ -543,37 +554,50 @@ export default function ProdutosPage() {
     return categories.find((c) => c.id === categoryId)?.name || '';
   };
 
-  const handleToggleActive = (productId: string) => {
-    setProductsList((prev) =>
-      prev.map((p) => (p.id === productId ? { ...p, active: !p.active } : p))
-    );
-    toast.success('Status atualizado!');
+  const handleToggleActive = async (productId: string) => {
+    const success = await toggleActive(productId);
+    if (success) {
+      toast.success('Status atualizado!');
+    } else {
+      toast.error('Erro ao atualizar status');
+    }
   };
 
-  const handleToggleFeatured = (productId: string) => {
-    setProductsList((prev) =>
-      prev.map((p) => (p.id === productId ? { ...p, featured: !p.featured } : p))
-    );
-    toast.success('Destaque atualizado!');
+  const handleToggleFeatured = async (productId: string) => {
+    const success = await toggleFeatured(productId);
+    if (success) {
+      toast.success('Destaque atualizado!');
+    } else {
+      toast.error('Erro ao atualizar destaque');
+    }
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    setProductsList((prev) => prev.filter((p) => p.id !== productId));
-    toast.success('Produto removido!');
+  const handleDeleteProduct = async (productId: string) => {
+    const success = await deleteProduct(productId);
+    if (success) {
+      toast.success('Produto removido!');
+    } else {
+      toast.error('Erro ao remover produto');
+    }
   };
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     if (!editingProduct) return;
 
-    setProductsList((prev) =>
-      prev.map((p) => (p.id === editingProduct.id ? editingProduct : p))
-    );
-    setIsEditDialogOpen(false);
-    setEditingProduct(null);
-    toast.success('Produto atualizado!');
+    setIsSaving(true);
+    const success = await updateProduct(editingProduct);
+    setIsSaving(false);
+
+    if (success) {
+      setIsEditDialogOpen(false);
+      setEditingProduct(null);
+      toast.success('Produto atualizado!');
+    } else {
+      toast.error('Erro ao atualizar produto');
+    }
   };
 
-  const handleCreateProduct = () => {
+  const handleCreateProduct = async () => {
     // Validacao
     if (!newProduct.name.trim()) {
       toast.error('Digite o nome do produto');
@@ -588,26 +612,35 @@ export default function ProdutosPage() {
       return;
     }
     if (!newProduct.image.trim()) {
-      toast.error('Digite a URL da imagem');
+      toast.error('Adicione uma imagem do produto');
       return;
     }
 
-    const id = `prod-${Date.now()}`;
-    const product: Product = {
-      id,
-      ...newProduct,
-    };
+    setIsSaving(true);
+    const product = await createProduct(newProduct);
+    setIsSaving(false);
 
-    setProductsList((prev) => [product, ...prev]);
-    setIsNewProductOpen(false);
-    setNewProduct(emptyProduct);
-    toast.success('Produto criado com sucesso!');
+    if (product) {
+      setIsNewProductOpen(false);
+      setNewProduct(emptyProduct);
+      toast.success('Produto criado com sucesso!');
+    } else {
+      toast.error('Erro ao criar produto');
+    }
   };
 
   const handleOpenEdit = (product: Product) => {
     setEditingProduct({ ...product });
     setIsEditDialogOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>

@@ -12,8 +12,9 @@ import {
   ChefHat,
   Phone,
   MapPin,
+  Loader2,
 } from 'lucide-react';
-import { useOrderStore } from '@/store/orderStore';
+import { useOrders } from '@/hooks/useOrders';
 import { formatPrice, products } from '@/data/mockData';
 import { OrderStatus } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -50,28 +51,40 @@ const statusConfig: Record<
 };
 
 export default function PedidosPage() {
-  const { orders, updateOrderStatus } = useOrderStore();
+  const { orders, isLoading, updateOrderStatus } = useOrders();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerPhone.includes(searchQuery);
+      (order.customerName?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (order.id?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      (order.customerPhone || '').includes(searchQuery);
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const selectedOrderData = orders.find((o) => o.id === selectedOrder);
 
-  const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
-    updateOrderStatus(orderId, newStatus);
-    toast.success('Status atualizado!', {
-      description: `Pedido atualizado para: ${statusConfig[newStatus].label}`,
-    });
+  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+    const success = await updateOrderStatus(orderId, newStatus);
+    if (success) {
+      toast.success('Status atualizado!', {
+        description: `Pedido atualizado para: ${statusConfig[newStatus].label}`,
+      });
+    } else {
+      toast.error('Erro ao atualizar status');
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const getProductName = (productId: string) => {
     return products.find((p) => p.id === productId)?.name || 'Produto não encontrado';
@@ -110,8 +123,9 @@ export default function PedidosPage() {
         <div className="space-y-2 sm:space-y-4">
           <AnimatePresence mode="popLayout">
             {filteredOrders.map((order, index) => {
-              const status = statusConfig[order.status];
+              const status = statusConfig[order.status] || statusConfig.pending;
               const StatusIcon = status.icon;
+              const itemsCount = order.items?.length || 0;
 
               return (
                 <motion.div
@@ -138,19 +152,19 @@ export default function PedidosPage() {
                         {/* Order Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
-                            <h3 className="font-semibold text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">{order.customerName}</h3>
+                            <h3 className="font-semibold text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">{order.customerName || 'Cliente sem nome'}</h3>
                             <Badge variant="outline" className="shrink-0 text-xs">
-                              #{order.id.slice(-4)}
+                              #{order.id?.slice(-4) || '----'}
                             </Badge>
                           </div>
                           <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4 gap-y-0.5 text-xs sm:text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                              <span className="hidden xs:inline">{order.customerPhone}</span>
-                              <span className="xs:hidden">{order.customerPhone.slice(-4)}</span>
+                              <span className="hidden xs:inline">{order.customerPhone || '---'}</span>
+                              <span className="xs:hidden">{order.customerPhone?.slice(-4) || '---'}</span>
                             </span>
                             <span>
-                              {order.items.length} {order.items.length === 1 ? 'item' : 'itens'}
+                              {itemsCount} {itemsCount === 1 ? 'item' : 'itens'}
                             </span>
                           </div>
                         </div>
@@ -159,7 +173,7 @@ export default function PedidosPage() {
                         <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-4 shrink-0">
                           <div className="text-right">
                             <p className="font-bold font-serif text-sm sm:text-lg">
-                              {formatPrice(order.total)}
+                              {formatPrice(order.total || 0)}
                             </p>
                             <Badge variant="secondary" className="text-xs">{status.label}</Badge>
                           </div>

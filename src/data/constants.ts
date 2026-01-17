@@ -9,24 +9,24 @@ export const DELIVERY_FEE = 8.00;
 export const FREE_DELIVERY_MIN = 80.00;
 
 // ========================
-// INFORMACOES DO RESTAURANTE
+// INFORMACOES DO ESTABELECIMENTO
 // ========================
 export const RESTAURANT_INFO = {
-  name: 'Sabor da Casa',
-  slogan: 'Comida caseira com sabor de fazenda',
-  description: 'Ha mais de 15 anos trazendo o verdadeiro sabor da comida brasileira para a sua mesa.',
+  name: 'EP LOPES',
+  slogan: 'Forte do Gelo - Deposito de Bebidas',
+  description: 'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks e muito mais!',
   phone: '(22) 99999-5200',
   whatsapp: '5522999995200',
-  email: 'contato@sabordacasa.com.br',
+  email: 'contato@eplopes.com.br',
   address: 'Rua das Delicias, 123 - Centro',
   hours: {
-    weekdays: '11:00 - 22:00',
-    weekends: '11:00 - 23:00'
+    weekdays: '08:00 - 22:00',
+    weekends: '08:00 - 23:00'
   },
   deliveryTime: '30-45 min',
   social: {
-    instagram: '@sabordacasa',
-    facebook: 'sabordacasa'
+    instagram: '@eplopesfortedogelo',
+    facebook: 'eplopesfortedogelo'
   }
 };
 

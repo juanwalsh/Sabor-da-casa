@@ -58,7 +58,7 @@
   --font-inter: 'Inter', sans-serif;
   --font-playfair: 'Playfair Display', serif;
 
-  /* Tema Claro - Sabor da Casa */
+  /* Tema Claro - EP LOPES */
   --background: #FDF8F4;
   --foreground: #2C1810;
   --card: #FFFFFF;
@@ -93,7 +93,7 @@
 }
 
 .dark {
-  /* Tema Escuro - Sabor da Casa */
+  /* Tema Escuro - EP LOPES */
   --background: #1A1612;
   --foreground: #F5EDE8;
   --card: #251F1A;

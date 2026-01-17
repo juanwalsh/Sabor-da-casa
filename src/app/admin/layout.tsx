@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
-  ChefHat,
   LayoutDashboard,
   ShoppingBag,
   UtensilsCrossed,
@@ -87,11 +87,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Logo */}
       <div className="p-4 sm:p-6 border-b border-border">
         <Link href="/admin" className="flex items-center gap-2 sm:gap-3" onClick={onNavigate}>
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shrink-0">
-            <ChefHat className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shrink-0">
+            <Image
+              src="/logo.jpg"
+              alt="EP LOPES Logo"
+              width={40}
+              height={40}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="min-w-0">
-            <h1 className="font-serif font-bold text-sm sm:text-base truncate">Sabor da Casa</h1>
+            <h1 className="font-serif font-bold text-sm sm:text-base truncate">EP LOPES</h1>
             <p className="text-xs text-muted-foreground">Painel Admin</p>
           </div>
         </Link>

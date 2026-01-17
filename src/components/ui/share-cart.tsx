@@ -66,7 +66,7 @@ export function ShareCart({ className }: ShareCartProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Pedido Sabor da Casa',
+          title: 'Pedido EP LOPES',
           text: `${ownerName} compartilhou um carrinho com você!`,
           url: shareLink,
         });
