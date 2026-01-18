@@ -1,0 +1,73 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Pular para o conteudo principal" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - link [ref=e9] [cursor=pointer]:
+            - /url: /
+            - button [ref=e10]:
+              - img
+          - heading "Cardápio" [level=1] [ref=e11]
+        - generic [ref=e12]:
+          - button [ref=e13]:
+            - img
+          - button [ref=e14]:
+            - img
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - textbox "Buscar pratos..." [ref=e23]
+          - button "Buscar por voz" [ref=e24]:
+            - img
+        - combobox [ref=e25]:
+          - img
+          - generic: Destaques
+          - img
+      - generic [ref=e26]:
+        - button "Todos" [ref=e27]
+        - button "Porcoes e Petiscos" [ref=e28]
+        - button "Prato Executivo" [ref=e29]
+        - button "Bebidas e Drinks" [ref=e30]
+        - button "Combos" [ref=e31]
+    - main [ref=e32]:
+      - generic [ref=e33]:
+        - img [ref=e35]
+        - heading "Nenhum prato encontrado" [level=3] [ref=e38]
+        - paragraph [ref=e39]: Tente buscar por outro termo ou categoria
+        - button "Limpar filtros" [ref=e40]
+  - button "?" [ref=e41]:
+    - img [ref=e42]
+    - generic [ref=e45]: "?"
+  - navigation "Navegacao principal" [ref=e46]:
+    - generic [ref=e48]:
+      - link "Inicio" [ref=e49] [cursor=pointer]:
+        - /url: /
+        - img [ref=e51]
+        - generic [ref=e54]: Inicio
+      - link "Cardapio" [ref=e55] [cursor=pointer]:
+        - /url: /cardapio
+        - img [ref=e57]
+        - generic [ref=e62]: Cardapio
+      - button "Buscar" [ref=e64]:
+        - img [ref=e66]
+        - generic [ref=e69]: Buscar
+      - button "Carrinho" [ref=e70]:
+        - img [ref=e72]
+        - generic [ref=e75]: Carrinho
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e81] [cursor=pointer]:
+    - generic [ref=e84]:
+      - text: Compiling
+      - generic [ref=e85]:
+        - generic [ref=e86]: .
+        - generic [ref=e87]: .
+        - generic [ref=e88]: .
+  - alert [ref=e89]
+```

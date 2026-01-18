@@ -4,7 +4,7 @@
                          Sistema de Deposito de Bebidas
 ================================================================================
 
-Data: 17/01/2026
+Data: 18/01/2026
 Projeto: EP LOPES - Sistema de Vendas e Gestao
 
 ================================================================================
@@ -12,9 +12,9 @@ Projeto: EP LOPES - Sistema de Vendas e Gestao
 ================================================================================
 
 - Skill brainstorming: Nao - Tarefa foi direta com requisitos claros
-- MCP 21st Magic: Nao - Sem criacao de novos componentes UI
+- MCP 21st Magic: Nao - Alteracoes manuais nos componentes
 - MCP Context7: Nao - Nao houve necessidade de documentacao externa
-- Chrome DevTools: Nao - Implementacao de backend/logica
+- Chrome DevTools: Nao - Implementacao de codigo
 - Playwright: Nao - Sem testes E2E nesta fase
 - ffuf: Nao - Nao e tarefa de security testing
 
@@ -22,169 +22,173 @@ Projeto: EP LOPES - Sistema de Vendas e Gestao
 2. STATUS DAS TAREFAS
 ================================================================================
 
-[RESOLVIDO] Criar API de produtos (CRUD com JSON local)
-[RESOLVIDO] Criar API de pedidos (CRUD com JSON local)
-[RESOLVIDO] Criar API de clientes/pontos (por nome+telefone)
-[RESOLVIDO] Criar pasta uploads
-[RESOLVIDO] Alterar senha admin para 'eplopesfortedogelo' (case insensitive)
-[RESOLVIDO] Trocar nome 'Sabor da Casa' para 'EP LOPES'
-[RESOLVIDO] Configurar logo.jpg no projeto
-[RESOLVIDO] Conectar admin/produtos com API real
-[RESOLVIDO] Conectar Dashboard com dados reais
-[RESOLVIDO] Conectar Pedidos com API real
+[RESOLVIDO] Compactar pagina Home - reduzir extensao
+[RESOLVIDO] Adicionar tema carnavalesco na Home
+[RESOLVIDO] Otimizar secoes para mobile - tornar mais compactas
+[RESOLVIDO] Corrigir area de pedidos no Admin
+[RESOLVIDO] Atualizar dados de teste de pedidos
+[RESOLVIDO] Reverter gradientes excessivos (feedback usuario)
+[RESOLVIDO] Combinar features "Entrega Rapida" e "Super Geladas"
 
 ================================================================================
-3. RELATORIO DE ALTERACOES
+3. RELATORIO DE ALTERACOES - 18/01/2026
 ================================================================================
-
-ADICOES:
---------
-- /src/app/api/products/route.ts - API CRUD de produtos (GET, POST, PUT, DELETE)
-- /src/app/api/orders/route.ts - API CRUD de pedidos (GET, POST, PUT)
-- /src/app/api/customers/route.ts - API de clientes com sistema de pontos
-- /src/app/api/init/route.ts - Inicializacao dos dados JSON
-- /src/hooks/useProducts.ts - Hook para gerenciar produtos via API
-- /src/hooks/useOrders.ts - Hook para gerenciar pedidos via API
-- /data/ - Pasta para persistencia de dados JSON
-- /public/uploads/ - Pasta para upload de imagens
-- /public/logo.jpg - Logo EP LOPES copiado para pasta public
-- /relatorio.txt - Este arquivo de relatorio
 
 ALTERACOES:
 -----------
-- /src/store/authStore.ts
-  * Senha alterada para 'eplopesfortedogelo' (case insensitive)
-  * Usuario alterado para 'admin'
-  * Storage key alterada para 'ep-lopes-auth'
 
-- /src/store/cartStore.ts
-  * Storage key alterada para 'ep-lopes-cart'
+### src/components/landing/Hero.tsx
+- ANTES: min-h-screen (100vh) - muito grande
+- DEPOIS: min-h-[85vh] md:min-h-[90vh] - mais compacto
+- Adicionado: Componente Confetti para efeito de confetes de carnaval
+- Adicionado: Cores vibrantes de carnaval (#FF6B35, #F7C41F, #FF2D92, #00D9FF, #7B2FF7)
+- Alterado: Badge "Mais de 15 anos" -> "Carnaval de Ofertas!"
+- Alterado: Texto headline com gradiente de cores de carnaval
+- Alterado: Botao CTA com gradiente de carnaval (from-[#FF6B35] to-[#FF2D92])
+- Alterado: Elementos flutuantes de comida -> elementos de carnaval (mascaras, confetes)
+- Reduzido: Tamanho de textos e espacamentos no mobile
+- Reduzido: Imagem hero de 500px -> 380px/450px
+- Alterado: Floating cards com temas de carnaval e bebidas
 
-- /src/store/orderStore.ts
-  * Storage key alterada para 'ep-lopes-orders'
+### src/components/landing/Features.tsx
+- ANTES: py-24 (96px padding)
+- DEPOIS: py-12 md:py-16 (48px/64px padding)
+- Alterado: Features de "Entrega/Ingredientes/Receitas" -> "Entrega/Super Geladas/Promocoes de Carnaval"
+- Alterado: Icones de Leaf/BookOpen -> Snowflake/PartyPopper
+- Alterado: Cores para paleta de carnaval
+- Reduzido: Tamanho do header e textos
+- Alterado: Grid para layout horizontal no mobile (flex row)
+- Removido: Decoracao inferior (bolinhas)
+- Simplificado: Cards de features
 
-- /src/data/constants.ts
-  * RESTAURANT_INFO.name: 'EP LOPES'
-  * RESTAURANT_INFO.slogan: 'Forte do Gelo - Deposito de Bebidas'
-  * RESTAURANT_INFO.email: 'contato@eplopes.com.br'
-  * Horarios atualizados para 08:00 - 22:00/23:00
-  * Redes sociais atualizadas
+### src/components/landing/MenuHighlights.tsx
+- ANTES: py-24 (96px padding)
+- DEPOIS: py-10 md:py-16 (40px/64px padding)
+- Alterado: Badge "Nossos Destaques" -> "Destaques de Carnaval"
+- Alterado: Icone Utensils -> PartyPopper
+- Alterado: Grid de produtos de 1-4 colunas -> 2-4 colunas (sempre 2 no mobile)
+- Reduzido: Altura das imagens de 48 -> 32/40 (h-32 md:h-40)
+- Reduzido: Padding dos cards
+- Simplificado: Descricao oculta no mobile
+- Alterado: Botao adicionar com icone + no mobile
+- Alterado: Botao CTA com gradiente de carnaval
 
-- /src/app/layout.tsx
-  * Titulo e metadata alterados para EP LOPES
+### src/components/landing/Testimonials.tsx
+- ANTES: py-24 (96px padding)
+- DEPOIS: py-10 md:py-16 (40px/64px padding)
+- Reduzido: Altura do card de depoimento de 320px -> 220px/200px
+- Reduzido: Tamanho dos elementos do carrossel
+- Alterado: Cores para paleta carnaval (#F7C41F, #FF6B35)
+- Compactado: Stats de 4 colunas com textos menores
+- Reduzido: Botoes de navegacao
 
-- /src/app/admin/layout.tsx
-  * Logo alterado para usar /logo.jpg
-  * Importacao de Image do Next.js adicionada
+### src/components/landing/Footer.tsx
+- ANTES: py-16 (64px padding) no newsletter
+- DEPOIS: py-8 md:py-12 (32px/48px padding)
+- Alterado: Banner newsletter com gradiente de carnaval completo
+- Alterado: Links do cardapio para "Cervejas/Refrigerantes/Destilados/Gelo"
+- Simplificado: Colunas de links (removidos alguns links)
+- Reduzido: Tamanho de todos os elementos
+- Compactado: Logo e informacoes de contato
+- Alterado: Coracao do footer para cor de carnaval (#FF2D92)
 
-- /src/app/admin/page.tsx (Dashboard)
-  * Conectado com useOrders hook para dados reais
-  * Graficos calculados com base em pedidos reais
-  * Estatisticas em tempo real
+### src/app/admin/pedidos/page.tsx
+- Corrigido: Estrutura do Dialog que usava IIFE de forma problematica
+- Simplificado: Renderizacao condicional do conteudo do modal
+- Mantido: Funcionalidade de status e acoes
 
-- /src/app/admin/produtos/page.tsx
-  * Conectado com useProducts hook para API real
-  * CRUD funcionando com persistencia em JSON
-
-- /src/app/admin/pedidos/page.tsx
-  * Conectado com useOrders hook para API real
-  * Atualizacao de status via API
-
-- /src/components/shared/Navbar.tsx
-  * Logo alterado para usar /logo.jpg
-  * Texto alterado para 'EP LOPES' e 'Forte do Gelo'
-
-- /src/components/landing/Footer.tsx
-  * Logo alterado para usar /logo.jpg
-  * Texto alterado para EP LOPES
-
-- /public/manifest.json
-  * Nome alterado para 'EP LOPES - Forte do Gelo'
-
-- /src/types/index.ts
-  * Adicionado tipo Customer para sistema de pontos
-  * Comentarios atualizados
-
-- /src/app/globals.css
-  * Comentarios de tema atualizados
-
-- /src/components/ui/chatbot.tsx
-  * Referencias a Sabor da Casa alteradas para EP LOPES
-
-- /src/components/ui/share-cart.tsx
-  * Referencias a Sabor da Casa alteradas para EP LOPES
-
-- /src/app/blog/page.tsx
-  * Titulo alterado para EP LOPES Blog
+### data/orders.json
+- Adicionado: Campos faltantes (customerName, customerPhone, customerEmail, address)
+- Adicionado: Pedido de teste adicional para demonstracao
+- Corrigido: Estrutura de items com unitPrice
 
 REMOCOES:
 ---------
-- Dados mock estaticos substituidos por dados dinamicos via API
-- Importacao de ChefHat removida onde nao era mais necessaria
-- Referencias antigas a 'Sabor da Casa' removidas
+- Removido: Elementos decorativos excessivos
+- Removido: Padding exagerado nas secoes
+- Removido: Animacoes pesadas
+- Removido: Bottom decoration no Features
+- Removido: Links nao essenciais no Footer (Blog, Carreiras, Termos, Privacidade)
 
 ================================================================================
 4. VERIFICACAO
 ================================================================================
 
-- Testes executados: Nao (recomendado executar npm run build)
-- Build passou: A verificar pelo usuario
-- Verificacao manual: Pendente
+- Build executado: Sim - Passou sem erros
+- Testes executados: Nao (recomendado testar manualmente)
+- Verificacao visual: Pendente
 
 ================================================================================
 5. OBSERVACOES
 ================================================================================
 
-1. Para inicializar os dados, acessar /api/init uma vez
-2. Credenciais admin: usuario 'admin', senha 'eplopesfortedogelo' (case insensitive)
+1. O site agora tem tema de CARNAVAL com cores vibrantes e confetes
+2. Todas as secoes foram compactadas para mobile (~50% menor)
+3. A area de pedidos do admin foi corrigida
+4. Credenciais admin: usuario 'admin', senha 'eplopesfortedogelo'
 
 ================================================================================
-6. SISTEMA DE PONTOS - COMO FUNCIONA
+6. RESUMO DAS REDUCOES DE TAMANHO
 ================================================================================
 
-- Cliente identificado por NOME + TELEFONE
-- Cada R$ 1,00 gasto = 1 ponto
-- Pontos acumulam em compras futuras
-- API /api/customers gerencia clientes e pontos
-- Ao fazer pedido, sistema automaticamente:
-  * Cria cliente se nao existe
-  * Atualiza pontos se ja existe
-  * Registra total gasto e numero de pedidos
+| Secao        | Antes     | Depois         | Reducao Mobile |
+|--------------|-----------|----------------|----------------|
+| Hero         | 100vh     | 85vh/90vh      | ~15%           |
+| Features     | py-24     | py-12/py-16    | ~50%           |
+| MenuHighlights| py-24    | py-10/py-16    | ~58%           |
+| Testimonials | py-24     | py-10/py-16    | ~58%           |
+| Footer       | py-16     | py-8/py-12     | ~50%           |
 
 ================================================================================
-7. ESTRUTURA DA API
+7. PALETA DE CORES DO CARNAVAL
 ================================================================================
 
-POST /api/products     - Criar produto
-GET  /api/products     - Listar produtos
-PUT  /api/products     - Atualizar produto
-DELETE /api/products?id=xxx - Remover produto
-
-POST /api/orders       - Criar pedido
-GET  /api/orders       - Listar pedidos
-PUT  /api/orders       - Atualizar status do pedido
-
-POST /api/customers    - Criar/atualizar cliente e pontos
-GET  /api/customers    - Listar clientes
-GET  /api/customers?phone=xxx&name=xxx - Buscar cliente especifico
-PUT  /api/customers    - Atualizar cliente / resgatar pontos
-
-GET  /api/init         - Inicializar dados (se nao existirem)
-POST /api/init         - Forcar reinicializacao dos dados
+- Laranja: #FF6B35 (principal)
+- Amarelo: #F7C41F (acento)
+- Rosa/Magenta: #FF2D92 (destaque)
+- Ciano: #00D9FF (contraste)
+- Roxo: #7B2FF7 (confetes)
+- Verde: #00FF88 (confetes)
 
 ================================================================================
-8. PROXIMOS PASSOS RECOMENDADOS
+8. CORRECOES DE DESIGN - FEEDBACK DO USUARIO
 ================================================================================
 
-1. Executar 'npm run build' para verificar se nao ha erros
-2. Executar 'npm run dev' e testar:
-   - Login admin (admin / eplopesfortedogelo)
-   - Criar novo produto na aba Produtos
-   - Verificar Dashboard com dados reais
-   - Fazer um pedido e ver se aparece na area de Pedidos
-3. Verificar se logo.jpg esta sendo exibido corretamente
-4. Atualizar informacoes de contato reais em /src/data/constants.ts
-5. Substituir imagens Unsplash por imagens reais dos produtos
+Usuario reportou que o estilo carnaval ficou "brega" e "extremamente IA".
+As seguintes correcoes foram aplicadas:
+
+### MANTIDO (usuario aprovou):
+- Badge "Carnaval de Ofertas!" no Hero
+- Botao "Pedir Agora" com gradiente rosa (from-[#FF6B35] to-[#FF2D92])
+- Confetes animados no Hero
+- Compactacao de todas as secoes
+
+### REVERTIDO (cores/gradientes removidos):
+
+#### src/components/landing/Hero.tsx
+- "feito com amor": ANTES gradiente rosa -> AGORA text-primary (cor normal)
+
+#### src/components/landing/MenuHighlights.tsx
+- "vai amar": ANTES gradiente colorido -> AGORA text-primary (cor normal)
+- Botao "Ver Cardapio Completo": ANTES gradiente -> AGORA outline com hover primary
+
+#### src/components/landing/Testimonials.tsx
+- Secao inteira: REVERTIDO para cores originais do tema
+- Header badge: de gradiente carnaval -> bg-accent/10 border-accent/20
+- Texto "clientes": de gradiente -> text-primary
+- Estrelas: de #F7C41F -> text-accent fill-accent
+- Borda avatar: de #FF6B35 -> border-primary/20
+- Botoes navegacao: de gradiente -> hover:bg-primary
+- Stats: de #FF6B35 -> text-primary
+- Background: de #F7C41F -> bg-primary/5
+
+#### src/components/landing/Features.tsx
+- COMBINADO: "Entrega Rapida" + "Super Geladas" em um unico feature
+- ANTES: 3 features (Entrega Rapida, Super Geladas, Promocoes de Carnaval)
+- AGORA: 2 features (Bebidas Super Geladas, Promocoes de Carnaval)
+- Grid alterado de 3 colunas para 2 colunas (max-w-3xl mx-auto)
+- Nova descricao: "Frigorificos de ultima geracao garantem suas bebidas
+  sempre geladas, chegando em minutos na sua porta."
 
 ================================================================================
                               FIM DO RELATORIO

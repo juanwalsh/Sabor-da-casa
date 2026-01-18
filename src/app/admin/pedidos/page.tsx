@@ -221,41 +221,44 @@ export default function PedidosPage() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-serif">
-                  Pedido #{selectedOrderData.id.slice(-4)}
+                  Pedido #{selectedOrderData.id?.slice(-4) || '----'}
                 </DialogTitle>
               </DialogHeader>
 
               <div className="space-y-6">
                 {/* Status */}
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-full ${
-                      statusConfig[selectedOrderData.status].color
-                    } flex items-center justify-center`}
-                  >
-                    {(() => {
-                      const Icon = statusConfig[selectedOrderData.status].icon;
-                      return <Icon className="w-5 h-5 text-white" />;
-                    })()}
-                  </div>
-                  <div>
-                    <p className="font-medium">
-                      {statusConfig[selectedOrderData.status].label}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(selectedOrderData.createdAt).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
+                {(() => {
+                  const orderStatus = statusConfig[selectedOrderData.status] || statusConfig.pending;
+                  const OrderStatusIcon = orderStatus.icon;
+                  return (
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full ${
+                          orderStatus.color
+                        } flex items-center justify-center`}
+                      >
+                        <OrderStatusIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          {orderStatus.label}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedOrderData.createdAt ? new Date(selectedOrderData.createdAt).toLocaleString('pt-BR') : 'Data desconhecida'}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <Separator />
 
                 {/* Customer Info */}
                 <div>
                   <h4 className="font-medium mb-2">Cliente</h4>
-                  <p>{selectedOrderData.customerName}</p>
+                  <p>{selectedOrderData.customerName || 'Cliente sem nome'}</p>
                   <p className="text-sm text-muted-foreground">
-                    {selectedOrderData.customerPhone}
+                    {selectedOrderData.customerPhone || 'Telefone não informado'}
                   </p>
                   {selectedOrderData.customerEmail && (
                     <p className="text-sm text-muted-foreground">
@@ -269,15 +272,19 @@ export default function PedidosPage() {
                   <h4 className="font-medium mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4" /> Endereço
                   </h4>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedOrderData.address.street}, {selectedOrderData.address.number}
-                    {selectedOrderData.address.complement &&
-                      ` - ${selectedOrderData.address.complement}`}
-                    <br />
-                    {selectedOrderData.address.neighborhood}, {selectedOrderData.address.city}
-                    <br />
-                    CEP: {selectedOrderData.address.zipCode}
-                  </p>
+                  {selectedOrderData.address ? (
+                    <p className="text-sm text-muted-foreground">
+                      {selectedOrderData.address.street || ''}, {selectedOrderData.address.number || 'S/N'}
+                      {selectedOrderData.address.complement &&
+                        ` - ${selectedOrderData.address.complement}`}
+                      <br />
+                      {selectedOrderData.address.neighborhood || ''}, {selectedOrderData.address.city || ''}
+                      <br />
+                      CEP: {selectedOrderData.address.zipCode || ''}
+                    </p>
+                  ) : (
+                     <p className="text-sm text-muted-foreground">Endereço não informado (Retirada ou incompleto)</p>
+                  )}
                 </div>
 
                 <Separator />
@@ -286,16 +293,20 @@ export default function PedidosPage() {
                 <div>
                   <h4 className="font-medium mb-3">Itens do Pedido</h4>
                   <div className="space-y-2">
-                    {selectedOrderData.items.map((item) => (
-                      <div key={item.id} className="flex justify-between text-sm">
+                    {selectedOrderData.items?.length > 0 ? (
+                      selectedOrderData.items.map((item) => (
+                      <div key={item.id || Math.random()} className="flex justify-between text-sm">
                         <span>
                           {item.quantity}x {getProductName(item.productId)}
                         </span>
                         <span className="font-medium">
-                          {formatPrice(item.unitPrice * item.quantity)}
+                          {formatPrice((item.unitPrice || 0) * (item.quantity || 1))}
                         </span>
                       </div>
-                    ))}
+                    ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Sem itens neste pedido</p>
+                    )}
                   </div>
                 </div>
 
@@ -305,58 +316,65 @@ export default function PedidosPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>{formatPrice(selectedOrderData.subtotal)}</span>
+                    <span>{formatPrice(selectedOrderData.subtotal || 0)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Entrega</span>
                     <span>
-                      {selectedOrderData.deliveryFee === 0
+                      {(selectedOrderData.deliveryFee || 0) === 0
                         ? 'Grátis'
-                        : formatPrice(selectedOrderData.deliveryFee)}
+                        : formatPrice(selectedOrderData.deliveryFee || 0)}
                     </span>
                   </div>
-                  {selectedOrderData.discount > 0 && (
+                  {(selectedOrderData.discount || 0) > 0 && (
                     <div className="flex justify-between text-sm text-secondary">
                       <span>Desconto</span>
-                      <span>-{formatPrice(selectedOrderData.discount)}</span>
+                      <span>-{formatPrice(selectedOrderData.discount || 0)}</span>
                     </div>
                   )}
                   <Separator />
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span className="font-serif">{formatPrice(selectedOrderData.total)}</span>
+                    <span className="font-serif">{formatPrice(selectedOrderData.total || 0)}</span>
                   </div>
                 </div>
 
                 {/* Actions */}
-                {statusConfig[selectedOrderData.status].next && (
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      handleStatusUpdate(
-                        selectedOrderData.id,
-                        statusConfig[selectedOrderData.status].next!
-                      );
-                      setSelectedOrder(null);
-                    }}
-                  >
-                    Avançar para: {statusConfig[statusConfig[selectedOrderData.status].next!].label}
-                  </Button>
-                )}
+                {(() => {
+                  const actionStatus = statusConfig[selectedOrderData.status] || statusConfig.pending;
+                  return (
+                    <>
+                      {actionStatus.next && (
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            handleStatusUpdate(
+                              selectedOrderData.id,
+                              actionStatus.next!
+                            );
+                            setSelectedOrder(null);
+                          }}
+                        >
+                          Avançar para: {statusConfig[actionStatus.next!].label}
+                        </Button>
+                      )}
 
-                {selectedOrderData.status !== 'cancelled' &&
-                  selectedOrderData.status !== 'delivered' && (
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={() => {
-                        handleStatusUpdate(selectedOrderData.id, 'cancelled');
-                        setSelectedOrder(null);
-                      }}
-                    >
-                      Cancelar Pedido
-                    </Button>
-                  )}
+                      {selectedOrderData.status !== 'cancelled' &&
+                        selectedOrderData.status !== 'delivered' && (
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => {
+                              handleStatusUpdate(selectedOrderData.id, 'cancelled');
+                              setSelectedOrder(null);
+                            }}
+                          >
+                            Cancelar Pedido
+                          </Button>
+                        )}
+                    </>
+                  );
+                })()}
               </div>
             </>
           )}

@@ -24,6 +24,7 @@ interface AdminUsersState {
   users: AdminUser[];
 
   // Actions
+  setUsers: (users: AdminUser[]) => void;
   addUser: (user: Omit<AdminUser, 'points' | 'totalPointsEarned' | 'level' | 'pointsHistory'>) => void;
   removeUser: (userId: string) => void;
   getUserByEmail: (email: string) => AdminUser | undefined;
@@ -129,7 +130,9 @@ const mockUsers: AdminUser[] = [
 export const useAdminUsersStore = create<AdminUsersState>()(
   persist(
     (set, get) => ({
-      users: mockUsers,
+      users: [], // Start empty, will be populated by API
+
+      setUsers: (users) => set({ users }),
 
       addUser: (userData) => {
         const newUser: AdminUser = {

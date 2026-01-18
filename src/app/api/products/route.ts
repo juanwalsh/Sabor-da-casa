@@ -1,71 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile, mkdir, access } from 'fs/promises';
-import { join } from 'path';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { Product } from '@/types';
-import { products as initialProducts } from '@/data/mockData';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
-const DATA_DIR = join(process.cwd(), 'data');
-const PRODUCTS_FILE = join(DATA_DIR, 'products.json');
+const COLLECTION_NAME = 'products';
 
-// Garante que o diretorio existe
-async function ensureDataDir() {
-  try {
-    await mkdir(DATA_DIR, { recursive: true });
-  } catch {
-    // Diretorio ja existe
-  }
-}
-
-// Verifica se arquivo existe
-async function fileExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Le produtos do arquivo JSON - inicializa automaticamente se nao existir
-async function getProducts(): Promise<Product[]> {
-  try {
-    await ensureDataDir();
-
-    // Se arquivo nao existe, inicializa com dados iniciais
-    if (!(await fileExists(PRODUCTS_FILE))) {
-      await writeFile(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2), 'utf-8');
-      return initialProducts;
-    }
-
-    const data = await readFile(PRODUCTS_FILE, 'utf-8');
-    const products = JSON.parse(data);
-
-    // Se arquivo vazio, inicializa com dados iniciais
-    if (!products || products.length === 0) {
-      await writeFile(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2), 'utf-8');
-      return initialProducts;
-    }
-
-    return products;
-  } catch {
-    // Em caso de erro, inicializa com dados iniciais
-    await writeFile(PRODUCTS_FILE, JSON.stringify(initialProducts, null, 2), 'utf-8');
-    return initialProducts;
-  }
-}
-
-// Salva produtos no arquivo JSON
-async function saveProducts(products: Product[]): Promise<void> {
-  await ensureDataDir();
-  await writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2), 'utf-8');
-}
+const productSchema = z.object({
+  name: z.string().min(1, 'Nome obrigatorio'),
+  description: z.string().min(1, 'Descricao obrigatoria'),
+  price: z.coerce.number().positive('Preco deve ser positivo'),
+  image: z.string().url('URL de imagem invalida'),
+  categoryId: z.string().min(1, 'Categoria obrigatoria'),
+  active: z.boolean().optional().default(true),
+  featured: z.boolean().optional().default(false),
+  preparationTime: z.coerce.number().int().nonnegative('Tempo de preparo invalido').optional(),
+  serves: z.coerce.number().int().positive('Numero de pessoas invalido').optional(),
+  tags: z.array(z.string()).optional().default([]),
+  stock: z.coerce.number().int().nonnegative('Estoque invalido').default(100),
+});
 
 // GET - Lista todos os produtos
 export async function GET() {
   try {
-    const products = await getProducts();
+    const productsRef = collection(db, COLLECTION_NAME);
+    let q = query(productsRef); 
+    
+    const snapshot = await getDocs(q);
+    const products = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Product[];
+
     return NextResponse.json({ success: true, products });
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
@@ -80,25 +48,27 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const products = await getProducts();
+    
+    const validation = productSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, error: 'Dados invalidos', details: validation.error.format() },
+        { status: 400 }
+      );
+    }
 
-    const newProduct: Product = {
-      id: `prod-${Date.now()}`,
-      name: body.name,
-      description: body.description,
-      price: body.price,
-      image: body.image,
-      categoryId: body.categoryId,
-      active: body.active ?? true,
-      featured: body.featured ?? false,
-      preparationTime: body.preparationTime,
-      serves: body.serves,
-      tags: body.tags || [],
-      stock: body.stock ?? 100,
+    const newProductData = {
+      ...validation.data,
+      createdAt: new Date().toISOString(),
     };
 
-    products.unshift(newProduct);
-    await saveProducts(products);
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), newProductData);
+    
+    const newProduct = {
+      id: docRef.id,
+      ...newProductData
+    };
 
     return NextResponse.json({ success: true, product: newProduct });
   } catch (error) {
@@ -114,7 +84,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, ...updates } = body;
+    const { id, ...data } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -123,20 +93,20 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const products = await getProducts();
-    const index = products.findIndex(p => p.id === id);
+    // Valida apenas os campos enviados (partial)
+    const validation = productSchema.partial().safeParse(data);
 
-    if (index === -1) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Produto nao encontrado' },
-        { status: 404 }
+        { success: false, error: 'Dados invalidos', details: validation.error.format() },
+        { status: 400 }
       );
     }
 
-    products[index] = { ...products[index], ...updates };
-    await saveProducts(products);
+    const productRef = doc(db, COLLECTION_NAME, id);
+    await updateDoc(productRef, validation.data);
 
-    return NextResponse.json({ success: true, product: products[index] });
+    return NextResponse.json({ success: true, product: { id, ...validation.data } });
   } catch (error) {
     console.error('Erro ao atualizar produto:', error);
     return NextResponse.json(
@@ -159,17 +129,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const products = await getProducts();
-    const filtered = products.filter(p => p.id !== id);
-
-    if (filtered.length === products.length) {
-      return NextResponse.json(
-        { success: false, error: 'Produto nao encontrado' },
-        { status: 404 }
-      );
-    }
-
-    await saveProducts(filtered);
+    const productRef = doc(db, COLLECTION_NAME, id);
+    await deleteDoc(productRef);
 
     return NextResponse.json({ success: true });
   } catch (error) {

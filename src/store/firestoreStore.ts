@@ -7,9 +7,12 @@ import {
   increment,
   serverTimestamp,
   getDoc,
+  getDocs,
+  query,
+  orderBy
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { CartItem } from '@/types';
+import { CartItem, Order } from '@/types';
 
 export interface PedidoItem {
   produtoId: string;
@@ -49,51 +52,84 @@ export interface Pedido {
 }
 
 interface FirestoreState {
+  orders: Order[]; // Lista de pedidos do admin
   isSubmitting: boolean;
+  isLoadingOrders: boolean;
   lastOrderId: string | null;
   error: string | null;
 
   // Acoes
+  fetchOrders: () => Promise<void>;
   criarPedido: (pedido: Record<string, unknown>, cartItems: CartItem[]) => Promise<string | null>;
   atualizarEstoque: (produtoId: string, quantidade: number) => Promise<boolean>;
   verificarEstoque: (cartItems: CartItem[]) => Promise<{ ok: boolean; produtoSemEstoque?: string }>;
 }
 
 export const useFirestoreStore = create<FirestoreState>((set) => ({
+  orders: [],
   isSubmitting: false,
+  isLoadingOrders: false,
   lastOrderId: null,
   error: null,
+
+  fetchOrders: async () => {
+    set({ isLoadingOrders: true });
+    try {
+      // Busca da colecao 'orders' (novo padrao)
+      const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+      const snapshot = await getDocs(q);
+      
+      const orders = snapshot.docs.map(doc => {
+        const data = doc.data();
+        // Mapear dados do Firestore para o tipo Order
+        return {
+          id: doc.id,
+          ...data,
+          // Converter timestamps strings para Date objects se necessario
+          createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+          estimatedDelivery: data.estimatedDelivery ? new Date(data.estimatedDelivery) : undefined,
+        } as unknown as Order;
+      });
+
+      set({ orders, isLoadingOrders: false });
+    } catch (error) {
+      console.error('Erro ao buscar pedidos:', error);
+      set({ error: 'Erro ao carregar pedidos', isLoadingOrders: false });
+    }
+  },
 
   // Criar pedido no Firestore (sem transacao complexa para evitar travamento)
   criarPedido: async (pedido, cartItems) => {
     set({ isSubmitting: true, error: null });
 
     try {
-      // Criar o pedido diretamente no Firestore
-      // Nao usamos transacao porque produtos podem nao existir no Firestore (dados mock)
-      const pedidosRef = collection(db, 'pedidos');
-      const docRef = await addDoc(pedidosRef, {
+      // Usar a colecao 'orders' padrao agora
+      const pedidosRef = collection(db, 'orders');
+      
+      // Ajustar dados para formato final
+      const orderData = {
         ...pedido,
-        status: 'pendente',
-        criadoEm: serverTimestamp(),
-        atualizadoEm: serverTimestamp(),
-      });
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const docRef = await addDoc(pedidosRef, orderData);
 
       // Tentar debitar estoque de produtos que existem no Firestore (opcional, nao bloqueia)
       try {
         for (const item of cartItems) {
-          const produtoRef = doc(db, 'produtos', item.product.id);
+          const produtoRef = doc(db, 'products', item.product.id);
           const produtoDoc = await getDoc(produtoRef);
 
           if (produtoDoc.exists()) {
             const data = produtoDoc.data();
-            const estoque = data?.estoque;
+            const estoque = data?.stock; // Campo stock no novo padrao
 
             // So debita se tem controle de estoque ativo (estoque > 0)
             if (estoque !== undefined && estoque !== null && estoque > 0) {
               await updateDoc(produtoRef, {
-                estoque: increment(-item.quantity),
-                atualizadoEm: serverTimestamp(),
+                stock: increment(-item.quantity),
               });
             }
           }
@@ -104,6 +140,8 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
       }
 
       set({ isSubmitting: false, lastOrderId: docRef.id });
+      // Atualizar lista local
+      // get().fetchOrders(); // Opcional: atualizar lista imediatamente
       return docRef.id;
 
     } catch (error) {
@@ -117,10 +155,9 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
   // Atualizar estoque de um produto
   atualizarEstoque: async (produtoId, quantidade) => {
     try {
-      const produtoRef = doc(db, 'produtos', produtoId);
+      const produtoRef = doc(db, 'products', produtoId);
       await updateDoc(produtoRef, {
-        estoque: increment(quantidade),
-        atualizadoEm: serverTimestamp(),
+        stock: increment(quantidade),
       });
       return true;
     } catch (error) {
@@ -134,7 +171,7 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
   verificarEstoque: async (cartItems) => {
     try {
       for (const item of cartItems) {
-        const produtoRef = doc(db, 'produtos', item.product.id);
+        const produtoRef = doc(db, 'products', item.product.id);
         const produtoDoc = await getDoc(produtoRef);
 
         // Se produto nao existe no Firebase, permite (usa dados locais)
@@ -143,7 +180,7 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
         }
 
         const data = produtoDoc.data();
-        const estoque = data?.estoque;
+        const estoque = data?.stock;
 
         // Se estoque e undefined, null ou 0, significa sem controle = infinito
         if (estoque === undefined || estoque === null || estoque === 0) {

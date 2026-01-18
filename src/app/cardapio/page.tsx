@@ -1,11 +1,12 @@
 'use client';
 
+'use client';
+
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Search,
-  Filter,
   ChevronLeft,
   Plus,
   Star,
@@ -14,9 +15,10 @@ import {
   SlidersHorizontal,
   X,
 } from 'lucide-react';
-import { products, categories, formatPrice } from '@/data/mockData';
+import { categories, formatPrice } from '@/data/mockData';
 import { Product } from '@/types';
 import { useCartStore } from '@/store/cartStore';
+import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ProductModal from '@/components/menu/ProductModal';
 import CartSidebar from '@/components/menu/CartSidebar';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ import { toast } from 'sonner';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name';
 
 export default function CardapioPage() {
+  const { products, isLoading } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('default');
@@ -105,7 +107,7 @@ export default function CardapioPage() {
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory, sortBy, advancedFilters]);
+  }, [products, searchQuery, selectedCategory, sortBy, advancedFilters]);
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -283,7 +285,11 @@ export default function CardapioPage() {
 
         {/* Products Grid */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {filteredAndSortedProducts.length === 0 ? (
+          {isLoading ? (
+             <div className="flex justify-center py-20">
+               <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
+             </div>
+          ) : filteredAndSortedProducts.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
                 <Search className="w-12 h-12 text-muted-foreground" />
@@ -434,3 +440,4 @@ export default function CardapioPage() {
     </>
   );
 }
+

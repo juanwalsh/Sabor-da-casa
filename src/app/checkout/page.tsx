@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,15 +36,15 @@ import { useScheduleStore } from '@/store/scheduleStore';
 import { toast } from 'sonner';
 
 const checkoutSchema = z.object({
-  name: z.string().optional().or(z.literal('')),
-  phone: z.string().optional().or(z.literal('')),
+  name: z.string().min(3, 'Nome é obrigatório e deve ter no mínimo 3 caracteres'),
+  phone: z.string().min(10, 'Telefone inválido'),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
-  street: z.string().optional().or(z.literal('')),
-  number: z.string().optional().or(z.literal('')),
+  street: z.string().min(3, 'Rua é obrigatória'),
+  number: z.string().min(1, 'Número é obrigatório'),
   complement: z.string().optional(),
-  neighborhood: z.string().optional().or(z.literal('')),
-  city: z.string().optional().or(z.literal('')),
-  zipCode: z.string().optional().or(z.literal('')),
+  neighborhood: z.string().min(2, 'Bairro é obrigatório'),
+  city: z.string().min(2, 'Cidade é obrigatória'),
+  zipCode: z.string().min(8, 'CEP inválido'),
   notes: z.string().optional(),
 });
 
@@ -70,6 +70,8 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -77,6 +79,25 @@ export default function CheckoutPage() {
       city: 'São Paulo',
     },
   });
+
+  // Phone Mask
+  const phoneValue = watch('phone');
+  useEffect(() => {
+    if (phoneValue) {
+      const current = phoneValue.replace(/\D/g, '');
+      let masked = current;
+      if (current.length > 10) {
+        masked = current.replace(/^(\d\d)(\d{5})(\d{4}).*/, '($1) $2-$3');
+      } else if (current.length > 5) {
+        masked = current.replace(/^(\d\d)(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+      } else if (current.length > 2) {
+        masked = current.replace(/^(\d\d)(\d{0,5}).*/, '($1) $2');
+      }
+      if (masked !== phoneValue) {
+        setValue('phone', masked);
+      }
+    }
+  }, [phoneValue, setValue]);
 
   const subtotal = getSubtotal();
   const deliveryFee = getDeliveryFee();
@@ -253,7 +274,7 @@ export default function CheckoutPage() {
               <h2 className="font-sans text-base sm:text-lg font-semibold mb-3 sm:mb-4">Dados Pessoais</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <Label htmlFor="name">Nome completo (opcional)</Label>
+                  <Label htmlFor="name">Nome completo</Label>
                   <Input
                     id="name"
                     {...register('name')}
@@ -262,7 +283,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Telefone (opcional)</Label>
+                  <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     {...register('phone')}
@@ -334,7 +355,7 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="complement">Complemento</Label>
+                  <Label htmlFor="complement">Complemento (opcional)</Label>
                   <Input
                     id="complement"
                     {...register('complement')}

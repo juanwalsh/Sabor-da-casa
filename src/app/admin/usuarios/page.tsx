@@ -327,7 +327,7 @@ function SuccessOverlay({
 }
 
 export default function AdminUsuariosPage() {
-  const { users, searchUsers, addPoints, removePoints } = useAdminUsersStore();
+  const { users, searchUsers, addPoints, removePoints, setUsers } = useAdminUsersStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [dialogMode, setDialogMode] = useState<'add' | 'remove'>('add');
@@ -336,6 +336,50 @@ export default function AdminUsuariosPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [successType, setSuccessType] = useState<'add' | 'remove'>('add');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/customers');
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.customers)) {
+          const mappedUsers: AdminUser[] = data.customers.map((c: any) => {
+            const totalPointsEarned = Math.floor(c.totalSpent || 0);
+            
+            // Calculate level
+            let level: 'bronze' | 'silver' | 'gold' | 'platinum' = 'bronze';
+            if (totalPointsEarned >= 5000) level = 'platinum';
+            else if (totalPointsEarned >= 1500) level = 'gold';
+            else if (totalPointsEarned >= 500) level = 'silver';
+
+            return {
+              id: c.id,
+              name: c.name || 'Cliente sem nome',
+              email: c.email || `cliente-${c.id.slice(-4)}@loja.com`, // Fallback email
+              phone: c.phone,
+              createdAt: c.createdAt,
+              points: c.points || 0,
+              totalPointsEarned,
+              level,
+              pointsHistory: [], // API doesn't return history yet
+            };
+          });
+          setUsers(mappedUsers);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar usuarios:', error);
+        toast.error('Erro ao carregar lista de usuários');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [setUsers]);
 
   // Calcula preview de pontos
   const pointsPreview = useMemo(() => {
@@ -513,6 +557,11 @@ export default function AdminUsuariosPage() {
           {searchQuery ? 'Resultados' : 'Usuarios'}
         </h2>
 
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
+        ) : (
         <AnimatePresence mode="popLayout">
           {filteredUsers.length === 0 ? (
             <motion.div
@@ -540,6 +589,7 @@ export default function AdminUsuariosPage() {
             </div>
           )}
         </AnimatePresence>
+        )}
       </div>
 
       {/* Points Dialog */}

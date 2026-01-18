@@ -1,18 +1,50 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Clock, Star, Flame } from 'lucide-react';
+import { ArrowRight, Clock, Star, Flame, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { RESTAURANT_INFO } from '@/data/mockData';
 
+// Confetes de carnaval
+const confettiColors = ['#FF6B35', '#F7C41F', '#00D9FF', '#FF2D92', '#7B2FF7', '#00FF88'];
+
+function Confetti({ delay = 0, left = '10%' }: { delay?: number; left?: string }) {
+  const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+  return (
+    <motion.div
+      className="absolute w-2 h-3 md:w-3 md:h-4 rounded-sm pointer-events-none"
+      style={{ backgroundColor: color, left, top: '-20px' }}
+      animate={{
+        y: ['0vh', '100vh'],
+        x: [0, Math.random() * 100 - 50],
+        rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+        opacity: [1, 1, 0],
+      }}
+      transition={{
+        duration: 4 + Math.random() * 2,
+        repeat: Infinity,
+        delay: delay,
+        ease: 'linear',
+      }}
+    />
+  );
+}
+
 export default function Hero() {
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-[85vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden"
     >
+      {/* Confetes de Carnaval */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+        {[...Array(12)].map((_, i) => (
+          <Confetti key={i} delay={i * 0.3} left={`${5 + i * 8}%`} />
+        ))}
+      </div>
+
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -27,54 +59,46 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/60" />
       </div>
 
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
+      {/* Decorative Elements - Carnaval colors */}
+      <div className="absolute top-20 left-10 w-48 md:w-72 h-48 md:h-72 bg-[#FF6B35]/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <div className="absolute bottom-20 right-10 w-64 md:w-96 h-64 md:h-96 bg-[#F7C41F]/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-[#FF2D92]/15 rounded-full blur-2xl opacity-50 pointer-events-none hidden md:block" />
 
-      {/* Floating Food Items - Decorative */}
+      {/* Floating Carnival Items - Decorative */}
       <motion.div
-        animate={{ y: [0, -20, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-32 right-[15%] hidden lg:block pointer-events-none"
+        animate={{ y: [0, -15, 0], rotate: [0, 5, -5, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-24 right-[15%] hidden lg:block pointer-events-none"
       >
-        <div className="w-20 h-20 rounded-full bg-accent/30 backdrop-blur-sm flex items-center justify-center text-4xl shadow-2xl">
-          🍲
+        <div className="w-14 h-14 rounded-full bg-[#FF2D92]/30 backdrop-blur-sm flex items-center justify-center text-2xl shadow-xl">
+          🎭
         </div>
       </motion.div>
       <motion.div
-        animate={{ y: [0, 15, 0] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute bottom-40 left-[10%] hidden lg:block pointer-events-none"
+        animate={{ y: [0, 12, 0], rotate: [0, -5, 5, 0] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        className="absolute bottom-32 left-[10%] hidden lg:block pointer-events-none"
       >
-        <div className="w-16 h-16 rounded-full bg-primary/30 backdrop-blur-sm flex items-center justify-center text-3xl shadow-2xl">
-          🥘
-        </div>
-      </motion.div>
-      <motion.div
-        animate={{ y: [0, -15, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-1/2 right-[8%] hidden xl:block pointer-events-none"
-      >
-        <div className="w-14 h-14 rounded-full bg-secondary/30 backdrop-blur-sm flex items-center justify-center text-2xl shadow-2xl">
-          🍛
+        <div className="w-12 h-12 rounded-full bg-[#F7C41F]/30 backdrop-blur-sm flex items-center justify-center text-xl shadow-xl">
+          🎉
         </div>
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-20">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content */}
           <div className="text-center lg:text-left">
-            {/* Badge */}
+            {/* Badge - Carnaval style */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+              className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-[#FF6B35]/20 to-[#F7C41F]/20 border border-[#FF6B35]/30 mb-4 md:mb-6"
             >
-              <Flame className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Mais de 15 anos de tradição
+              <PartyPopper className="w-4 h-4 text-[#FF6B35]" />
+              <span className="text-xs md:text-sm font-medium bg-gradient-to-r from-[#FF6B35] to-[#FF2D92] bg-clip-text text-transparent">
+                Carnaval de Ofertas!
               </span>
             </motion.div>
 
@@ -83,7 +107,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6"
+              className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-4 md:mb-6"
             >
               <span className="text-foreground">Sabor de casa,</span>
               <br />
@@ -93,7 +117,7 @@ export default function Hero() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 1, delay: 0.8 }}
-                  className="absolute -bottom-2 left-0 w-full h-3 text-accent"
+                  className="absolute -bottom-1 md:-bottom-2 left-0 w-full h-2 md:h-3 text-accent"
                   viewBox="0 0 200 12"
                   fill="none"
                 >
@@ -115,46 +139,45 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
+              className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-5 md:mb-8 leading-relaxed"
             >
-              {RESTAURANT_INFO.description} Receitas tradicionais brasileiras que
-              aquecem o coração e alimentam a alma.
+              {RESTAURANT_INFO.description} Bebidas geladas para a folia!
             </motion.p>
 
-            {/* Stats */}
+            {/* Stats - Compacto */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mb-10"
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 mb-6 md:mb-8"
             >
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-accent" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                  <Clock className="w-4 h-4 md:w-5 md:h-5 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">{RESTAURANT_INFO.deliveryTime}</p>
-                  <p className="text-xs text-muted-foreground">Entrega</p>
+                  <p className="text-xs md:text-sm font-bold text-foreground">{RESTAURANT_INFO.deliveryTime}</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Entrega</p>
                 </div>
               </div>
-              <div className="w-px h-10 bg-border hidden sm:block" />
+              <div className="w-px h-8 bg-border hidden sm:block" />
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-                  <Star className="w-5 h-5 text-secondary fill-secondary" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                  <Star className="w-4 h-4 md:w-5 md:h-5 text-secondary fill-secondary" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">4.9/5</p>
-                  <p className="text-xs text-muted-foreground">Avaliação</p>
+                  <p className="text-xs md:text-sm font-bold text-foreground">4.9/5</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Avaliação</p>
                 </div>
               </div>
-              <div className="w-px h-10 bg-border hidden sm:block" />
+              <div className="w-px h-8 bg-border hidden sm:block" />
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-lg">🍽️</span>
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-sm md:text-lg">🎊</span>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">+5.000</p>
-                  <p className="text-xs text-muted-foreground">Clientes felizes</p>
+                  <p className="text-xs md:text-sm font-bold text-foreground">+5.000</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">Clientes</p>
                 </div>
               </div>
             </motion.div>
@@ -164,23 +187,23 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-center gap-4"
+              className="flex flex-col sm:flex-row items-center gap-3"
             >
               <Button
                 asChild
                 size="lg"
-                className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all group"
+                className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-semibold rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#FF2D92] shadow-xl shadow-[#FF6B35]/30 hover:shadow-2xl hover:shadow-[#FF6B35]/40 transition-all group border-0"
               >
                 <Link href="/cardapio">
                   Pedir Agora
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-muted/50 transition-all"
+                className="w-full sm:w-auto h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-semibold rounded-2xl border-2 hover:bg-muted/50 transition-all"
               >
                 <Link href="#cardapio">
                   Ver Cardápio
@@ -189,7 +212,7 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Hero Image */}
+          {/* Hero Image - Mais compacto */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -198,44 +221,44 @@ export default function Hero() {
           >
             <div className="relative">
               {/* Main Image */}
-              <div className="relative w-[500px] h-[500px] mx-auto">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-3xl" />
+              <div className="relative w-[380px] xl:w-[450px] h-[380px] xl:h-[450px] mx-auto">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF6B35]/30 via-[#FF2D92]/20 to-[#F7C41F]/30 blur-3xl" />
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-4 rounded-full border-2 border-dashed border-primary/20"
+                  className="absolute inset-4 rounded-full border-2 border-dashed border-[#FF6B35]/30"
                 />
                 <motion.div
                   animate={{ rotate: -360 }}
                   transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-12 rounded-full border-2 border-dashed border-secondary/20"
+                  className="absolute inset-10 rounded-full border-2 border-dashed border-[#F7C41F]/30"
                 />
-                <div className="absolute inset-8 rounded-full overflow-hidden shadow-2xl shadow-primary/20">
+                <div className="absolute inset-6 rounded-full overflow-hidden shadow-2xl shadow-[#FF6B35]/20">
                   <Image
                     src="https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80"
                     alt="Prato de comida brasileira"
                     fill
-                    sizes="384px"
+                    sizes="350px"
                     loading="eager"
                     className="object-cover"
                   />
                 </div>
               </div>
 
-              {/* Floating Cards */}
+              {/* Floating Cards - Carnaval style */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
-                className="absolute -left-8 top-1/4 bg-card p-4 rounded-2xl shadow-xl border border-border"
+                className="absolute -left-4 top-1/4 bg-card p-3 rounded-xl shadow-xl border border-[#FF6B35]/20"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
-                    🏆
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#FF6B35]/20 to-[#F7C41F]/20 flex items-center justify-center text-xl">
+                    🎭
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">Top 10</p>
-                    <p className="text-xs text-muted-foreground">Delivery SP</p>
+                    <p className="text-xs font-bold text-foreground">Carnaval</p>
+                    <p className="text-[10px] text-muted-foreground">Promoções</p>
                   </div>
                 </div>
               </motion.div>
@@ -244,41 +267,15 @@ export default function Hero() {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 1 }}
-                className="absolute -right-4 bottom-1/4 bg-card p-4 rounded-2xl shadow-xl border border-border"
+                className="absolute -right-2 bottom-1/3 bg-card p-3 rounded-xl shadow-xl border border-[#FF2D92]/20"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-card overflow-hidden relative">
-                      <Image
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40"
-                        alt=""
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-card overflow-hidden relative">
-                      <Image
-                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40"
-                        alt=""
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="w-8 h-8 rounded-full border-2 border-card overflow-hidden relative">
-                      <Image
-                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40"
-                        alt=""
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                      />
-                    </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#FF2D92]/20 to-[#7B2FF7]/20 flex items-center justify-center text-xl">
+                    🍻
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">+2.5k</p>
-                    <p className="text-xs text-muted-foreground">Avaliações</p>
+                    <p className="text-xs font-bold text-foreground">Geladas</p>
+                    <p className="text-[10px] text-muted-foreground">Disponíveis</p>
                   </div>
                 </div>
               </motion.div>
@@ -287,24 +284,24 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - Menor no mobile */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2"
       >
         <motion.div
-          animate={{ y: [0, 10, 0] }}
+          animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex flex-col items-center gap-2 text-muted-foreground"
+          className="flex flex-col items-center gap-1 text-muted-foreground"
         >
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-2">
+          <span className="text-[10px] md:text-xs tracking-widest uppercase hidden md:block">Scroll</span>
+          <div className="w-5 h-8 md:w-6 md:h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1.5 md:p-2">
             <motion.div
-              animate={{ y: [0, 12, 0] }}
+              animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-primary"
+              className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-[#FF6B35]"
             />
           </div>
         </motion.div>

@@ -1,121 +1,85 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
+import useSWR from 'swr';
 import { Product } from '@/types';
-import { products as initialProducts } from '@/data/mockData';
+import { toast } from 'sonner';
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Falha ao carregar produtos');
+  const data = await res.json();
+  return data;
+};
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isLoading, mutate } = useSWR('/api/products', fetcher);
 
-  // Carrega produtos da API (inicializa automaticamente se necessario)
-  const fetchProducts = useCallback(async () => {
+  const createProduct = async (productData: Omit<Product, 'id'>) => {
     try {
-      setIsLoading(true);
-      const response = await fetch('/api/products');
-      const data = await response.json();
-
-      if (data.success && data.products) {
-        setProducts(data.products);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar produtos:', err);
-      setError('Erro ao carregar produtos');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Cria novo produto
-  const createProduct = useCallback(async (product: Omit<Product, 'id'>): Promise<Product | null> => {
-    try {
-      const response = await fetch('/api/products', {
+      const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
+        body: JSON.stringify(productData),
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setProducts(prev => [data.product, ...prev]);
-        return data.product;
-      }
-      return null;
+      
+      if (!res.ok) throw new Error('Erro ao criar produto');
+      
+      await mutate(); // Revalida a lista
+      toast.success('Produto criado com sucesso');
+      return true;
     } catch (err) {
-      console.error('Erro ao criar produto:', err);
-      return null;
+      toast.error('Erro ao criar produto');
+      return false;
     }
-  }, []);
+  };
 
-  // Atualiza produto
-  const updateProduct = useCallback(async (product: Product): Promise<boolean> => {
+  const updateProduct = async (id: string, productData: Partial<Product>) => {
     try {
-      const response = await fetch('/api/products', {
+      const res = await fetch('/api/products', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
+        body: JSON.stringify({ id, ...productData }),
       });
 
-      const data = await response.json();
+      if (!res.ok) throw new Error('Erro ao atualizar produto');
 
-      if (data.success) {
-        setProducts(prev => prev.map(p => p.id === product.id ? data.product : p));
-        return true;
-      }
-      return false;
+      await mutate();
+      toast.success('Produto atualizado com sucesso');
+      return true;
     } catch (err) {
-      console.error('Erro ao atualizar produto:', err);
+      toast.error('Erro ao atualizar produto');
       return false;
     }
-  }, []);
+  };
 
-  // Deleta produto
-  const deleteProduct = useCallback(async (productId: string): Promise<boolean> => {
+  const deleteProduct = async (id: string) => {
     try {
-      const response = await fetch(`/api/products?id=${productId}`, {
+      const res = await fetch(`/api/products?id=${id}`, {
         method: 'DELETE',
       });
 
-      const data = await response.json();
+      if (!res.ok) throw new Error('Erro ao remover produto');
 
-      if (data.success) {
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        return true;
-      }
-      return false;
+      await mutate();
+      toast.success('Produto removido com sucesso');
+      return true;
     } catch (err) {
-      console.error('Erro ao deletar produto:', err);
+      toast.error('Erro ao remover produto');
       return false;
     }
-  }, []);
+  };
 
-  // Toggle active
-  const toggleActive = useCallback(async (productId: string): Promise<boolean> => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return false;
+  const toggleActive = async (id: string, active: boolean) => {
+    return updateProduct(id, { active });
+  };
 
-    return updateProduct({ ...product, active: !product.active });
-  }, [products, updateProduct]);
-
-  // Toggle featured
-  const toggleFeatured = useCallback(async (productId: string): Promise<boolean> => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return false;
-
-    return updateProduct({ ...product, featured: !product.featured });
-  }, [products, updateProduct]);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  const toggleFeatured = async (id: string, featured: boolean) => {
+    return updateProduct(id, { featured });
+  };
 
   return {
-    products,
+    products: (data?.products as Product[]) || [],
     isLoading,
-    error,
-    fetchProducts,
+    isError: error,
+    mutate,
     createProduct,
     updateProduct,
     deleteProduct,

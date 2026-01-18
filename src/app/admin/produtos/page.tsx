@@ -554,8 +554,8 @@ export default function ProdutosPage() {
     return categories.find((c) => c.id === categoryId)?.name || '';
   };
 
-  const handleToggleActive = async (productId: string) => {
-    const success = await toggleActive(productId);
+  const handleToggleActive = async (product: Product) => {
+    const success = await toggleActive(product.id, !product.active);
     if (success) {
       toast.success('Status atualizado!');
     } else {
@@ -563,8 +563,8 @@ export default function ProdutosPage() {
     }
   };
 
-  const handleToggleFeatured = async (productId: string) => {
-    const success = await toggleFeatured(productId);
+  const handleToggleFeatured = async (product: Product) => {
+    const success = await toggleFeatured(product.id, !product.featured);
     if (success) {
       toast.success('Destaque atualizado!');
     } else {
@@ -585,7 +585,9 @@ export default function ProdutosPage() {
     if (!editingProduct) return;
 
     setIsSaving(true);
-    const success = await updateProduct(editingProduct);
+    // Extrair ID e passar o resto como dados para atualizar
+    const { id, ...dataToUpdate } = editingProduct;
+    const success = await updateProduct(id, dataToUpdate);
     setIsSaving(false);
 
     if (success) {
@@ -770,12 +772,12 @@ export default function ProdutosPage() {
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleActive(product.id)}
+                            onClick={() => handleToggleActive(product)}
                           >
                             {product.active ? 'Desativar' : 'Ativar'}
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleToggleFeatured(product.id)}
+                            onClick={() => handleToggleFeatured(product)}
                           >
                             {product.featured
                               ? 'Remover Destaque'

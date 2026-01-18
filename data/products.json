@@ -1,25 +1,9 @@
 [
   {
-    "id": "prod-1768676996178",
-    "name": "123213",
-    "description": "3123123123",
-    "price": 123,
-    "image": "/uploads/produto-1768676987990.jfif",
-    "categoryId": "cat-2",
-    "active": true,
-    "featured": false,
-    "preparationTime": 123,
-    "serves": 213,
-    "tags": [
-      "popular"
-    ],
-    "stock": 100
-  },
-  {
     "id": "prod-1",
     "name": "Batata Frita",
     "description": "Porcao de batata frita crocante e sequinha.",
-    "price": 30.9,
+    "price": 35.9,
     "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600",
     "categoryId": "cat-1",
     "active": true,

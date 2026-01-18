@@ -45,7 +45,12 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        try {
+          await fetch('/api/auth', { method: 'DELETE' });
+        } catch (error) {
+          console.error('Erro ao fazer logout do servidor:', error);
+        }
         set({ user: null, isAuthenticated: false });
       },
 

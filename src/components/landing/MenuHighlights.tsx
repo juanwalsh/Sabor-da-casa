@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { Plus, Star, Clock, Users, ArrowRight, Utensils } from 'lucide-react';
+import { Plus, Star, Clock, Users, ArrowRight, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -17,8 +17,8 @@ import { useProducts } from '@/hooks/useProducts';
 
 export default function MenuHighlights() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-  
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+
   // Use useProducts hook for dynamic data
   const { products } = useProducts();
   const featuredProducts = products.filter(p => p.featured);
@@ -50,34 +50,34 @@ export default function MenuHighlights() {
 
   return (
     <>
-      <section id="cardapio" className="py-24 bg-muted/30 relative overflow-hidden">
-        {/* Background Decorations */}
+      <section id="cardapio" className="py-10 md:py-16 bg-muted/30 relative overflow-hidden">
+        {/* Background Decorations - Carnival */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
+          <div className="absolute top-10 right-0 w-64 md:w-80 h-64 md:h-80 bg-[#FF6B35]/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-0 w-48 md:w-64 h-48 md:h-64 bg-[#F7C41F]/5 rounded-full blur-3xl" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Section Header */}
+          {/* Section Header - Compacto */}
           <motion.div
             ref={ref}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8 md:mb-12"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4"
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#FF6B35]/10 to-[#FF2D92]/10 border border-[#FF6B35]/20 mb-3"
             >
-              <Utensils className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Nossos Destaques</span>
+              <PartyPopper className="w-3 h-3 md:w-4 md:h-4 text-[#FF6B35]" />
+              <span className="text-xs md:text-sm font-medium text-[#FF6B35]">Destaques de Carnaval</span>
             </motion.div>
 
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-              Pratos que você{' '}
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              Produtos que você{' '}
               <span className="text-primary relative inline-block">
                 vai amar
                 <motion.span
@@ -89,117 +89,91 @@ export default function MenuHighlights() {
               </span>
             </h2>
 
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Seleção especial dos favoritos dos nossos clientes.
-              Sabores que conquistam no primeiro garfada.
+            <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+              Os favoritos dos nossos clientes na folia!
             </p>
           </motion.div>
 
-          {/* Products Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Products Grid - Compacto */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {featuredProducts.slice(0, 8).map((product, index) => (
               <motion.div
                 key={product.id}
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
                 className="group cursor-pointer"
                 onClick={() => handleOpenModal(product)}
               >
-                <div className="bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 h-full flex flex-col">
-                  {/* Image Container */}
-                  <div className="relative h-48 overflow-hidden">
+                <div className="bg-card rounded-2xl overflow-hidden border border-border hover:border-[#FF6B35]/30 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
+                  {/* Image Container - Menor no mobile */}
+                  <div className="relative h-32 md:h-40 overflow-hidden">
                     <Image
                       src={product.image}
                       alt={product.name}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                       priority={index < 4}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                    {/* Tags */}
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                      {product.tags?.slice(0, 2).map((tag) => (
+                    {/* Tags - Simplificado */}
+                    {product.tags?.[0] && (
+                      <div className="absolute top-2 left-2">
                         <Badge
-                          key={tag}
                           variant="secondary"
-                          className="bg-card/95 dark:bg-background/90 backdrop-blur-sm text-xs text-card-foreground shadow-sm border border-border/50"
+                          className="bg-card/90 backdrop-blur-sm text-[10px] md:text-xs px-1.5 py-0.5"
                         >
-                          {tag}
+                          {product.tags[0]}
                         </Badge>
-                      ))}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Favorite Button */}
-                    <div className="absolute top-3 right-3">
+                    <div className="absolute top-2 right-2">
                       <FavoriteButton productId={product.id} productName={product.name} size="sm" />
                     </div>
 
                     {/* Quick Add Button */}
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                    <button
                       onClick={(e) => handleAddToCart(product, e)}
-                      className="absolute bottom-3 right-3 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0"
+                      className="absolute bottom-2 right-2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-[#FF6B35] to-[#FF2D92] text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200"
                     >
-                      <Plus className="w-5 h-5" />
-                    </motion.button>
+                      <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                    </button>
 
                     {/* Category */}
-                    <div className="absolute bottom-3 left-3">
-                      <span className="text-xs text-white/80 font-medium">
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-[10px] md:text-xs text-white/80 font-medium">
                         {getCategoryName(product.categoryId)}
                       </span>
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                    <h3 className="font-sans text-base sm:text-lg font-semibold text-card-foreground mb-2 group-hover:text-primary transition-colors line-clamp-1">
+                  {/* Content - Compacto */}
+                  <div className="p-2.5 md:p-4 flex-1 flex flex-col">
+                    <h3 className="font-sans text-xs md:text-sm font-semibold text-card-foreground mb-1 group-hover:text-[#FF6B35] transition-colors line-clamp-1">
                       {product.name}
                     </h3>
 
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 line-clamp-2 flex-1">
+                    <p className="text-[10px] md:text-xs text-muted-foreground mb-2 line-clamp-2 flex-1 hidden md:block">
                       {product.description}
                     </p>
 
-                    {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-xs text-muted-foreground">
-                      {product.preparationTime && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                          <span>{product.preparationTime} min</span>
-                        </div>
-                      )}
-                      {product.serves && (
-                        <div className="flex items-center gap-1">
-                          <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                          <span>{product.serves} {product.serves > 1 ? 'pessoas' : 'pessoa'}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1 text-accent">
-                        <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
-                        <span>4.9</span>
-                      </div>
-                    </div>
-
                     {/* Price and Action */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div>
-                        <span className="text-xl sm:text-2xl font-bold text-primary">
-                          {formatPrice(product.price)}
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-base md:text-lg font-bold text-[#FF6B35]">
+                        {formatPrice(product.price)}
+                      </span>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={(e) => handleAddToCart(product, e)}
-                        className="rounded-xl hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all text-xs sm:text-sm shrink-0 h-11 lg:h-9"
+                        className="rounded-lg hover:bg-[#FF6B35] hover:text-white hover:border-[#FF6B35] transition-all text-[10px] md:text-xs shrink-0 h-7 md:h-8 px-2"
                       >
-                        Adicionar
+                        <Plus className="w-3 h-3 md:hidden" />
+                        <span className="hidden md:inline">Adicionar</span>
                       </Button>
                     </div>
                   </div>
@@ -208,22 +182,22 @@ export default function MenuHighlights() {
             ))}
           </div>
 
-          {/* View All Button */}
+          {/* View All Button - Compacto */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="text-center mt-12"
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-center mt-6 md:mt-10"
           >
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="h-14 px-8 text-base font-semibold rounded-2xl border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all group"
+              className="h-11 md:h-12 px-6 md:px-8 text-sm md:text-base font-semibold rounded-xl border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all group"
             >
               <Link href="/cardapio">
                 Ver Cardápio Completo
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
           </motion.div>

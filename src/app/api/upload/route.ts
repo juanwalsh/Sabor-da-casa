@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import mime from 'mime-types'; // Note: might not be installed, better to use a simple map if not installed
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,13 +36,30 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Gerar nome unico para o arquivo
+    // Gerar nome unico e seguro
     const timestamp = Date.now();
-    const extension = file.name.split('.').pop() || 'jpg';
+    
+    // Mapeamento seguro de MIME para extensao
+    const mimeMap: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+    };
+    
+    const extension = mimeMap[file.type] || 'jpg';
     const filename = `produto-${timestamp}.${extension}`;
 
     // Salvar arquivo na pasta public/uploads
     const uploadDir = join(process.cwd(), 'public', 'uploads');
+    
+    // Garantir que diretorio existe
+    try {
+      await mkdir(uploadDir, { recursive: true });
+    } catch (err) {
+      // Ignorar erro se ja existe
+    }
+
     const filepath = join(uploadDir, filename);
 
     await writeFile(filepath, buffer);

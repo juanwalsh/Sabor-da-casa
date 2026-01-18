@@ -18,7 +18,7 @@ import {
   Package,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { useOrderStore } from '@/store/orderStore';
+import { useFirestoreStore } from '@/store/firestoreStore';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -44,11 +44,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuthStore();
-  const pendingOrders = useOrderStore((state) => state.getPendingOrdersCount());
-  const orders = useOrderStore((state) => state.orders);
+  const { orders, fetchOrders } = useFirestoreStore();
+  
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
   const recentPendingOrders = orders
     .filter((o) => o.status === 'pending' || o.status === 'preparing')
     .slice(0, 5);
+
+  // Carregar pedidos do Firestore ao montar
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchOrders();
+    }
+  }, [isAuthenticated, fetchOrders]);
 
   // Fechar menu mobile quando a rota mudar
   useEffect(() => {
