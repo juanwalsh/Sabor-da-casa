@@ -64,6 +64,10 @@ D. FRONTEND / ADMIN
 2. src/app/admin/layout.tsx
    - Adicionado link para SmartPOS no menu
 
+3. next.config.ts
+   - Adicionado dominio 'api.qrserver.com' para permitir carregamento do QR Code
+   - Adicionado dominio 'firebasestorage.googleapis.com' para imagens do Firebase
+
 ================================================================================
 4. FLUXO ATUAL (Checklist do Usuario)
 ================================================================================
