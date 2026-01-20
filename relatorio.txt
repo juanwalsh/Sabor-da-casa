@@ -28,9 +28,10 @@ A. UX / COMPONENTES
 -------------------
 1. src/components/checkout/PaymentModal.tsx
    - Modal interativo que aparece apos criar o pedido
-   - Gera QR Code Pix (usando servico qrserver)
-   - Exibe instrucoes para pagamento com Cartao (SmartPOS)
+   - Gera QR Code Pix Simulado com timer de expiracao
+   - Funcionalidade de Copiar e Colar codigo Pix
    - Simula processamento de pagamento em tempo real
+   - Feedback visual "Processando pagamento seguro online..." para cartao
 
 B. CORE / SERVICOS
 ------------------
