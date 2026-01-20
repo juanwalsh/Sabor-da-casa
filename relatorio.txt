@@ -28,10 +28,17 @@ A. UX / COMPONENTES
 -------------------
 1. src/components/checkout/PaymentModal.tsx
    - Modal interativo que aparece apos criar o pedido
-   - Gera QR Code Pix Simulado com timer de expiracao
+   - Gera QR Code Pix REAL (Padrao EMV/Banco Central)
    - Funcionalidade de Copiar e Colar codigo Pix
    - Simula processamento de pagamento em tempo real
    - Feedback visual "Processando pagamento seguro online..." para cartao
+
+2. src/lib/pix.ts
+   - Implementacao do algoritmo CRC16-CCITT
+   - Gerador de payload Pix oficial (IDs 00, 26, 52...)
+
+3. src/lib/store-config.ts
+   - Arquivo de configuracao para Chave Pix do estabelecimento
 
 B. CORE / SERVICOS
 ------------------
