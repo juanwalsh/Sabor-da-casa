@@ -34,6 +34,7 @@ import { ScheduleDelivery, ScheduleBadge } from '@/components/ui/schedule-delive
 import { CepValidator } from '@/components/ui/cep-validator';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { toast } from 'sonner';
+import { PaymentModal } from '@/components/checkout/PaymentModal';
 
 const checkoutSchema = z.object({
   name: z.string().min(3, 'Nome é obrigatório e deve ter no mínimo 3 caracteres'),
@@ -56,6 +57,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
@@ -185,16 +187,24 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(false);
+    
+    // Se for dinheiro, finaliza direto. Se não, abre modal de pagamento
+    if (paymentMethod === 'cash') {
+      setOrderSuccess(true);
+      clearCart();
+      toast.success(`Pedido #${firebaseOrderId.slice(-6).toUpperCase()} criado com sucesso!`);
+      setTimeout(() => setShowRatingModal(true), 3000);
+    } else {
+      setShowPaymentModal(true);
+    }
+  };
+
+  const handlePaymentComplete = () => {
+    setShowPaymentModal(false);
     setOrderSuccess(true);
     clearCart();
-
-    // Mostra mensagem de sucesso
-    toast.success(`Pedido #${firebaseOrderId.slice(-6).toUpperCase()} criado com sucesso!`);
-
-    // Mostra modal de avaliação após 3 segundos
-    setTimeout(() => {
-      setShowRatingModal(true);
-    }, 3000);
+    toast.success(`Pagamento confirmado! Pedido em preparo.`);
+    setTimeout(() => setShowRatingModal(true), 3000);
   };
 
   if (items.length === 0 && !orderSuccess) {
@@ -550,6 +560,18 @@ export default function CheckoutPage() {
         <RatingModal
           isOpen={showRatingModal}
           onClose={() => setShowRatingModal(false)}
+          orderId={currentOrderId}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {currentOrderId && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentComplete={handlePaymentComplete}
+          total={total}
+          method={paymentMethod}
           orderId={currentOrderId}
         />
       )}
