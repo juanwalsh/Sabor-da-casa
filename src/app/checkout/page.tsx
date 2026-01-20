@@ -159,6 +159,18 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Integração SmartPOS: Baixar estoque
+    try {
+      await fetch('/api/smartpos/process-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+    } catch (error) {
+      console.error('Erro ao sincronizar estoque SmartPOS:', error);
+      // Não bloqueamos o fluxo se falhar a integração, pois o pedido já foi salvo
+    }
+
     // Salva o pedido no histórico local também
     const orderId = addOrder({
       items: items,

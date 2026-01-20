@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Ignora app React Native separado
+    "app-vendedor/**",
+    // Ignora arquivos de teste Playwright
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 

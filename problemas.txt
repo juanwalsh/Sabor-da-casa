@@ -1,207 +1,206 @@
-Melhorias Recomendadas - UX e Código
+Checklist Completo - Nível Sênior
 
-  Prioridade Alta (Impacto Direto no Usuário)
+  1. TESTES (Prioridade Máxima)
 
-  1. Logout não limpa cookie do servidor
+  1.1 Testes Unitários (Vitest)
 
-  Arquivo: src/store/authStore.ts:48-50
+  □ Configurar Vitest
+  □ Testar funções utilitárias (formatPrice, cn, etc)
+  □ Testar Zod schemas
+  □ Testar stores Zustand
+  □ Testar hooks customizados
+  □ Coverage mínimo: 70%
 
-  Problema: O logout só limpa o estado local. O cookie admin_token permanece válido.
+  1.2 Testes de Componentes (Testing Library)
 
-  Impacto: Usuário faz logout, fecha aba, reabre → ainda está logado.
+  □ Configurar React Testing Library
+  □ Testar componentes de UI isolados
+  □ Testar formulários (checkout, login, produto)
+  □ Testar interações (adicionar ao carrinho, etc)
 
-  Correção:
-  logout: async () => {
-    await fetch('/api/auth', { method: 'DELETE' });
-    set({ user: null, isAuthenticated: false });
-  },
+  1.3 Testes E2E (Playwright)
 
-  ---
-  2. Erros de validação não mostrados no checkout
+  □ Configurar Playwright (já tem playwright.config.ts)
+  □ Fluxo: Navegar cardápio → Adicionar ao carrinho → Checkout
+  □ Fluxo: Login admin → Criar produto → Ver no cardápio
+  □ Fluxo: Login admin → Ver pedidos → Atualizar status
+  □ Testar responsividade (mobile/desktop)
+  □ Testar dark mode
 
-  Arquivo: src/app/checkout/page.tsx
+  1.4 Testes de API (Supertest ou Playwright)
 
-  Problema: Campos obrigatórios não mostram erro visual quando vazios. Só nome, telefone e email têm {errors.X}.
-
-  Impacto: Usuário clica "Confirmar" e nada acontece - sem feedback.
-
-  Correção: Adicionar mensagens de erro para todos os campos:
-  <Input {...register('street')} />
-  {errors.street && (
-    <p className="text-sm text-destructive mt-1">{errors.street.message}</p>
-  )}
-
-  ---
-  3. Cardápio usa dados locais, não Firebase
-
-  Arquivo: src/app/cardapio/page.tsx:17
-
-  import { products, categories, formatPrice } from '@/data/mockData';
-
-  Problema: Cardápio mostra dados estáticos do mockData, não os produtos reais do Firebase.
-
-  Impacto: Admin edita produto → cliente não vê alteração.
-
-  Correção: Usar hook para buscar do Firebase:
-  const { products, isLoading } = useProducts(); // fetch de /api/products
+  □ Testar POST /api/auth (login válido/inválido)
+  □ Testar GET /api/products (lista produtos)
+  □ Testar POST /api/orders (criar pedido)
+  □ Testar middleware de auth (401 sem token)
+  □ Testar rate limiting (429 após limite)
 
   ---
-  4. Pedidos admin usa mock para nome de produto
+  2. CI/CD (Automação)
 
-  Arquivo: src/app/admin/pedidos/page.tsx:89-91
+  2.1 GitHub Actions
 
-  const getProductName = (productId: string) => {
-    return products.find((p) => p.id === productId)?.name || 'Produto não encontrado';
-  };
+  □ Workflow: Rodar testes em cada PR
+  □ Workflow: Lint + Type check
+  □ Workflow: Build de verificação
+  □ Workflow: Deploy automático para Vercel (staging)
+  □ Workflow: Deploy para produção (manual approval)
 
-  Problema: Busca nome do produto no mockData local, não no pedido salvo.
+  2.2 Quality Gates
 
-  Impacto: Se produto foi deletado, mostra "Produto não encontrado".
-
-  Correção: O nome do produto já vem no pedido (order.items[].product.name), usar esse.
-
-  ---
-  5. Máscara de telefone inexistente
-
-  Arquivo: src/app/checkout/page.tsx
-
-  Problema: Campo de telefone aceita qualquer formato. Usuário digita 11999999999 sem formatação.
-
-  Impacto: UX ruim + dados inconsistentes no banco.
-
-  Correção: Usar react-input-mask ou custom hook:
-  <Input
-    {...register('phone')}
-    placeholder="(11) 99999-9999"
-    onChange={(e) => {
-      const masked = maskPhone(e.target.value);
-      setValue('phone', masked);
-    }}
-  />
+  □ PR só pode ser mergeado se testes passarem
+  □ PR só pode ser mergeado se lint passar
+  □ PR só pode ser mergeado se build passar
+  □ Configurar branch protection rules
 
   ---
-  6. CEP não preenche endereço automaticamente
+  3. OBSERVABILIDADE (Monitoramento)
 
-  Arquivo: src/components/ui/cep-validator.tsx
+  3.1 Error Tracking
 
-  Problema: Valida CEP mas não preenche rua/bairro/cidade automaticamente.
+  □ Configurar Sentry
+  □ Capturar erros de frontend
+  □ Capturar erros de API
+  □ Alertas por email/Slack quando erro crítico
+  □ Source maps para debug em produção
 
-  Impacto: Usuário precisa digitar tudo manualmente.
+  3.2 Logging Estruturado
 
-  Correção: Usar ViaCEP API para auto-complete:
-  const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-  const data = await response.json();
-  setValue('street', data.logradouro);
-  setValue('neighborhood', data.bairro);
-  setValue('city', data.localidade);
+  □ Implementar logger (pino ou winston)
+  □ Logs com correlation ID por request
+  □ Logs de ações importantes (pedido criado, login, etc)
+  □ Não logar dados sensíveis (senhas, tokens)
 
-  ---
-  Prioridade Média (Melhoria de Qualidade)
+  3.3 Analytics/Métricas
 
-  7. Import não usado no upload
-
-  Arquivo: src/app/api/upload/route.ts:4
-
-  import mime from 'mime-types'; // Note: might not be installed...
-
-  Problema: Import não é usado (mimeMap local resolve).
-
-  Correção: Remover linha.
+  □ Tempo de resposta das APIs
+  □ Taxa de erro por endpoint
+  □ Produtos mais vendidos
+  □ Horários de pico
+  □ Funil de conversão (cardápio → carrinho → checkout → pedido)
 
   ---
-  8. Rating hardcoded nos cards de produto
+  4. PERFORMANCE
 
-  Arquivo: src/app/cardapio/page.tsx:400
+  4.1 Frontend
 
-  <span>4.9</span>
+  □ Implementar Suspense boundaries
+  □ Lazy loading de componentes pesados
+  □ Otimizar imagens (já usa next/image, mas verificar)
+  □ Implementar skeleton loading em todas as listas
+  □ Cache de dados com SWR (já usa, verificar configuração)
+  □ Lighthouse score > 90 em todas as métricas
 
-  Problema: Todos os produtos mostram 4.9 de avaliação.
+  4.2 Backend
 
-  Correção: Ou remover o rating, ou implementar sistema de avaliações real.
-
-  ---
-  9. Mensagem de estoque insuficiente genérica
-
-  Arquivo: src/app/api/orders/route.ts:125
-
-  throw new Error(`Estoque insuficiente para ${item.product.name}`);
-
-  Problema: Não diz quanto tem disponível.
-
-  Correção:
-  throw new Error(`Estoque insuficiente para ${item.product.name}. Disponível: ${currentStock}, Solicitado: ${item.quantity}`);
+  □ Cache de produtos (Redis/Upstash)
+  □ Índices no Firestore para queries frequentes
+  □ Paginação na listagem de pedidos
+  □ Compressão de respostas (gzip)
 
   ---
-  10. Sem loading states consistentes
+  5. SEGURANÇA AVANÇADA
 
-  Problema: Algumas páginas têm loading spinner, outras não.
-
-  Correção: Criar componente <LoadingSpinner /> reutilizável e usar em todas as páginas que fazem fetch.
-
-  ---
-  11. Duplicação de stores (orderStore vs Firebase)
-
-  Arquivos: src/store/orderStore.ts + src/store/orderHistoryStore.ts
-
-  Problema: Dois stores diferentes para pedidos, podem ficar dessincronizados.
-
-  Correção: Unificar em um único store que sincroniza com Firebase ou remover o store local.
+  □ Headers de segurança (CSP, HSTS, etc) - middleware
+  □ Sanitização de inputs (XSS prevention)
+  □ Validação de origem de requests (CORS)
+  □ Audit log de ações administrativas
+  □ Rotação de JWT_SECRET (documentar processo)
+  □ Backup automático do Firestore
+  □ Política de senha forte para admin
 
   ---
-  Prioridade Baixa (Nice to Have)
+  6. DOCUMENTAÇÃO
 
-  12. Console.log em produção
-
-  Arquivos: Vários
-
-  console.log('Token de notificacao:', token);
-
-  Correção: Remover ou usar logger condicional.
-
-  ---
-  13. Skeleton loading para imagens
-
-  Problema: Imagens de produtos não têm placeholder enquanto carregam.
-
-  Correção: Usar placeholder="blur" no next/image ou skeleton component.
+  □ README completo com setup local
+  □ Documentação de API (Swagger/OpenAPI)
+  □ Documentação de arquitetura (diagrama)
+  □ Guia de contribuição (CONTRIBUTING.md)
+  □ Changelog (CHANGELOG.md)
+  □ Documentação de variáveis de ambiente
+  □ Runbook para incidentes
 
   ---
-  14. Sem confirmação ao cancelar pedido
+  7. CÓDIGO LIMPO
 
-  Problema: Admin pode cancelar pedido sem confirmação.
-
-  Correção: Adicionar dialog de confirmação antes de cancelar.
-
-  ---
-  15. Falta acessibilidade em botões de quantidade
-
-  Arquivo: src/components/menu/CartSidebar.tsx:127-146
-
-  Problema: Botões +/- não têm aria-label.
-
-  Correção:
-  <button aria-label="Diminuir quantidade">
-    <Minus />
-  </button>
+  □ Remover console.logs
+  □ Remover imports não usados
+  □ Remover código comentado
+  □ Padronizar mensagens de erro (pt-BR consistente)
+  □ Extrair constantes mágicas para arquivo de config
+  □ Implementar Error Boundaries em todas as rotas
+  □ Tratamento de erro consistente nas APIs
 
   ---
-  Resumo por Prioridade
-  ┌────────────┬─────┬──────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ Prioridade │ Qtd │                                            Itens                                             │
-  ├────────────┼─────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ Alta       │ 6   │ Logout, Erros checkout, Cardápio Firebase, Pedidos mock, Máscara telefone, CEP auto-complete │
-  ├────────────┼─────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ Média      │ 5   │ Import não usado, Rating hardcoded, Msg estoque, Loading states, Stores duplicados           │
-  ├────────────┼─────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
-  │ Baixa      │ 4   │ Console.log, Skeleton images, Confirmação cancelar, Acessibilidade                           │
-  └────────────┴─────┴──────────────────────────────────────────────────────────────────────────────────────────────┘
+  8. FEATURES AVANÇADAS (Diferencial)
+
+  □ Webhooks para notificar sistemas externos
+  □ Exportar relatórios (PDF/Excel)
+  □ Sistema de notificações push funcional
+  □ Histórico de alterações de pedidos (audit trail)
+  □ Dashboard com métricas reais (não mock)
+  □ Busca com Algolia ou similar (se crescer)
+  □ Multi-tenant (se quiser escalar para outros restaurantes)
+
   ---
-  Top 5 - Recomendação de Implementação
+  Ordem de Implementação Recomendada
 
-  1. Cardápio buscar do Firebase - Sem isso, o admin não serve para nada
-  2. Erros de validação visíveis no checkout - Usuário não sabe o que está errado
-  3. CEP com auto-complete - Reduz fricção significativamente
-  4. Logout limpar cookie - Problema de segurança/UX
-  5. Máscara de telefone - Dados consistentes
+  Fase 1 - Fundação (1-2 semanas)
 
-  Quer que eu implemente alguma dessas melhorias?
+  1. ✅ Configurar Vitest + React Testing Library
+  2. ✅ Escrever testes unitários básicos
+  3. ✅ Configurar GitHub Actions (lint + test)
+  4. ✅ Configurar Sentry
+
+  Fase 2 - Qualidade (1-2 semanas)
+
+  5. ✅ Testes E2E com Playwright (fluxos principais)
+  6. ✅ Testes de API
+  7. ✅ Aumentar coverage para 70%+
+  8. ✅ Documentação básica (README, .env.example)
+
+  Fase 3 - Produção (1 semana)
+
+  9. ✅ Logging estruturado
+  10. ✅ Headers de segurança
+  11. ✅ Performance (Lighthouse > 90)
+  12. ✅ CI/CD completo com deploy automático
+
+  Fase 4 - Diferencial (ongoing)
+
+  13. ✅ Features avançadas
+  14. ✅ Documentação completa
+  15. ✅ Métricas de negócio
+
+  ---
+  Resumo Visual
+
+  ATUAL (Pleno)                    OBJETIVO (Sênior)
+  ─────────────────────────────────────────────────────
+  ✅ Código funcional              ✅ Código funcional
+  ✅ TypeScript                    ✅ TypeScript
+  ✅ Autenticação JWT              ✅ Autenticação JWT
+  ✅ Validação Zod                 ✅ Validação Zod
+  ✅ Firebase                      ✅ Firebase
+  ✅ UI/UX profissional            ✅ UI/UX profissional
+
+  ❌ Testes                   -->  ✅ Testes (unit + E2E)
+  ❌ CI/CD                    -->  ✅ GitHub Actions
+  ❌ Monitoramento            -->  ✅ Sentry + Logging
+  ❌ Documentação             -->  ✅ README + API docs
+  ❌ Performance otimizada    -->  ✅ Lighthouse > 90
+
+  ---
+  Quer começar?
+
+  Posso ajudar a implementar na ordem. Sugiro começar pelos testes porque:
+
+  1. É o que mais impressiona em entrevistas
+  2. Te força a entender melhor seu próprio código
+  3. Dá confiança para fazer as outras melhorias
+
+  Quer que eu configure o Vitest e escreva os primeiros testes?
+
+● Lista completa criada. O caminho mais impactante é: Testes → CI/CD → Monitoramento → Documentação.
+
+  Qual fase quer atacar primeiro?

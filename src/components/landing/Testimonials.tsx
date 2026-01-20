@@ -125,7 +125,7 @@ export default function Testimonials() {
 
                       {/* Comment */}
                       <p className="text-sm md:text-base text-foreground leading-relaxed mb-3 flex-1 line-clamp-3">
-                        "{testimonials[currentIndex].comment}"
+                        &ldquo;{testimonials[currentIndex].comment}&rdquo;
                       </p>
 
                       {/* Author */}

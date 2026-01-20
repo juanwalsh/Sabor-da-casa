@@ -70,7 +70,7 @@ const mockReviews: Record<string, Review[]> = {
 };
 
 // Store local para avaliações (simulando persistência)
-let userReviews: Record<string, { rating: number; comment: string }> = {};
+const userReviews: Record<string, { rating: number; comment: string }> = {};
 
 export function ProductRating({ productId, productName, className = '' }: ProductRatingProps) {
   const [reviews, setReviews] = useState<Review[]>([]);

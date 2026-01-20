@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,6 +16,8 @@ import {
   Clock,
   CheckCircle,
   Package,
+  LucideIcon,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useFirestoreStore } from '@/store/firestoreStore';
@@ -32,65 +34,32 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import ThemeToggle from '@/components/shared/ThemeToggle';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
-const navItems = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const navItems: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/pedidos', label: 'Pedidos', icon: ShoppingBag },
   { href: '/admin/produtos', label: 'Produtos', icon: UtensilsCrossed },
   { href: '/admin/usuarios', label: 'Usuarios', icon: Users },
+  { href: '/admin/smartpos', label: 'SmartPOS', icon: RefreshCw },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuthStore();
-  const { orders, fetchOrders } = useFirestoreStore();
-  
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
-  const recentPendingOrders = orders
-    .filter((o) => o.status === 'pending' || o.status === 'preparing')
-    .slice(0, 5);
+// Sidebar extraído como componente separado
+interface SidebarProps {
+  mobile?: boolean;
+  onNavigate?: () => void;
+  pathname: string;
+  pendingOrders: number;
+  user: { name?: string; email?: string } | null;
+  onLogout: () => void;
+}
 
-  // Carregar pedidos do Firestore ao montar
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchOrders();
-    }
-  }, [isAuthenticated, fetchOrders]);
-
-  // Fechar menu mobile quando a rota mudar
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isLoading, isAuthenticated, router]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
-
-  const Sidebar = ({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) => (
+function Sidebar({ mobile = false, onNavigate, pathname, pendingOrders, user, onLogout }: SidebarProps) {
+  return (
     <div className={`flex flex-col h-full ${mobile ? '' : 'w-64 border-r border-border'}`}>
       {/* Logo */}
       <div className="p-4 sm:p-6 border-b border-border">
@@ -115,6 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <nav className="flex-1 p-3 sm:p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} onClick={onNavigate}>
               <motion.div
@@ -125,7 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     : 'hover:bg-muted'
                 }`}
               >
-                <item.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                 <span className="font-medium text-sm sm:text-base">{item.label}</span>
                 {item.label === 'Pedidos' && pendingOrders > 0 && (
                   <Badge
@@ -160,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           className="w-full justify-start text-sm"
           onClick={() => {
             onNavigate?.();
-            handleLogout();
+            onLogout();
           }}
         >
           <LogOut className="w-4 h-4 mr-2" />
@@ -169,12 +139,76 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     </div>
   );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuthStore();
+  const { orders, fetchOrders } = useFirestoreStore();
+
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
+  const recentPendingOrders = orders
+    .filter((o) => o.status === 'pending' || o.status === 'preparing')
+    .slice(0, 5);
+
+  // Carregar pedidos do Firestore ao montar
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchOrders();
+    }
+  }, [isAuthenticated, fetchOrders]);
+
+  // Fechar menu mobile quando a rota mudar
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    router.push('/login');
+  }, [logout, router]);
+
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block fixed left-0 top-0 h-screen bg-card">
-        <Sidebar />
+        <Sidebar
+          pathname={pathname}
+          pendingOrders={pendingOrders}
+          user={user}
+          onLogout={handleLogout}
+        />
       </aside>
 
       {/* Main Content */}
@@ -194,7 +228,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <SheetTitle>Menu de navegacao</SheetTitle>
                   <SheetDescription>Menu principal do painel administrativo</SheetDescription>
                 </VisuallyHidden>
-                <Sidebar mobile onNavigate={() => setIsMobileMenuOpen(false)} />
+                <Sidebar
+                  mobile
+                  onNavigate={closeMobileMenu}
+                  pathname={pathname}
+                  pendingOrders={pendingOrders}
+                  user={user}
+                  onLogout={handleLogout}
+                />
               </SheetContent>
             </Sheet>
 
