@@ -33,7 +33,6 @@ const footerLinks = {
   ],
   support: [
     { label: 'FAQ', href: '/faq' },
-    { label: 'Entrega', href: '/entrega' },
   ],
 };
 
@@ -190,14 +189,13 @@ export default function Footer() {
                 <li className="flex items-start gap-2">
                   <MapPin className="w-3.5 h-3.5 text-[#FF6B35] shrink-0 mt-0.5" />
                   <span className="text-xs text-muted-foreground break-words">
-                    {RESTAURANT_INFO.address}
+                    Rua Independencia, Bairro Tamoios, Número 9
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Clock className="w-3.5 h-3.5 text-[#FF6B35] shrink-0 mt-0.5" />
                   <div className="text-xs text-muted-foreground">
-                    <p>Seg-Sex: {RESTAURANT_INFO.hours.weekdays}</p>
-                    <p>Sáb-Dom: {RESTAURANT_INFO.hours.weekends}</p>
+                    <p>Seg-Dom: 10:00 - 23:00</p>
                   </div>
                 </li>
               </ul>

@@ -186,6 +186,9 @@ export function Chatbot() {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin') || false;
 
+  // Render only on Home page ('/') or Admin pages
+  if (pathname !== '/' && !isAdmin) return null;
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');

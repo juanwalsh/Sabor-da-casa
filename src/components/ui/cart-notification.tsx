@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
@@ -8,9 +9,13 @@ import { formatPrice } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 
 export function CartNotification() {
+  const pathname = usePathname();
   const { items, getSubtotal, getItemCount, openCart } = useCartStore();
   const [showNotification, setShowNotification] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+
+  // Hide on checkout page
+  if (pathname === '/checkout') return null;
 
   useEffect(() => {
     // Verifica se há itens no carrinho ao montar o componente
