@@ -243,47 +243,6 @@ export default function AdminDashboard() {
           </Card>
         </motion.div>
       </div>
-
-      {/* Recent Orders */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Card>
-          <CardHeader className="pb-2 sm:pb-4">
-            <CardTitle className="font-serif text-base sm:text-lg">Pedidos Recentes</CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
-            <div className="space-y-2 sm:space-y-4">
-              {recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between p-2 sm:p-4 rounded-lg sm:rounded-xl bg-muted/50 hover:bg-muted transition-colors gap-2"
-                >
-                  <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-xs sm:text-sm truncate">{order.customerName || 'Cliente'}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.items?.length || 0} {(order.items?.length || 0) === 1 ? 'item' : 'itens'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-semibold font-serif text-sm sm:text-base">{formatPrice(order.total || 0)}</p>
-                    <Badge variant={statusLabels[order.status]?.variant || 'outline'} className="text-xs">
-                      {statusLabels[order.status]?.label || 'Pendente'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
     </div>
   );
 }

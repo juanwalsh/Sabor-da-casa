@@ -265,7 +265,7 @@ function ProductForm({
             <div className="flex-1">
               <label
                 htmlFor="image-upload"
-                className={`flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-dashed cursor-pointer transition-colors ${
+                className={`flex items-center justify-center gap-2 h-32 px-4 rounded-md border border-dashed cursor-pointer transition-colors ${
                   isUploading
                     ? 'bg-muted text-muted-foreground cursor-not-allowed'
                     : 'hover:bg-muted/50 hover:border-primary'
@@ -273,14 +273,15 @@ function ProductForm({
               >
                 {isUploading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Enviando...
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <span className="text-sm">Enviando imagem...</span>
                   </>
                 ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    Enviar imagem do computador
-                  </>
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                    <span className="text-sm font-medium">Clique para enviar imagem</span>
+                    <span className="text-xs text-muted-foreground">JPG, PNG, WebP (Max 5MB)</span>
+                  </div>
                 )}
               </label>
               <input
@@ -294,21 +295,16 @@ function ProductForm({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>ou</span>
-          </div>
-
-          {/* URL manual */}
-          <Input
-            id="image"
-            placeholder="Cole a URL da imagem aqui"
-            value={product.image}
-            onChange={(e) => onChange({ ...product, image: e.target.value })}
-          />
-
-          <p className="text-xs text-muted-foreground">
-            Formatos aceitos: JPG, PNG, WebP, GIF (max 5MB)
-          </p>
+          {product.image && (
+             <div className="relative w-full h-40 mt-2 rounded-md overflow-hidden border">
+                <Image 
+                  src={product.image} 
+                  alt="Preview" 
+                  fill 
+                  className="object-cover" 
+                />
+             </div>
+          )}
         </div>
 
         {/* Nome */}

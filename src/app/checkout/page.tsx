@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import {
   ChevronLeft,
   MapPin,
-  Smartphone,
+  MessageCircle,
   CheckCircle,
   Loader2,
 } from 'lucide-react';
@@ -288,7 +288,7 @@ Pagamento a combinar.`;
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="grid lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2 space-y-8">
@@ -511,7 +511,7 @@ Pagamento a combinar.`;
                   </>
                 ) : (
                   <>
-                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" />
+                    <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" />
                     <span>Finalizar no WhatsApp</span>
                   </>
                 )}

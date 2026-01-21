@@ -621,22 +621,25 @@ const products = [
 async function popularFirestore() {
   console.log('🚀 Iniciando populacao do Firestore...\n');
 
-  const productsRef = collection(db, 'products');
+  // Verificar se ja existem produtos (usando o nome correto da colecao)
+  const productsRef = collection(db, 'produtos');
   const snapshot = await getDocs(productsRef);
 
   if (!snapshot.empty) {
-    console.log(`⚠️  Ja existem ${snapshot.size} produtos no Firestore. Sobrescrevendo...\n`);
+    console.log(`⚠️  Ja existem ${snapshot.size} produtos na colecao 'produtos'. Sobrescrevendo/Adicionando...\n`);
   }
 
   console.log('📁 Populando categorias...');
   for (const cat of categories) {
-    await setDoc(doc(db, 'categories', cat.id), {
-      name: cat.name,
+    // Colecao: categorias (PT)
+    await setDoc(doc(db, 'categorias', cat.id), {
+      nome: cat.name,
       slug: cat.slug,
-      description: cat.description,
-      image: cat.image,
-      order: cat.order,
-      active: cat.active,
+      ordem: cat.order,
+      ativo: cat.active,
+      // Campos extras que podem ser uteis, mas o hook so le os acima por enquanto
+      descricao: cat.description,
+      imagem: cat.image
     });
     console.log(`   ✅ ${cat.name}`);
   }
@@ -644,18 +647,20 @@ async function popularFirestore() {
   console.log(`\n🍽️  Populando ${products.length} produtos...`);
   let count = 0;
   for (const prod of products) {
-    await setDoc(doc(db, 'products', prod.id), {
-      name: prod.name,
-      description: prod.description,
-      price: prod.price,
-      image: prod.image,
-      categoryId: prod.categoryId,
-      active: prod.active,
-      featured: prod.featured,
-      preparationTime: prod.preparationTime,
-      serves: prod.serves,
+    // Colecao: produtos (PT)
+    await setDoc(doc(db, 'produtos', prod.id), {
+      // Mapeamento EN -> PT
+      nome: prod.name,
+      descricao: prod.description,
+      preco: prod.price,
+      imagem: prod.image,
+      categoriaId: prod.categoryId,
+      ativo: prod.active,
+      destaque: prod.featured,
+      tempoPreparo: prod.preparationTime,
+      porcoes: prod.serves,
       tags: prod.tags || [],
-      stock: prod.stock,
+      estoque: prod.stock,
       createdAt: new Date().toISOString(),
     });
     count++;

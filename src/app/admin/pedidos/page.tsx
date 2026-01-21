@@ -13,9 +13,11 @@ import {
   Phone,
   MapPin,
   Loader2,
+  Trash2,
 } from 'lucide-react';
 import { useOrders } from '@/hooks/useOrders';
-import { formatPrice, products } from '@/data/mockData';
+import { useProducts } from '@/hooks/useProducts'; // Hook real
+import { formatPrice } from '@/data/mockData';
 import { OrderStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +53,8 @@ const statusConfig: Record<
 };
 
 export default function PedidosPage() {
-  const { orders, isLoading, updateOrderStatus } = useOrders();
+  const { orders, isLoading, updateOrderStatus, deleteOrder } = useOrders();
+  const { products } = useProducts(); // Carrega produtos reais
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
@@ -78,6 +81,15 @@ export default function PedidosPage() {
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (confirm('Tem certeza que deseja excluir este pedido? Essa ação não pode ser desfeita.')) {
+      const success = await deleteOrder(orderId);
+      if (success) {
+        setSelectedOrder(null);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -86,8 +98,12 @@ export default function PedidosPage() {
     );
   }
 
-  const getProductName = (productId: string) => {
-    return products.find((p) => p.id === productId)?.name || 'Produto não encontrado';
+  const getProductName = (item: any) => {
+    // 1. Tenta pegar do objeto produto salvo no item (historico)
+    if (item.product?.name) return item.product.name;
+    // 2. Tenta buscar na lista atual de produtos pelo ID
+    const product = products.find((p) => p.id === item.productId);
+    return product?.name || 'Produto não encontrado';
   };
 
   return (
@@ -297,7 +313,7 @@ export default function PedidosPage() {
                       selectedOrderData.items.map((item) => (
                       <div key={item.id || Math.random()} className="flex justify-between text-sm">
                         <span>
-                          {item.quantity}x {getProductName(item.productId)}
+                          {item.quantity}x {getProductName(item)}
                         </span>
                         <span className="font-medium">
                           {formatPrice((item.unitPrice || 0) * (item.quantity || 1))}
@@ -372,6 +388,15 @@ export default function PedidosPage() {
                             Cancelar Pedido
                           </Button>
                         )}
+                        
+                      <Button
+                        variant="ghost"
+                        className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => handleDeleteOrder(selectedOrderData.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Excluir do Sistema
+                      </Button>
                     </>
                   );
                 })()}

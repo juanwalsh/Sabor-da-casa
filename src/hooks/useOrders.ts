@@ -1,40 +1,56 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, doc, Timestamp, getDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { Order, OrderStatus } from '@/types';
+import { toast } from 'sonner';
 
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Carrega pedidos da API
-  const fetchOrders = useCallback(async (status?: OrderStatus) => {
-    try {
-      setIsLoading(true);
-      const url = status ? `/api/orders?status=${status}` : '/api/orders';
-      const response = await fetch(url);
-      const data = await response.json();
+  useEffect(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      if (data.success) {
-        // Converte datas de string para Date
-        const ordersWithDates = data.orders.map((order: Order) => ({
-          ...order,
-          createdAt: new Date(order.createdAt),
-          updatedAt: new Date(order.updatedAt),
-          estimatedDelivery: order.estimatedDelivery ? new Date(order.estimatedDelivery) : undefined,
-        }));
-        setOrders(ordersWithDates);
+    const ordersRef = collection(db, 'orders');
+    // Query: Data > 7 dias atras, ordenado por data (mais recente primeiro)
+    const q = query(
+      ordersRef, 
+      where('createdAt', '>=', sevenDaysAgo.toISOString()),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, 
+      (snapshot) => {
+        const fetchedOrders: Order[] = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            // Garantir que datas sejam objetos Date
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+            updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
+            estimatedDelivery: data.estimatedDelivery ? new Date(data.estimatedDelivery) : undefined,
+          } as Order;
+        });
+        setOrders(fetchedOrders);
+        setIsLoading(false);
+      },
+      (err) => {
+        console.error('Erro ao ouvir pedidos em tempo real:', err);
+        setError('Erro de conexão com pedidos');
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Erro ao carregar pedidos:', err);
-      setError('Erro ao carregar pedidos');
-    } finally {
-      setIsLoading(false);
-    }
+    );
+
+    return () => unsubscribe();
   }, []);
 
-  // Cria novo pedido
+  // Cria novo pedido (Mantido via API ou direto se preferir, mas API garante regras de negocio server-side)
+  // Vamos manter a criacao via API para garantir consistencia de backend (pontos, notificacoes, etc)
   const createOrder = useCallback(async (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'status'>): Promise<Order | null> => {
     try {
       const response = await fetch('/api/orders', {
@@ -46,31 +62,13 @@ export function useOrders() {
       const data = await response.json();
 
       if (data.success) {
-        const newOrder = {
-          ...data.order,
-          createdAt: new Date(data.order.createdAt),
-          updatedAt: new Date(data.order.updatedAt),
-          estimatedDelivery: data.order.estimatedDelivery ? new Date(data.order.estimatedDelivery) : undefined,
-        };
-        setOrders(prev => [newOrder, ...prev]);
-
-        // Atualiza pontos do cliente
-        await fetch('/api/customers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: order.customerName,
-            phone: order.customerPhone,
-            email: order.customerEmail,
-            orderTotal: order.total,
-          }),
-        });
-
-        return newOrder;
+        // O pedido vai aparecer automaticamente via onSnapshot
+        return data.order;
       }
       return null;
     } catch (err) {
       console.error('Erro ao criar pedido:', err);
+      toast.error('Erro ao criar pedido');
       return null;
     }
   }, []);
@@ -78,30 +76,36 @@ export function useOrders() {
   // Atualiza status do pedido
   const updateOrderStatus = useCallback(async (orderId: string, status: OrderStatus): Promise<boolean> => {
     try {
-      const response = await fetch('/api/orders', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: orderId, status }),
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, {
+        status,
+        updatedAt: new Date().toISOString()
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setOrders(prev => prev.map(o =>
-          o.id === orderId
-            ? { ...o, status, updatedAt: new Date(data.order.updatedAt) }
-            : o
-        ));
-        return true;
-      }
-      return false;
+      
+      // Feedback visual imediato nao necessario pois onSnapshot atualiza
+      toast.success(`Status atualizado para ${status}`);
+      return true;
     } catch (err) {
       console.error('Erro ao atualizar status:', err);
+      toast.error('Erro ao atualizar status');
       return false;
     }
   }, []);
 
-  // Pega pedido por ID
+  // Deleta pedido
+  const deleteOrder = useCallback(async (orderId: string): Promise<boolean> => {
+    try {
+      await deleteDoc(doc(db, 'orders', orderId));
+      toast.success('Pedido excluído com sucesso');
+      return true;
+    } catch (err) {
+      console.error('Erro ao excluir pedido:', err);
+      toast.error('Erro ao excluir pedido');
+      return false;
+    }
+  }, []);
+
+  // Pega pedido por ID (da lista local)
   const getOrderById = useCallback((orderId: string): Order | undefined => {
     return orders.find(o => o.id === orderId);
   }, [orders]);
@@ -111,7 +115,7 @@ export function useOrders() {
     return orders.filter(o => o.status === status);
   }, [orders]);
 
-  // Conta pedidos pendentes
+  // Conta pedidos pendentes (Pendente, Confirmado, Preparando)
   const getPendingOrdersCount = useCallback((): number => {
     return orders.filter(o =>
       o.status === 'pending' ||
@@ -120,7 +124,7 @@ export function useOrders() {
     ).length;
   }, [orders]);
 
-  // Estatisticas do dia
+  // Estatisticas do dia (calculadas no cliente com base nos dados reais recebidos)
   const getTodayStats = useCallback(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -143,26 +147,23 @@ export function useOrders() {
     return {
       ordersToday: todayOrders.length,
       ordersYesterday: yesterdayOrders.length,
-      revenueToday: todayOrders.reduce((sum, o) => sum + o.total, 0),
-      revenueYesterday: yesterdayOrders.reduce((sum, o) => sum + o.total, 0),
+      revenueToday: todayOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0),
+      revenueYesterday: yesterdayOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0),
       averageTicket: todayOrders.length > 0
-        ? todayOrders.reduce((sum, o) => sum + o.total, 0) / todayOrders.length
+        ? todayOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0) / todayOrders.length
         : 0,
       pendingOrders: getPendingOrdersCount(),
     };
   }, [orders, getPendingOrdersCount]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
-
   return {
     orders,
     isLoading,
     error,
-    fetchOrders,
+    fetchOrders: async () => {}, // No-op, ja que é realtime
     createOrder,
     updateOrderStatus,
+    deleteOrder,
     getOrderById,
     getOrdersByStatus,
     getPendingOrdersCount,
