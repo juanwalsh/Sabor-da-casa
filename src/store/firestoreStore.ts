@@ -119,19 +119,30 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
       // Tentar debitar estoque de produtos que existem no Firestore (opcional, nao bloqueia)
       try {
         for (const item of cartItems) {
-          const produtoRef = doc(db, 'products', item.product.id);
+          // PADRAO NOVO: Colecao 'produtos' e campo 'estoque'
+          const produtoRef = doc(db, 'produtos', item.product.id);
           const produtoDoc = await getDoc(produtoRef);
 
           if (produtoDoc.exists()) {
             const data = produtoDoc.data();
-            const estoque = data?.stock; // Campo stock no novo padrao
+            const estoque = data?.estoque; // Campo estoque (PT)
 
             // So debita se tem controle de estoque ativo (estoque > 0)
             if (estoque !== undefined && estoque !== null && estoque > 0) {
               await updateDoc(produtoRef, {
-                stock: increment(-item.quantity),
+                estoque: increment(-item.quantity),
               });
             }
+          } else {
+             // Fallback para padrao antigo (se houver migracao gradual)
+             const oldRef = doc(db, 'products', item.product.id);
+             const oldDoc = await getDoc(oldRef);
+             if (oldDoc.exists()) {
+                const data = oldDoc.data();
+                if (data?.stock > 0) {
+                   await updateDoc(oldRef, { stock: increment(-item.quantity) });
+                }
+             }
           }
         }
       } catch (stockError) {
@@ -171,24 +182,44 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
   verificarEstoque: async (cartItems) => {
     try {
       for (const item of cartItems) {
-        const produtoRef = doc(db, 'products', item.product.id);
+        // Novo padrao
+        const produtoRef = doc(db, 'produtos', item.product.id);
         const produtoDoc = await getDoc(produtoRef);
 
-        // Se produto nao existe no Firebase, permite (usa dados locais)
-        if (!produtoDoc.exists()) {
+        let estoque: number | undefined | null;
+        let exists = false;
+
+        if (produtoDoc.exists()) {
+           estoque = produtoDoc.data()?.estoque;
+           exists = true;
+        } else {
+           // Fallback antigo
+           const oldRef = doc(db, 'products', item.product.id);
+           const oldDoc = await getDoc(oldRef);
+           if (oldDoc.exists()) {
+             estoque = oldDoc.data()?.stock;
+             exists = true;
+           }
+        }
+
+        // Se produto nao existe no Firebase, permite (usa dados locais/mock)
+        if (!exists) {
           continue;
         }
 
-        const data = produtoDoc.data();
-        const estoque = data?.stock;
-
         // Se estoque e undefined, null ou 0, significa sem controle = infinito
-        if (estoque === undefined || estoque === null || estoque === 0) {
+        // OBS: Se for 0, pode significar esgotado dependendo da regra, mas aqui 0 = sem controle pelo comentario anterior
+        // VAMOS MUDAR: 0 deve ser esgotado? O comentario original dizia "0 = sem controle", mas geralmente 0 = sem estoque.
+        // Assumindo que 0 = Esgotado para ser seguro, a menos que seja explicitamente null/undefined
+        // Mas para manter compatibilidade com logica anterior:
+        if (estoque === undefined || estoque === null) {
           continue;
         }
 
         // So verifica se estoque > 0 (tem controle ativo)
-        if (estoque > 0 && estoque < item.quantity) {
+        // Se estoque for 0 e tiver controle, nao entra no if e passa? Nao faz sentido.
+        // Logica corrigida: Se tiver campo estoque, respeita ele.
+        if (estoque < item.quantity) {
           return { ok: false, produtoSemEstoque: item.product.name };
         }
       }
