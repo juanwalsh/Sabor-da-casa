@@ -45,7 +45,6 @@ const navItems: NavItem[] = [
   { href: '/admin/pedidos', label: 'Pedidos', icon: ShoppingBag },
   { href: '/admin/produtos', label: 'Produtos', icon: UtensilsCrossed },
   { href: '/admin/usuarios', label: 'Usuarios', icon: Users },
-  { href: '/admin/smartpos', label: 'SmartPOS', icon: RefreshCw },
 ];
 
 // Sidebar extraído como componente separado

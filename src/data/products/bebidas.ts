@@ -1,6 +1,22 @@
 import { Product } from '@/types';
 
 export const bebidas: Product[] = [
+  // === TESTE PIX (produto bem barato) ===
+  {
+    id: 'prod-test-005',
+    name: 'Produto Teste PIX (R$ 0,05)',
+    description: 'Produto de teste para validar pagamento via PIX no Mercado Pago.',
+    price: 0.05,
+    image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=600',
+    categoryId: 'cat-3',
+    active: true,
+    featured: false,
+    preparationTime: 1,
+    serves: 1,
+    tags: ['teste', 'pix'],
+    stock: 999
+  },
+
   // === DRINKS ALCOOLICOS ===
   {
     id: 'prod-40',

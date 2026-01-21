@@ -6,6 +6,8 @@ import { checkRateLimit } from '@/lib/ratelimit';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+  const isProd = process.env.NODE_ENV === 'production';
+  const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-change-me';
 
   // 0. Rate Limiting para APIs
   if (pathname.startsWith('/api/')) {
@@ -32,9 +34,19 @@ export async function middleware(request: NextRequest) {
     if (pathname === '/api/products' && request.method === 'GET') {
       return NextResponse.next();
     }
-    
+
     // Permitir POST em pedidos (criar pedido - publico)
     if (pathname === '/api/orders' && request.method === 'POST') {
+      return NextResponse.next();
+    }
+
+    // Permitir rotas de pagamento (publico - necessário para checkout)
+    if (pathname.startsWith('/api/payments/')) {
+      return NextResponse.next();
+    }
+
+    // Permitir webhooks (publico - Mercado Pago envia notificações)
+    if (pathname.startsWith('/api/webhooks/')) {
       return NextResponse.next();
     }
 
@@ -53,7 +65,6 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const jwtSecret = process.env.JWT_SECRET;
       if (!jwtSecret) {
         console.error('CRITICAL: JWT_SECRET not configured');
         return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
@@ -75,7 +86,6 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      const jwtSecret = process.env.JWT_SECRET;
       if (!jwtSecret) {
         // Se nao tem secret, nao da pra validar, entao falha fechado (redirect login)
         console.error('CRITICAL: JWT_SECRET not configured');

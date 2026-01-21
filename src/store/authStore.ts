@@ -24,6 +24,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ username, password }),
           });
 
@@ -47,16 +48,35 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          await fetch('/api/auth', { method: 'DELETE' });
+          await fetch('/api/auth', { method: 'DELETE', credentials: 'include' });
         } catch (error) {
           console.error('Erro ao fazer logout do servidor:', error);
         }
         set({ user: null, isAuthenticated: false });
       },
 
-      checkAuth: () => {
-        const state = get();
-        set({ isLoading: false, isAuthenticated: !!state.user });
+      checkAuth: async () => {
+        // Valida sessao real (cookie httpOnly) no servidor
+        try {
+          const response = await fetch('/api/auth', {
+            method: 'GET',
+            credentials: 'include',
+          });
+          const data = await response.json();
+
+          if (data?.success && data.user) {
+            const user: User = {
+              ...data.user,
+              createdAt: new Date(),
+            };
+            set({ user, isAuthenticated: true, isLoading: false });
+            return;
+          }
+        } catch (error) {
+          console.error('Erro ao verificar sessao:', error);
+        }
+
+        set({ user: null, isAuthenticated: false, isLoading: false });
       },
     }),
     {

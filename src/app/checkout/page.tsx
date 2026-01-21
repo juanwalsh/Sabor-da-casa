@@ -8,9 +8,7 @@ import { useRouter } from 'next/navigation';
 import {
   ChevronLeft,
   MapPin,
-  CreditCard,
   Smartphone,
-  Banknote,
   CheckCircle,
   Loader2,
 } from 'lucide-react';
@@ -21,7 +19,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useOrderHistoryStore } from '@/store/orderHistoryStore';
 import { useCouponStore } from '@/store/couponStore';
 import { useFirestoreStore, formatCartItemsForOrder } from '@/store/firestoreStore';
-import { formatPrice, RESTAURANT_INFO } from '@/data/mockData';
+import { formatPrice } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,7 +32,6 @@ import { ScheduleDelivery, ScheduleBadge } from '@/components/ui/schedule-delive
 import { CepValidator } from '@/components/ui/cep-validator';
 import { useScheduleStore } from '@/store/scheduleStore';
 import { toast } from 'sonner';
-import { PaymentModal } from '@/components/checkout/PaymentModal';
 
 const checkoutSchema = z.object({
   name: z.string().min(3, 'Nome é obrigatório e deve ter no mínimo 3 caracteres'),
@@ -51,13 +48,9 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
-type PaymentMethod = 'pix' | 'credit_card' | 'debit_card' | 'cash';
-
 export default function CheckoutPage() {
   const router = useRouter();
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
@@ -106,105 +99,113 @@ export default function CheckoutPage() {
   const discount = calculateDiscount(subtotal);
   const total = getTotal() - discount;
 
-  const paymentMethods = [
-    { id: 'pix', label: 'PIX', icon: Smartphone, description: 'Pagamento instantâneo' },
-    { id: 'credit_card', label: 'Crédito', icon: CreditCard, description: 'Em até 3x sem juros' },
-    { id: 'debit_card', label: 'Débito', icon: CreditCard, description: 'Na entrega' },
-    { id: 'cash', label: 'Dinheiro', icon: Banknote, description: 'Na entrega' },
-  ];
-
   const onSubmit = async (data: CheckoutFormData) => {
     setIsSubmitting(true);
 
-    // Preparar dados do pedido para Firebase (sem campos undefined)
-    const pedidoData: Record<string, unknown> = {
-      cliente: {
-        nome: data.name || '',
-        telefone: data.phone || '',
-        endereco: {
-          rua: data.street || '',
-          numero: data.number || '',
-          bairro: data.neighborhood || '',
-          cidade: data.city || 'Sao Paulo',
-          cep: data.zipCode || '',
-        },
-      },
-      itens: formatCartItemsForOrder(items),
-      subtotal: subtotal,
-      taxaEntrega: deliveryFee,
-      desconto: discount,
-      total: total,
-      status: 'pendente' as const,
-      formaPagamento: paymentMethod,
-    };
-
-    // Adicionar campos opcionais apenas se tiverem valor
-    if (data.email) {
-      (pedidoData.cliente as Record<string, unknown>).email = data.email;
-    }
-    if (data.complement) {
-      ((pedidoData.cliente as Record<string, unknown>).endereco as Record<string, unknown>).complemento = data.complement;
-    }
-    if (data.notes) {
-      pedidoData.observacoes = data.notes;
-    }
-    if (isScheduled) {
-      pedidoData.agendamento = getFormattedSchedule();
-    }
-
-    // Criar pedido no Firebase (já debita estoque automaticamente)
-    const firebaseOrderId = await criarPedido(pedidoData, items);
-
-    if (!firebaseOrderId) {
-      toast.error('Erro ao criar pedido. Tente novamente.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Integração SmartPOS: Baixar estoque
     try {
-      await fetch('/api/smartpos/process-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+      // Preparar dados do pedido
+      const pedidoData: Record<string, unknown> = {
+        cliente: {
+          nome: data.name || '',
+          telefone: data.phone || '',
+          endereco: {
+            rua: data.street || '',
+            numero: data.number || '',
+            bairro: data.neighborhood || '',
+            cidade: data.city || 'Sao Paulo',
+            cep: data.zipCode || '',
+          },
+        },
+        itens: formatCartItemsForOrder(items),
+        subtotal: subtotal,
+        taxaEntrega: deliveryFee,
+        desconto: discount,
+        total: total,
+        status: 'pendente' as const,
+        formaPagamento: 'whatsapp',
+      };
+
+      if (data.email) {
+        (pedidoData.cliente as Record<string, unknown>).email = data.email;
+      }
+      if (data.complement) {
+        ((pedidoData.cliente as Record<string, unknown>).endereco as Record<string, unknown>).complemento = data.complement;
+      }
+      if (data.notes) {
+        pedidoData.observacoes = data.notes;
+      }
+      if (isScheduled) {
+        pedidoData.agendamento = getFormattedSchedule();
+      }
+
+      // Criar pedido no Firebase (para painel Admin)
+      const firebaseOrderId = await criarPedido(pedidoData, items);
+
+      if (!firebaseOrderId) {
+        toast.error('Erro ao criar pedido. Tente novamente.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Salva o pedido no histórico local
+      addOrder({
+        items: items,
+        total: total,
+        status: 'pending',
       });
-    } catch (error) {
-      console.error('Erro ao sincronizar estoque SmartPOS:', error);
-      // Não bloqueamos o fluxo se falhar a integração, pois o pedido já foi salvo
-    }
+      setCurrentOrderId(firebaseOrderId);
 
-    // Salva o pedido no histórico local também
-    const orderId = addOrder({
-      items: items,
-      total: total,
-      status: 'pending',
-    });
-    setCurrentOrderId(orderId);
+      // Marca cupom como usado
+      if (appliedCoupon) {
+        markCouponAsUsed(appliedCoupon.code);
+      }
 
-    // Marca cupom como usado
-    if (appliedCoupon) {
-      markCouponAsUsed(appliedCoupon.code);
-    }
+      // Montar mensagem WhatsApp
+      const itemsList = items.map(item =>
+        `• ${item.quantity}x ${item.product.name}${item.notes ? ' (' + item.notes + ')' : ''}`
+      ).join('\n');
 
-    setIsSubmitting(false);
-    
-    // Se for dinheiro, finaliza direto. Se não, abre modal de pagamento
-    if (paymentMethod === 'cash') {
+      const address = `${data.street}, ${data.number}${data.complement ? ' - ' + data.complement : ''}, ${data.neighborhood}`;
+      
+      const message = `*Novo Pedido #${firebaseOrderId.slice(-6).toUpperCase()}*
+      
+*Cliente:* ${data.name}
+*Telefone:* ${data.phone}
+
+*Itens:*
+${itemsList}
+
+*Resumo:*
+Subtotal: ${formatPrice(subtotal)}
+Entrega: ${deliveryFee === 0 ? 'Grátis' : formatPrice(deliveryFee)}
+${discount > 0 ? `Desconto: -${formatPrice(discount)}\n` : ''}*Total: ${formatPrice(total)}*
+
+*Endereço de Entrega:*
+${address}
+CEP: ${data.zipCode}
+Cidade: ${data.city}
+
+${data.notes ? `*Observações:* ${data.notes}\n` : ''}
+${isScheduled ? `*Agendamento:* ${getFormattedSchedule()}\n` : ''}
+Pagamento a combinar.`;
+
+      const whatsappNumber = '55119999'; // Placeholder
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+      // Abrir WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      setIsSubmitting(false);
       setOrderSuccess(true);
       clearCart();
-      toast.success(`Pedido #${firebaseOrderId.slice(-6).toUpperCase()} criado com sucesso!`);
+      toast.success(`Pedido enviado para WhatsApp!`);
       setTimeout(() => setShowRatingModal(true), 3000);
-    } else {
-      setShowPaymentModal(true);
-    }
-  };
 
-  const handlePaymentComplete = () => {
-    setShowPaymentModal(false);
-    setOrderSuccess(true);
-    clearCart();
-    toast.success(`Pagamento confirmado! Pedido em preparo.`);
-    setTimeout(() => setShowRatingModal(true), 3000);
+    } catch (error) {
+      console.error('Erro ao processar pedido:', error);
+      toast.error('Erro ao processar pedido. Tente novamente.');
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0 && !orderSuccess) {
@@ -257,9 +258,9 @@ export default function CheckoutPage() {
           >
             <CheckCircle className="w-12 h-12 text-secondary" />
           </motion.div>
-          <h2 className="font-sans text-xl sm:text-2xl font-semibold mb-2">Pedido Confirmado!</h2>
+          <h2 className="font-sans text-xl sm:text-2xl font-semibold mb-2">Pedido Enviado!</h2>
           <p className="text-muted-foreground mb-6">
-            Seu pedido foi recebido com sucesso! Estamos preparando sua refeicao com muito carinho.
+            Seu pedido foi encaminhado para nosso WhatsApp. Aguarde a confirmação de um atendente.
           </p>
           <Link href="/">
             <Button variant="outline" className="rounded-xl">
@@ -414,39 +415,8 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
-            {/* Payment Method */}
-            <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border">
-              <h2 className="font-sans text-base sm:text-lg font-semibold mb-3 sm:mb-4">Forma de Pagamento</h2>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {paymentMethods.map((method) => (
-                  <button
-                    key={method.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(method.id as PaymentMethod)}
-                    className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
-                      paymentMethod === method.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/30'
-                    }`}
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        paymentMethod === method.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <method.icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{method.label}</p>
-                      <p className="text-xs text-muted-foreground">{method.description}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            
+            
 
             {/* Notes */}
             <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border">
@@ -532,7 +502,7 @@ export default function CheckoutPage() {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting || isFirestoreSubmitting}
-                className="w-full h-12 sm:h-14 rounded-xl text-xs sm:text-sm lg:text-base font-semibold mt-4 sm:mt-6 shadow-lg shadow-primary/30 px-4 whitespace-nowrap"
+                className="w-full h-12 sm:h-14 rounded-xl text-xs sm:text-sm lg:text-base font-semibold mt-4 sm:mt-6 shadow-lg shadow-primary/30 px-4 whitespace-nowrap bg-green-600 hover:bg-green-700"
               >
                 {isSubmitting || isFirestoreSubmitting ? (
                   <>
@@ -541,14 +511,14 @@ export default function CheckoutPage() {
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" />
-                    <span>Confirmar Pedido</span>
+                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" />
+                    <span>Finalizar no WhatsApp</span>
                   </>
                 )}
               </Button>
 
               <p className="text-xs text-muted-foreground text-center mt-3 sm:mt-4 leading-relaxed">
-                Seu pedido sera enviado diretamente para nossa cozinha
+                Você será redirecionado para o WhatsApp para confirmar o pedido.
               </p>
             </div>
           </div>
@@ -560,18 +530,6 @@ export default function CheckoutPage() {
         <RatingModal
           isOpen={showRatingModal}
           onClose={() => setShowRatingModal(false)}
-          orderId={currentOrderId}
-        />
-      )}
-
-      {/* Payment Modal */}
-      {currentOrderId && (
-        <PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          onPaymentComplete={handlePaymentComplete}
-          total={total}
-          method={paymentMethod}
           orderId={currentOrderId}
         />
       )}

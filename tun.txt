@@ -1,0 +1,45 @@
+{/* Métodos de Pagamento Aceitos */}
+<div className="bg-card rounded-2xl p-4 sm:p-6 border border-border">
+  <div className="flex items-center gap-2 mb-3 sm:mb-4">
+    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    <h2 className="font-sans text-base sm:text-lg font-semibold">
+      Métodos de Pagamento Aceitos
+    </h2>
+  </div>
+
+  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
+      💳 Pagamento processado via Mercado Pago
+    </p>
+
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-blue-800 dark:text-blue-200">
+      <div className="flex items-center gap-1.5">
+        <Smartphone className="w-4 h-4" />
+        <span>PIX</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <CreditCard className="w-4 h-4" />
+        <span>Crédito</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <CreditCard className="w-4 h-4" />
+        <span>Débito</span>
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Banknote className="w-4 h-4" />
+        <span>Boleto</span>
+      </div>
+    </div>
+
+    <p className="text-xs text-blue-700 dark:text-blue-300 mt-3">
+      ✓ Ambiente 100% seguro | ✓ Até 12x sem juros | ✓ Aprovação instantânea
+    </p>
+  </div>
+
+  <p className="text-xs text-muted-foreground mt-3 text-center">
+    Você escolherá o método de pagamento na próxima etapa (Mercado Pago)
+  </p>
+</div>

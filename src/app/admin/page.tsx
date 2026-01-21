@@ -266,16 +266,16 @@ export default function AdminDashboard() {
                       <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-xs sm:text-sm truncate">{order.customerName}</p>
+                      <p className="font-medium text-xs sm:text-sm truncate">{order.customerName || 'Cliente'}</p>
                       <p className="text-xs text-muted-foreground">
-                        {order.items.length} {order.items.length === 1 ? 'item' : 'itens'}
+                        {order.items?.length || 0} {(order.items?.length || 0) === 1 ? 'item' : 'itens'}
                       </p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-semibold font-serif text-sm sm:text-base">{formatPrice(order.total)}</p>
-                    <Badge variant={statusLabels[order.status].variant} className="text-xs">
-                      {statusLabels[order.status].label}
+                    <p className="font-semibold font-serif text-sm sm:text-base">{formatPrice(order.total || 0)}</p>
+                    <Badge variant={statusLabels[order.status]?.variant || 'outline'} className="text-xs">
+                      {statusLabels[order.status]?.label || 'Pendente'}
                     </Badge>
                   </div>
                 </div>

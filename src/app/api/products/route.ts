@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { Product } from '@/types';
 import { z } from 'zod';
 import { rateLimit, rateLimitConfigs, rateLimitResponse, addRateLimitHeaders } from '@/lib/rate-limit';
@@ -8,13 +8,15 @@ import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-const COLLECTION_NAME = 'products';
+// Alterado para 'produtos' para bater com o useFirestoreProducts
+const COLLECTION_NAME = 'produtos';
 
 const productSchema = z.object({
   name: z.string().min(1, 'Nome obrigatorio'),
   description: z.string().min(1, 'Descricao obrigatoria'),
   price: z.coerce.number().positive('Preco deve ser positivo'),
-  image: z.string().url('URL de imagem invalida'),
+  // Removido .url() para aceitar caminhos relativos (/uploads/...)
+  image: z.string().min(1, 'Imagem obrigatoria'),
   categoryId: z.string().min(1, 'Categoria obrigatoria'),
   active: z.boolean().optional().default(true),
   featured: z.boolean().optional().default(false),
@@ -24,173 +26,169 @@ const productSchema = z.object({
   stock: z.coerce.number().int().nonnegative('Estoque invalido').default(100),
 });
 
+// Helper para converter de Firestore (PT) para App (EN)
+const fromFirestore = (doc: any): Product => {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    name: data.nome || '',
+    description: data.descricao || '',
+    price: data.preco || 0,
+    image: data.imagem || '',
+    categoryId: data.categoriaId || '',
+    active: data.ativo ?? true,
+    featured: data.destaque ?? false,
+    preparationTime: data.tempoPreparo,
+    serves: data.porcoes,
+    tags: data.tags || [],
+    stock: data.estoque || 0,
+    // emoji: data.emoji // Se necessario
+  };
+};
+
+// Helper para converter de App (EN) para Firestore (PT)
+const toFirestore = (data: z.infer<typeof productSchema>) => {
+  return {
+    nome: data.name,
+    descricao: data.description,
+    preco: data.price,
+    imagem: data.image,
+    categoriaId: data.categoryId,
+    ativo: data.active,
+    destaque: data.featured,
+    tempoPreparo: data.preparationTime,
+    porcoes: data.serves,
+    tags: data.tags,
+    estoque: data.stock,
+    updatedAt: new Date().toISOString(),
+  };
+};
+
 // GET - Lista todos os produtos
 export async function GET(request: NextRequest) {
-  // Rate limiting
   const rateLimitResult = await rateLimit(request, rateLimitConfigs.public);
-  if (!rateLimitResult.success) {
-    logger.warn('Rate limit exceeded for products GET', { action: 'rate_limit' });
-    return rateLimitResponse(rateLimitResult);
-  }
-
-  const endTiming = logger.time('GET /api/products');
+  if (!rateLimitResult.success) return rateLimitResponse(rateLimitResult);
 
   try {
     const productsRef = collection(db, COLLECTION_NAME);
     const q = query(productsRef);
-
     const snapshot = await getDocs(q);
-    const products = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Product[];
-
-    endTiming();
-    logger.info('Products fetched successfully', { action: 'products_fetch', count: products.length });
+    
+    const products = snapshot.docs.map(fromFirestore);
 
     const response = NextResponse.json({ success: true, products });
     return addRateLimitHeaders(response, rateLimitResult);
   } catch (error) {
-    logger.error('Failed to fetch products', error as Error, { action: 'products_fetch_error' });
-    return NextResponse.json(
-      { success: false, error: 'Erro ao buscar produtos' },
-      { status: 500 }
-    );
+    logger.error('Failed to fetch products', error as Error);
+    return NextResponse.json({ success: false, error: 'Erro ao buscar produtos' }, { status: 500 });
   }
 }
 
 // POST - Cria novo produto
 export async function POST(request: NextRequest) {
-  // Rate limiting para rotas protegidas
   const rateLimitResult = await rateLimit(request, rateLimitConfigs.protected);
-  if (!rateLimitResult.success) {
-    logger.warn('Rate limit exceeded for products POST', { action: 'rate_limit' });
-    return rateLimitResponse(rateLimitResult);
-  }
-
-  const endTiming = logger.time('POST /api/products');
+  if (!rateLimitResult.success) return rateLimitResponse(rateLimitResult);
 
   try {
     const body = await request.json();
-
     const validation = productSchema.safeParse(body);
 
     if (!validation.success) {
-      logger.warn('Product validation failed', { action: 'product_validation_error' });
       return NextResponse.json(
         { success: false, error: 'Dados invalidos', details: validation.error.format() },
         { status: 400 }
       );
     }
 
-    const newProductData = {
-      ...validation.data,
+    const firestoreData = {
+      ...toFirestore(validation.data),
       createdAt: new Date().toISOString(),
     };
 
-    const docRef = await addDoc(collection(db, COLLECTION_NAME), newProductData);
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), firestoreData);
 
     const newProduct = {
       id: docRef.id,
-      ...newProductData
+      ...validation.data
     };
-
-    endTiming();
-    logger.info('Product created successfully', { action: 'product_create', productId: docRef.id });
 
     const response = NextResponse.json({ success: true, product: newProduct });
     return addRateLimitHeaders(response, rateLimitResult);
   } catch (error) {
-    logger.error('Failed to create product', error as Error, { action: 'product_create_error' });
-    return NextResponse.json(
-      { success: false, error: 'Erro ao criar produto' },
-      { status: 500 }
-    );
+    logger.error('Failed to create product', error as Error);
+    return NextResponse.json({ success: false, error: 'Erro ao criar produto' }, { status: 500 });
   }
 }
 
 // PUT - Atualiza produto existente
 export async function PUT(request: NextRequest) {
   const rateLimitResult = await rateLimit(request, rateLimitConfigs.protected);
-  if (!rateLimitResult.success) {
-    logger.warn('Rate limit exceeded for products PUT', { action: 'rate_limit' });
-    return rateLimitResponse(rateLimitResult);
-  }
-
-  const endTiming = logger.time('PUT /api/products');
+  if (!rateLimitResult.success) return rateLimitResponse(rateLimitResult);
 
   try {
     const body = await request.json();
     const { id, ...data } = body;
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID do produto e obrigatorio' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'ID obrigatorio' }, { status: 400 });
     }
 
     const validation = productSchema.partial().safeParse(data);
-
     if (!validation.success) {
-      logger.warn('Product update validation failed', { action: 'product_validation_error', productId: id });
       return NextResponse.json(
         { success: false, error: 'Dados invalidos', details: validation.error.format() },
         { status: 400 }
       );
     }
 
+    // Para update, precisamos mesclar com cuidado ou converter apenas o que veio
+    // Como toFirestore espera o objeto completo, vamos fazer manual para partial
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.nome = data.name;
+    if (data.description !== undefined) updateData.descricao = data.description;
+    if (data.price !== undefined) updateData.preco = data.price;
+    if (data.image !== undefined) updateData.imagem = data.image;
+    if (data.categoryId !== undefined) updateData.categoriaId = data.categoryId;
+    if (data.active !== undefined) updateData.ativo = data.active;
+    if (data.featured !== undefined) updateData.destaque = data.featured;
+    if (data.preparationTime !== undefined) updateData.tempoPreparo = data.preparationTime;
+    if (data.serves !== undefined) updateData.porcoes = data.serves;
+    if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.stock !== undefined) updateData.estoque = data.stock;
+    
+    updateData.updatedAt = new Date().toISOString();
+
     const productRef = doc(db, COLLECTION_NAME, id);
-    await updateDoc(productRef, validation.data);
+    await updateDoc(productRef, updateData);
 
-    endTiming();
-    logger.info('Product updated successfully', { action: 'product_update', productId: id });
-
-    const response = NextResponse.json({ success: true, product: { id, ...validation.data } });
+    const response = NextResponse.json({ success: true, product: { id, ...data } });
     return addRateLimitHeaders(response, rateLimitResult);
   } catch (error) {
-    logger.error('Failed to update product', error as Error, { action: 'product_update_error' });
-    return NextResponse.json(
-      { success: false, error: 'Erro ao atualizar produto' },
-      { status: 500 }
-    );
+    logger.error('Failed to update product', error as Error);
+    return NextResponse.json({ success: false, error: 'Erro ao atualizar produto' }, { status: 500 });
   }
 }
 
 // DELETE - Remove produto
 export async function DELETE(request: NextRequest) {
   const rateLimitResult = await rateLimit(request, rateLimitConfigs.protected);
-  if (!rateLimitResult.success) {
-    logger.warn('Rate limit exceeded for products DELETE', { action: 'rate_limit' });
-    return rateLimitResponse(rateLimitResult);
-  }
-
-  const endTiming = logger.time('DELETE /api/products');
+  if (!rateLimitResult.success) return rateLimitResponse(rateLimitResult);
 
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID do produto e obrigatorio' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'ID obrigatorio' }, { status: 400 });
     }
 
     const productRef = doc(db, COLLECTION_NAME, id);
     await deleteDoc(productRef);
 
-    endTiming();
-    logger.info('Product deleted successfully', { action: 'product_delete', productId: id });
-
     const response = NextResponse.json({ success: true });
     return addRateLimitHeaders(response, rateLimitResult);
   } catch (error) {
-    logger.error('Failed to delete product', error as Error, { action: 'product_delete_error' });
-    return NextResponse.json(
-      { success: false, error: 'Erro ao remover produto' },
-      { status: 500 }
-    );
+    logger.error('Failed to delete product', error as Error);
+    return NextResponse.json({ success: false, error: 'Erro ao remover produto' }, { status: 500 });
   }
 }
