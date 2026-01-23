@@ -14,12 +14,17 @@ export function CartNotification() {
   const [showNotification, setShowNotification] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  // Hide on checkout page
-  if (pathname === '/checkout') return null;
-
   useEffect(() => {
     // Verifica se há itens no carrinho ao montar o componente
     const hasItems = items.length > 0;
+    // ...
+    // ... rest of useEffect code
+    
+    // Check path inside useEffect or just let it run (showing logic handles it)
+    if (pathname === '/checkout') {
+        setShowNotification(false);
+        return;
+    }
 
     // Verifica se já foi mostrado recentemente
     const lastShown = localStorage.getItem('cart-notification-shown');
@@ -34,8 +39,11 @@ export function CartNotification() {
       }, 2000);
 
       return () => clearTimeout(timer);
+    } else {
+        // Hide if no items
+        setShowNotification(false);
     }
-  }, [items, dismissed]);
+  }, [items, dismissed, pathname]);
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -47,7 +55,7 @@ export function CartNotification() {
     handleDismiss();
   };
 
-  if (items.length === 0) return null;
+  if (items.length === 0 || pathname === '/checkout') return null;
 
   return (
     <AnimatePresence>

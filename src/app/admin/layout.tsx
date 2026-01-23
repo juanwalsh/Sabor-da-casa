@@ -178,9 +178,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [isLoading, isAuthenticated, router]);
 
   const handleLogout = useCallback(() => {
-    logout();
-    router.push('/login');
-  }, [logout, router]);
+    // Mantem a sessao ativa para auto-login futuro
+    router.push('/');
+  }, [router]);
 
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);

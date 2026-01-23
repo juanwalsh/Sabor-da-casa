@@ -18,10 +18,10 @@ export const RESTAURANT_INFO = {
   phone: '(22) 99999-5200',
   whatsapp: '5522999995200',
   email: 'contato@eplopes.com.br',
-  address: 'Rua das Delicias, 123 - Centro',
+  address: 'Rua Independencia, Bairro Tamoios, Número 9',
   hours: {
-    weekdays: '08:00 - 22:00',
-    weekends: '08:00 - 23:00'
+    weekdays: '10:00 - 23:00',
+    weekends: '10:00 - 23:00'
   },
   deliveryTime: '30-45 min',
   social: {

@@ -48,7 +48,7 @@ const fromFirestore = (doc: any): Product => {
 
 // Helper para converter de App (EN) para Firestore (PT)
 const toFirestore = (data: z.infer<typeof productSchema>) => {
-  return {
+  const doc: Record<string, unknown> = {
     nome: data.name,
     descricao: data.description,
     preco: data.price,
@@ -56,12 +56,13 @@ const toFirestore = (data: z.infer<typeof productSchema>) => {
     categoriaId: data.categoryId,
     ativo: data.active,
     destaque: data.featured,
-    tempoPreparo: data.preparationTime,
-    porcoes: data.serves,
-    tags: data.tags,
-    estoque: data.stock,
+    tags: data.tags || [],
+    estoque: data.stock ?? 100,
     updatedAt: new Date().toISOString(),
   };
+  if (data.preparationTime !== undefined) doc.tempoPreparo = data.preparationTime;
+  if (data.serves !== undefined) doc.porcoes = data.serves;
+  return doc;
 };
 
 // GET - Lista todos os produtos

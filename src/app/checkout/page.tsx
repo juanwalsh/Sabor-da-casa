@@ -25,7 +25,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { CouponInput } from '@/components/ui/coupon-input';
 import { DeliveryTime } from '@/components/ui/delivery-time';
 import { RatingModal } from '@/components/ui/rating-modal';
 import { ScheduleDelivery, ScheduleBadge } from '@/components/ui/schedule-delivery';
@@ -39,7 +38,6 @@ const checkoutSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   street: z.string().min(3, 'Rua é obrigatória'),
   number: z.string().min(1, 'Número é obrigatório'),
-  complement: z.string().optional(),
   neighborhood: z.string().min(2, 'Bairro é obrigatório'),
   city: z.string().min(2, 'Cidade é obrigatória'),
   zipCode: z.string().min(8, 'CEP inválido'),
@@ -71,7 +69,7 @@ export default function CheckoutPage() {
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      city: 'São Paulo',
+      city: 'Cabo Frio',
     },
   });
 
@@ -121,15 +119,12 @@ export default function CheckoutPage() {
         taxaEntrega: deliveryFee,
         desconto: discount,
         total: total,
-        status: 'pendente' as const,
+        status: 'pending' as const,
         formaPagamento: 'whatsapp',
       };
 
       if (data.email) {
         (pedidoData.cliente as Record<string, unknown>).email = data.email;
-      }
-      if (data.complement) {
-        ((pedidoData.cliente as Record<string, unknown>).endereco as Record<string, unknown>).complemento = data.complement;
       }
       if (data.notes) {
         pedidoData.observacoes = data.notes;
@@ -165,7 +160,7 @@ export default function CheckoutPage() {
         `• ${item.quantity}x ${item.product.name}${item.notes ? ' (' + item.notes + ')' : ''}`
       ).join('\n');
 
-      const address = `${data.street}, ${data.number}${data.complement ? ' - ' + data.complement : ''}, ${data.neighborhood}`;
+      const address = `${data.street}, ${data.number}, ${data.neighborhood}`;
       
       const message = `*Novo Pedido #${firebaseOrderId.slice(-6).toUpperCase()}*
       
@@ -189,7 +184,7 @@ ${data.notes ? `*Observações:* ${data.notes}\n` : ''}
 ${isScheduled ? `*Agendamento:* ${getFormattedSchedule()}\n` : ''}
 Pagamento a combinar.`;
 
-      const whatsappNumber = '55119999'; // Placeholder
+      const whatsappNumber = '5522999995200'; 
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
       // Abrir WhatsApp
@@ -378,15 +373,6 @@ Pagamento a combinar.`;
                   />
                 </div>
                 <div>
-                  <Label htmlFor="complement">Complemento (opcional)</Label>
-                  <Input
-                    id="complement"
-                    {...register('complement')}
-                    className="mt-1.5 h-12 rounded-xl"
-                    placeholder="Apto, bloco..."
-                  />
-                </div>
-                <div>
                   <Label htmlFor="neighborhood">Bairro</Label>
                   <Input
                     id="neighborhood"
@@ -409,8 +395,8 @@ Pagamento a combinar.`;
                   <Input
                     id="city"
                     {...register('city')}
-                    className="mt-1.5 h-12 rounded-xl"
-                    placeholder="São Paulo"
+                    className="mt-1.5 h-12 rounded-xl bg-muted text-muted-foreground cursor-not-allowed"
+                    readOnly
                   />
                 </div>
               </div>
@@ -463,11 +449,6 @@ Pagamento a combinar.`;
 
               <Separator className="my-3 sm:my-4" />
 
-              {/* Cupom */}
-              <div className="mb-4">
-                <CouponInput subtotal={subtotal} />
-              </div>
-
               {/* Agendamento */}
               <div className="mb-4">
                 <ScheduleDelivery />
@@ -478,12 +459,6 @@ Pagamento a combinar.`;
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-xs sm:text-sm text-secondary">
-                    <span>Desconto</span>
-                    <span>-{formatPrice(discount)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-muted-foreground">Entrega</span>
                   <span className={deliveryFee === 0 ? 'text-secondary font-medium' : ''}>
@@ -502,7 +477,7 @@ Pagamento a combinar.`;
                 type="submit"
                 size="lg"
                 disabled={isSubmitting || isFirestoreSubmitting}
-                className="w-full h-12 sm:h-14 rounded-xl text-xs sm:text-sm lg:text-base font-semibold mt-4 sm:mt-6 shadow-lg shadow-primary/30 px-4 whitespace-nowrap bg-green-600 hover:bg-green-700"
+                className="w-full h-12 sm:h-14 rounded-xl text-xs sm:text-sm font-semibold mt-4 sm:mt-6 shadow-lg shadow-primary/30 px-12 whitespace-nowrap bg-green-600 hover:bg-green-700"
               >
                 {isSubmitting || isFirestoreSubmitting ? (
                   <>

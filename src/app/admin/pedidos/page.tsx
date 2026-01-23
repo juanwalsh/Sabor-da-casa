@@ -267,6 +267,17 @@ export default function PedidosPage() {
                   );
                 })()}
 
+                {/* Agendamento Alert */}
+                {selectedOrderData.agendamento && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3 rounded-lg flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-blue-900 dark:text-blue-100">Entrega Agendada</p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">{selectedOrderData.agendamento}</p>
+                    </div>
+                  </div>
+                )}
+
                 <Separator />
 
                 {/* Customer Info */}

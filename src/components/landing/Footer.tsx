@@ -9,16 +9,12 @@ import {
   Phone,
   Mail,
   Clock,
-  Instagram,
-  Facebook,
   Heart,
   ArrowUpRight,
   Settings,
   PartyPopper,
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '@/data/mockData';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 const footerLinks = {
   menu: [
@@ -56,33 +52,16 @@ export default function Footer() {
             <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-black/10 rounded-full blur-3xl" />
 
-            <div className="relative flex flex-col md:flex-row gap-4 md:gap-8 items-center">
-              <div className="text-center md:text-left flex-1">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                  <PartyPopper className="w-5 h-5 text-white" />
-                  <h3 className="font-serif text-lg md:text-2xl font-bold text-white">
-                    Ofertas de Carnaval!
-                  </h3>
-                </div>
-                <p className="text-white/80 text-sm">
-                  Cadastre-se e ganhe 10% OFF no primeiro pedido!
-                </p>
+            <div className="relative flex flex-col items-center justify-center text-center py-2">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <PartyPopper className="w-6 h-6 text-white" />
+                <h3 className="font-serif text-xl md:text-3xl font-bold text-white">
+                  Ofertas de carnaval
+                </h3>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                <Input
-                  type="email"
-                  placeholder="Seu e-mail"
-                  className="h-10 md:h-11 bg-white/90 border-0 rounded-lg text-foreground placeholder:text-muted-foreground text-sm"
-                />
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-10 md:h-11 px-4 md:px-6 rounded-lg font-semibold whitespace-nowrap text-sm"
-                >
-                  Quero!
-                </Button>
-              </div>
+              <p className="text-white text-lg md:text-2xl font-bold">
+                Produtos com até 30% de desconto!
+              </p>
             </div>
           </motion.div>
         </div>
@@ -118,25 +97,7 @@ export default function Footer() {
                 {RESTAURANT_INFO.slogan}
               </p>
 
-              {/* Social Links */}
-              <div className="flex gap-2">
-                <a
-                  href={`https://instagram.com/${RESTAURANT_INFO.social.instagram.replace('@', '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:bg-[#FF6B35] hover:text-white transition-all"
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://facebook.com/${RESTAURANT_INFO.social.facebook}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:bg-[#FF6B35] hover:text-white transition-all"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-              </div>
+
             </div>
 
             {/* Links Column */}

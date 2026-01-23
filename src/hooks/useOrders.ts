@@ -6,6 +6,24 @@ import { db } from '@/lib/firebase';
 import { Order, OrderStatus } from '@/types';
 import { toast } from 'sonner';
 
+// Mapeia status PT -> EN para pedidos legados
+const statusMap: Record<string, OrderStatus> = {
+  pendente: 'pending',
+  confirmado: 'confirmed',
+  preparando: 'preparing',
+  pronto: 'ready',
+  saiu_entrega: 'delivering',
+  entregue: 'delivered',
+  cancelado: 'cancelled',
+};
+
+const normalizeStatus = (status: string): OrderStatus => {
+  if (['pending','confirmed','preparing','ready','delivering','delivered','cancelled'].includes(status)) {
+    return status as OrderStatus;
+  }
+  return statusMap[status] || 'pending';
+};
+
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,13 +45,52 @@ export function useOrders() {
       (snapshot) => {
         const fetchedOrders: Order[] = snapshot.docs.map(doc => {
           const data = doc.data();
+          
+          // Mapeamento robusto do Firestore (PT/Nested) para App (EN/Flat)
+          // O Checkout salva como 'cliente' e 'itens'
+          const cliente = data.cliente || {};
+          const endereco = cliente.endereco || data.address || {};
+          
           return {
             id: doc.id,
             ...data,
-            // Garantir que datas sejam objetos Date
+            // Dados do Cliente
+            customerName: data.customerName || cliente.nome || 'Cliente sem nome',
+            customerPhone: data.customerPhone || cliente.telefone || '',
+            customerEmail: data.customerEmail || cliente.email || '',
+            
+            // Endereço (Mapeando campos PT -> EN)
+            address: {
+              street: endereco.rua || endereco.street || '',
+              number: endereco.numero || endereco.number || '',
+              complement: endereco.complemento || endereco.complement || '',
+              neighborhood: endereco.bairro || endereco.neighborhood || '',
+              city: endereco.cidade || endereco.city || '',
+              state: endereco.estado || endereco.state || '',
+              zipCode: endereco.cep || endereco.zipCode || '',
+            },
+            
+            // Itens e Valores
+            items: (data.items || data.itens || []).map((item: any) => ({
+              ...item,
+              id: item.id || item.produtoId || item.productId || '',
+              productId: item.productId || item.produtoId || '',
+              quantity: item.quantity || item.quantidade || 1,
+              unitPrice: item.unitPrice || item.precoUnitario || 0,
+              product: item.product || {
+                name: item.nome || 'Produto',
+                price: item.precoUnitario || 0
+              }
+            })),
+            subtotal: data.subtotal || 0,
+            deliveryFee: data.deliveryFee ?? data.taxaEntrega ?? 0,
+            discount: data.discount ?? data.desconto ?? 0,
+            total: data.total || 0,
+            
+            // Status e Datas (normaliza PT -> EN)
+            status: normalizeStatus(data.status || 'pending'),
             createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
             updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),
-            estimatedDelivery: data.estimatedDelivery ? new Date(data.estimatedDelivery) : undefined,
           } as Order;
         });
         setOrders(fetchedOrders);

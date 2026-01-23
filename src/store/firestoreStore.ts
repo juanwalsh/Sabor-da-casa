@@ -12,7 +12,22 @@ import {
   orderBy
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { CartItem, Order } from '@/types';
+import { CartItem, Order, OrderStatus } from '@/types';
+
+// Mapeia status PT -> EN para pedidos legados
+const statusMapPtEn: Record<string, OrderStatus> = {
+  pendente: 'pending',
+  confirmado: 'confirmed',
+  preparando: 'preparing',
+  pronto: 'ready',
+  saiu_entrega: 'delivering',
+  entregue: 'delivered',
+  cancelado: 'cancelled',
+};
+const normalizeStatus = (s: string): OrderStatus => {
+  if (['pending','confirmed','preparing','ready','delivering','delivered','cancelled'].includes(s)) return s as OrderStatus;
+  return statusMapPtEn[s] || 'pending';
+};
 
 export interface PedidoItem {
   produtoId: string;
@@ -81,10 +96,14 @@ export const useFirestoreStore = create<FirestoreState>((set) => ({
       
       const orders = snapshot.docs.map(doc => {
         const data = doc.data();
+        const cliente = data.cliente || {};
         // Mapear dados do Firestore para o tipo Order
         return {
           id: doc.id,
           ...data,
+          customerName: data.customerName || cliente.nome || 'Cliente sem nome',
+          customerPhone: data.customerPhone || cliente.telefone || '',
+          status: normalizeStatus(data.status || 'pending'),
           // Converter timestamps strings para Date objects se necessario
           createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
           updatedAt: data.updatedAt ? new Date(data.updatedAt) : new Date(),

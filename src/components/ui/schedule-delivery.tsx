@@ -64,29 +64,34 @@ export function ScheduleDelivery({ className }: ScheduleDeliveryProps) {
       {/* Trigger Button */}
       <div className={className}>
         {isScheduled ? (
-          <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-xl border border-secondary/20">
-            <Calendar className="w-4 h-4 text-secondary" />
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Entrega agendada</p>
-              <p className="text-sm font-medium">{formattedSchedule}</p>
+          <div className="flex flex-col gap-3 p-3 bg-secondary/10 rounded-xl border border-secondary/20">
+            <div className="flex items-start gap-3">
+              <Calendar className="w-4 h-4 text-secondary mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Entrega agendada</p>
+                <p className="text-sm font-medium leading-tight break-words">{formattedSchedule}</p>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              type="button"
-              className="h-8 w-8"
-              onClick={handleClear}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              onClick={() => setIsOpen(true)}
-            >
-              Alterar
-            </Button>
+            <div className="flex items-center gap-2 w-full">
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                className="flex-1 h-8 text-xs bg-background/50"
+                onClick={() => setIsOpen(true)}
+              >
+                Alterar
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                onClick={handleClear}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         ) : (
           <Button

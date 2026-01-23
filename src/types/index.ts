@@ -81,6 +81,7 @@ export interface Order {
   status: OrderStatus;
   paymentMethod: PaymentMethod;
   notes?: string;
+  agendamento?: string;
   createdAt: Date;
   updatedAt: Date;
   estimatedDelivery?: Date;

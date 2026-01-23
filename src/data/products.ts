@@ -1,69 +1,7 @@
-/**
- * Script para popular o Firestore com todos os produtos
- * Execute com: npx ts-node scripts/populateFirestore.ts
- */
+import { Product } from '@/types';
 
-import { config } from 'dotenv';
-config({ path: '.env.local' });
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDocs } from 'firebase/firestore';
-
-// Configuracao Firebase via variaveis de ambiente
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Categorias
-const categories = [
-  {
-    id: 'cat-1',
-    name: 'Porcoes e Petiscos',
-    slug: 'porcoes-petiscos',
-    description: 'Porcoes deliciosas para compartilhar com os amigos',
-    image: 'https://images.unsplash.com/photo-1630384060421-cb20aed44dff?w=400',
-    order: 1,
-    active: true
-  },
-  {
-    id: 'cat-2',
-    name: 'Prato Executivo',
-    slug: 'prato-executivo',
-    description: 'Jantinha completa com arroz, feijao, farofa, vinagrete e especial da casa',
-    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400',
-    order: 2,
-    active: true
-  },
-  {
-    id: 'cat-3',
-    name: 'Bebidas e Drinks',
-    slug: 'bebidas-drinks',
-    description: 'Bebidas refrescantes e drinks especiais',
-    image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400',
-    order: 3,
-    active: true
-  },
-  {
-    id: 'cat-4',
-    name: 'Combos',
-    slug: 'combos',
-    description: 'Combos especiais com precos imperdiveis',
-    image: '/uploads/combo-carnaval.png',
-    order: 4,
-    active: true
-  }
-];
-
-// Todos os produtos
-const products = [
-  // === PORCOES E PETISCOS ===
+// === PORCOES E PETISCOS ===
+export const porcoes: Product[] = [
   {
     id: 'prod-1',
     name: 'Batata Frita',
@@ -76,7 +14,6 @@ const products = [
     preparationTime: 15,
     serves: 2,
     tags: ['popular', 'petisco'],
-    stock: 50
   },
   {
     id: 'prod-2',
@@ -90,7 +27,6 @@ const products = [
     preparationTime: 18,
     serves: 2,
     tags: ['popular', 'queijo'],
-    stock: 50
   },
   {
     id: 'prod-3',
@@ -104,7 +40,6 @@ const products = [
     preparationTime: 20,
     serves: 2,
     tags: ['carne', 'petisco'],
-    stock: 50
   },
   {
     id: 'prod-4',
@@ -118,7 +53,6 @@ const products = [
     preparationTime: 18,
     serves: 2,
     tags: ['frango', 'petisco'],
-    stock: 50
   },
   {
     id: 'prod-5',
@@ -132,7 +66,6 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['frango', 'empanado'],
-    stock: 50
   },
   {
     id: 'prod-6',
@@ -146,7 +79,6 @@ const products = [
     preparationTime: 20,
     serves: 2,
     tags: ['frango', 'popular'],
-    stock: 50
   },
   {
     id: 'prod-7',
@@ -160,7 +92,6 @@ const products = [
     preparationTime: 25,
     serves: 3,
     tags: ['premium', 'tradicional'],
-    stock: 50
   },
   {
     id: 'prod-8',
@@ -174,7 +105,6 @@ const products = [
     preparationTime: 25,
     serves: 2,
     tags: ['carne', 'premium'],
-    stock: 50
   },
   {
     id: 'prod-9',
@@ -188,7 +118,6 @@ const products = [
     preparationTime: 20,
     serves: 2,
     tags: ['frutos-do-mar', 'premium'],
-    stock: 50
   },
   {
     id: 'prod-10',
@@ -202,7 +131,6 @@ const products = [
     preparationTime: 20,
     serves: 2,
     tags: ['peixe', 'premium'],
-    stock: 50
   },
   {
     id: 'prod-11',
@@ -216,7 +144,6 @@ const products = [
     preparationTime: 15,
     serves: 2,
     tags: ['bacalhau', 'petisco'],
-    stock: 50
   },
   {
     id: 'prod-12',
@@ -230,10 +157,11 @@ const products = [
     preparationTime: 5,
     serves: 1,
     tags: ['lanche', 'individual'],
-    stock: 50
   },
+];
 
-  // === PRATOS EXECUTIVOS ===
+// === PRATOS EXECUTIVOS ===
+export const pratos: Product[] = [
   {
     id: 'prod-20',
     name: 'Strogonoff Carne ou Frango',
@@ -246,7 +174,6 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['cremoso', 'popular'],
-    stock: 30
   },
   {
     id: 'prod-21',
@@ -260,7 +187,6 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['massa', 'italiano'],
-    stock: 30
   },
   {
     id: 'prod-22',
@@ -274,7 +200,6 @@ const products = [
     preparationTime: 18,
     serves: 1,
     tags: ['favorito', 'empanado'],
-    stock: 30
   },
   {
     id: 'prod-23',
@@ -288,7 +213,6 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['frango', 'leve'],
-    stock: 30
   },
   {
     id: 'prod-24',
@@ -302,7 +226,6 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['frango', 'grelhado'],
-    stock: 30
   },
   {
     id: 'prod-25',
@@ -316,7 +239,6 @@ const products = [
     preparationTime: 20,
     serves: 1,
     tags: ['carne', 'grelhado'],
-    stock: 30
   },
   {
     id: 'prod-26',
@@ -330,7 +252,6 @@ const products = [
     preparationTime: 18,
     serves: 1,
     tags: ['peixe', 'saudavel'],
-    stock: 30
   },
   {
     id: 'prod-27',
@@ -344,10 +265,11 @@ const products = [
     preparationTime: 15,
     serves: 1,
     tags: ['carne', 'grelhado'],
-    stock: 30
   },
+];
 
-  // === BEBIDAS E DRINKS ===
+// === BEBIDAS E DRINKS ===
+export const bebidas: Product[] = [
   {
     id: 'prod-40',
     name: 'Caipirinha',
@@ -360,7 +282,6 @@ const products = [
     preparationTime: 5,
     serves: 1,
     tags: ['drink', 'alcoolico'],
-    stock: 100
   },
   {
     id: 'prod-41',
@@ -374,7 +295,6 @@ const products = [
     preparationTime: 5,
     serves: 1,
     tags: ['drink', 'alcoolico'],
-    stock: 100
   },
   {
     id: 'prod-42',
@@ -388,7 +308,6 @@ const products = [
     preparationTime: 3,
     serves: 1,
     tags: ['drink', 'alcoolico'],
-    stock: 100
   },
   {
     id: 'prod-43',
@@ -402,7 +321,6 @@ const products = [
     preparationTime: 3,
     serves: 1,
     tags: ['drink', 'premium'],
-    stock: 100
   },
   {
     id: 'prod-44',
@@ -416,7 +334,6 @@ const products = [
     preparationTime: 3,
     serves: 1,
     tags: ['drink', 'premium'],
-    stock: 100
   },
   {
     id: 'prod-45',
@@ -430,7 +347,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['destilado', 'alcoolico'],
-    stock: 100
   },
   {
     id: 'prod-46',
@@ -444,7 +360,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['cerveja', 'alcoolico'],
-    stock: 100
   },
   {
     id: 'prod-47',
@@ -458,7 +373,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['cerveja', 'premium'],
-    stock: 100
   },
   {
     id: 'prod-48',
@@ -472,7 +386,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['energetico'],
-    stock: 100
   },
   {
     id: 'prod-49',
@@ -486,7 +399,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['energetico'],
-    stock: 100
   },
   {
     id: 'prod-50',
@@ -500,7 +412,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['energetico'],
-    stock: 100
   },
   {
     id: 'prod-51',
@@ -514,7 +425,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['suco'],
-    stock: 100
   },
   {
     id: 'prod-52',
@@ -528,7 +438,6 @@ const products = [
     preparationTime: 5,
     serves: 1,
     tags: ['suco', 'natural'],
-    stock: 100
   },
   {
     id: 'prod-53',
@@ -542,7 +451,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['refrigerante'],
-    stock: 100
   },
   {
     id: 'prod-54',
@@ -556,7 +464,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['agua'],
-    stock: 100
   },
   {
     id: 'prod-55',
@@ -570,7 +477,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['refrigerante'],
-    stock: 100
   },
   {
     id: 'prod-56',
@@ -584,7 +490,6 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['agua'],
-    stock: 100
   },
   {
     id: 'prod-57',
@@ -598,10 +503,11 @@ const products = [
     preparationTime: 1,
     serves: 1,
     tags: ['agua'],
-    stock: 100
   },
+];
 
-  // === COMBOS ===
+// === COMBOS ===
+export const combos: Product[] = [
   {
     id: 'prod-100',
     name: 'Combo Carnaval',
@@ -614,69 +520,8 @@ const products = [
     preparationTime: 5,
     serves: 4,
     tags: ['combo', 'carnaval', 'promocao'],
-    stock: 20
-  }
+  },
 ];
 
-async function popularFirestore() {
-  console.log('🚀 Iniciando populacao do Firestore...\n');
-
-  // Verificar se ja existem produtos (usando o nome correto da colecao)
-  const productsRef = collection(db, 'produtos');
-  const snapshot = await getDocs(productsRef);
-
-  if (!snapshot.empty) {
-    console.log(`⚠️  Ja existem ${snapshot.size} produtos na colecao 'produtos'. Sobrescrevendo/Adicionando...\n`);
-  }
-
-  console.log('📁 Populando categorias...');
-  for (const cat of categories) {
-    // Colecao: categorias (PT)
-    await setDoc(doc(db, 'categorias', cat.id), {
-      nome: cat.name,
-      slug: cat.slug,
-      ordem: cat.order,
-      ativo: cat.active,
-      // Campos extras que podem ser uteis, mas o hook so le os acima por enquanto
-      descricao: cat.description,
-      imagem: cat.image
-    });
-    console.log(`   ✅ ${cat.name}`);
-  }
-
-  console.log(`\n🍽️  Populando ${products.length} produtos...`);
-  let count = 0;
-  for (const prod of products) {
-    // Colecao: produtos (PT)
-    await setDoc(doc(db, 'produtos', prod.id), {
-      // Mapeamento EN -> PT
-      nome: prod.name,
-      descricao: prod.description,
-      preco: prod.price,
-      imagem: prod.image,
-      categoriaId: prod.categoryId,
-      ativo: prod.active,
-      destaque: prod.featured,
-      tempoPreparo: prod.preparationTime,
-      porcoes: prod.serves,
-      tags: prod.tags || [],
-      estoque: prod.stock,
-      createdAt: new Date().toISOString(),
-    });
-    count++;
-    if (count % 10 === 0) {
-      console.log(`   📦 ${count}/${products.length} produtos adicionados...`);
-    }
-  }
-
-  console.log(`   ✅ ${count} produtos adicionados com sucesso!`);
-  console.log('\n✨ Firestore populado com sucesso!');
-  console.log(`   📊 ${categories.length} categorias`);
-  console.log(`   📊 ${products.length} produtos`);
-  process.exit(0);
-}
-
-popularFirestore().catch((error) => {
-  console.error('❌ Erro ao popular Firestore:', error);
-  process.exit(1);
-});
+// Todos os produtos juntos
+export const products: Product[] = [...porcoes, ...pratos, ...bebidas, ...combos];
