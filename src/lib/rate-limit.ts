@@ -253,9 +253,17 @@ export function withRateLimit(config?: RateLimitConfig) {
   };
 }
 
+// Armazena referencia do interval para evitar memory leak
+let cleanupInterval: ReturnType<typeof setInterval> | null = null;
+
 // Limpa cache de memória periodicamente (apenas em dev)
 if (typeof globalThis !== 'undefined' && process.env.NODE_ENV === 'development') {
-  setInterval(() => {
+  // Limpa interval anterior se existir (HMR)
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval);
+  }
+
+  cleanupInterval = setInterval(() => {
     const now = Date.now();
     let cleared = 0;
 

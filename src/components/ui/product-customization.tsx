@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Plus, Minus, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -253,7 +253,7 @@ export function useProductCustomization() {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [additionalNotes, setAdditionalNotes] = useState('');
 
-  const getCustomizationText = () => {
+  const getCustomizationText = useCallback(() => {
     const parts: string[] = [];
 
     selectedOptions.forEach((optionId) => {
@@ -266,19 +266,20 @@ export function useProductCustomization() {
     }
 
     return parts.join(', ');
-  };
+  }, [selectedOptions, additionalNotes]);
 
-  const getExtraPrice = () => {
+  const getExtraPrice = useCallback(() => {
     return selectedOptions.reduce((total, optionId) => {
       const option = commonCustomizations.find((o) => o.id === optionId);
       return total + (option?.price || 0);
     }, 0);
-  };
+  }, [selectedOptions]);
 
-  const reset = () => {
+  // useCallback para evitar loop infinito quando usado em useEffect
+  const reset = useCallback(() => {
     setSelectedOptions([]);
     setAdditionalNotes('');
-  };
+  }, []);
 
   return {
     selectedOptions,

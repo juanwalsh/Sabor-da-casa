@@ -167,8 +167,32 @@ export default function CarreirasPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Candidatura enviada com sucesso!', {
-      description: 'Entraremos em contato em breve.',
+
+    // Validação básica
+    if (!formData.name || !formData.email || !formData.phone) {
+      toast.error('Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+
+    // Monta mensagem para WhatsApp
+    const message = `*Nova Candidatura - Trabalhe Conosco*
+
+*Nome:* ${formData.name}
+*Email:* ${formData.email}
+*Telefone:* ${formData.phone}
+*Vaga:* ${formData.position || 'Não especificada'}
+
+*Sobre o candidato:*
+${formData.message || 'Não informado'}`;
+
+    const whatsappNumber = '5522999995200';
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    // Abre WhatsApp em nova aba
+    window.open(whatsappUrl, '_blank');
+
+    toast.success('Redirecionando para WhatsApp!', {
+      description: 'Complete sua candidatura pelo WhatsApp.',
     });
     setFormData({ name: '', email: '', phone: '', position: '', message: '' });
   };

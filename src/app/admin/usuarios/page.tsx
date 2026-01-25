@@ -425,7 +425,7 @@ export default function AdminUsuariosPage() {
     setPointsDescription('');
   };
 
-  const handleSubmitPoints = () => {
+  const handleSubmitPoints = async () => {
     if (!selectedUser || !pointsAmount) return;
 
     const amount = parseInt(pointsAmount, 10);
@@ -440,20 +440,45 @@ export default function AdminUsuariosPage() {
       ? selectedUser.points + amount
       : Math.max(0, selectedUser.points - amount);
 
-    if (dialogMode === 'add') {
-      addPoints(selectedUser.id, amount, description, 'Admin');
-    } else {
-      removePoints(selectedUser.id, amount, description, 'Admin');
+    try {
+      // Persiste no backend
+      const response = await fetch('/api/customers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedUser.id,
+          points: newBalance,
+          // Se estiver removendo pontos, usa pointsToRedeem para validação
+          ...(dialogMode === 'remove' ? { pointsToRedeem: amount } : {}),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        toast.error(data.error || 'Erro ao atualizar pontos');
+        return;
+      }
+
+      // Atualiza o store local após sucesso na API
+      if (dialogMode === 'add') {
+        addPoints(selectedUser.id, amount, description, 'Admin');
+      } else {
+        removePoints(selectedUser.id, amount, description, 'Admin');
+      }
+
+      handleCloseDialog();
+
+      // Mostrar mensagem de sucesso
+      setSuccessType(dialogMode);
+      setSuccessMessage(
+        `${amount.toLocaleString('pt-BR')} pontos ${dialogMode === 'add' ? 'adicionados para' : 'removidos de'} ${userName}. Novo saldo: ${newBalance.toLocaleString('pt-BR')} pontos.`
+      );
+      setShowSuccess(true);
+    } catch (error) {
+      console.error('Erro ao atualizar pontos:', error);
+      toast.error('Erro ao salvar alteração de pontos');
     }
-
-    handleCloseDialog();
-
-    // Mostrar mensagem de sucesso
-    setSuccessType(dialogMode);
-    setSuccessMessage(
-      `${amount.toLocaleString('pt-BR')} pontos ${dialogMode === 'add' ? 'adicionados para' : 'removidos de'} ${userName}. Novo saldo: ${newBalance.toLocaleString('pt-BR')} pontos.`
-    );
-    setShowSuccess(true);
   };
 
   return (

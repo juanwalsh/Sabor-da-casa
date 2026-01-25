@@ -615,16 +615,15 @@ export default function ProdutosPage() {
     }
 
     setIsSaving(true);
-    const product = await createProduct(newProduct);
+    const success = await createProduct(newProduct);
     setIsSaving(false);
 
-    if (product) {
+    if (success) {
       setIsNewProductOpen(false);
       setNewProduct(emptyProduct);
-      toast.success('Produto criado com sucesso!');
-    } else {
-      toast.error('Erro ao criar produto');
+      // Toast ja e mostrado pelo hook
     }
+    // Erro ja e mostrado pelo hook
   };
 
   const handleOpenEdit = (product: Product) => {

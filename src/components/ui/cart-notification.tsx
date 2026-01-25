@@ -15,15 +15,13 @@ export function CartNotification() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Verifica se há itens no carrinho ao montar o componente
+    // Verifica se há itens no carrinho
     const hasItems = items.length > 0;
-    // ...
-    // ... rest of useEffect code
-    
-    // Check path inside useEffect or just let it run (showing logic handles it)
+
+    // Não mostra no checkout
     if (pathname === '/checkout') {
-        setShowNotification(false);
-        return;
+      setShowNotification(false);
+      return;
     }
 
     // Verifica se já foi mostrado recentemente
@@ -31,18 +29,24 @@ export function CartNotification() {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
 
+    // Armazena referencia do timer para cleanup
+    let timer: NodeJS.Timeout | undefined;
+
     if (hasItems && (!lastShown || now - parseInt(lastShown) > oneHour) && !dismissed) {
       // Mostra após 2 segundos
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setShowNotification(true);
         localStorage.setItem('cart-notification-shown', now.toString());
       }, 2000);
-
-      return () => clearTimeout(timer);
     } else {
-        // Hide if no items
-        setShowNotification(false);
+      // Hide if no items or other conditions
+      setShowNotification(false);
     }
+
+    // Cleanup sempre executado
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [items, dismissed, pathname]);
 
   const handleDismiss = () => {

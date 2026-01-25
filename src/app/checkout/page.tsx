@@ -296,18 +296,24 @@ Pagamento a combinar.`;
                   <Input
                     id="name"
                     {...register('name')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.name ? 'border-destructive' : ''}`}
                     placeholder="Seu nome"
                   />
+                  {errors.name && (
+                    <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     {...register('phone')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.phone ? 'border-destructive' : ''}`}
                     placeholder="(11) 99999-9999"
                   />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="email">Email (opcional)</Label>
@@ -359,45 +365,60 @@ Pagamento a combinar.`;
                   <Input
                     id="street"
                     {...register('street')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.street ? 'border-destructive' : ''}`}
                     placeholder="Nome da rua"
                   />
+                  {errors.street && (
+                    <p className="text-sm text-destructive mt-1">{errors.street.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="number">Número</Label>
                   <Input
                     id="number"
                     {...register('number')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.number ? 'border-destructive' : ''}`}
                     placeholder="123"
                   />
+                  {errors.number && (
+                    <p className="text-sm text-destructive mt-1">{errors.number.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="neighborhood">Bairro</Label>
                   <Input
                     id="neighborhood"
                     {...register('neighborhood')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.neighborhood ? 'border-destructive' : ''}`}
                     placeholder="Seu bairro"
                   />
+                  {errors.neighborhood && (
+                    <p className="text-sm text-destructive mt-1">{errors.neighborhood.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="zipCode">CEP</Label>
                   <Input
                     id="zipCode"
                     {...register('zipCode')}
-                    className="mt-1.5 h-12 rounded-xl"
+                    className={`mt-1.5 h-12 rounded-xl ${errors.zipCode ? 'border-destructive' : ''}`}
                     placeholder="00000-000"
                   />
+                  {errors.zipCode && (
+                    <p className="text-sm text-destructive mt-1">{errors.zipCode.message}</p>
+                  )}
                 </div>
                 <div className="sm:col-span-3">
                   <Label htmlFor="city">Cidade</Label>
                   <Input
                     id="city"
                     {...register('city')}
-                    className="mt-1.5 h-12 rounded-xl bg-muted text-muted-foreground cursor-not-allowed"
+                    className={`mt-1.5 h-12 rounded-xl bg-muted text-muted-foreground cursor-not-allowed ${errors.city ? 'border-destructive' : ''}`}
                     readOnly
                   />
+                  {errors.city && (
+                    <p className="text-sm text-destructive mt-1">{errors.city.message}</p>
+                  )}
                 </div>
               </div>
             </div>

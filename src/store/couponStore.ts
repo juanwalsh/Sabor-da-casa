@@ -9,17 +9,11 @@ export interface Coupon {
   validUntil?: string; // Data de validade
 }
 
-// Cupons disponíveis (em produção viria de uma API)
-const AVAILABLE_COUPONS: Coupon[] = [
-  { code: 'BEMVINDO10', discount: 10, minValue: 50 },
-  { code: 'SABOR15', discount: 15, minValue: 80, maxDiscount: 20 },
-  { code: 'FRETE0', discount: 100, maxDiscount: 8 }, // Frete grátis
-];
-
 interface CouponState {
   appliedCoupon: Coupon | null;
   usedCoupons: string[];
-  applyCoupon: (code: string, orderTotal: number) => { success: boolean; message: string };
+  isValidating: boolean;
+  applyCoupon: (code: string, orderTotal: number) => Promise<{ success: boolean; message: string }>;
   removeCoupon: () => void;
   calculateDiscount: (subtotal: number) => number;
   markCouponAsUsed: (code: string) => void;
@@ -30,32 +24,45 @@ export const useCouponStore = create<CouponState>()(
     (set, get) => ({
       appliedCoupon: null,
       usedCoupons: [],
+      isValidating: false,
 
-      applyCoupon: (code, orderTotal) => {
+      applyCoupon: async (code, orderTotal) => {
         const normalizedCode = code.toUpperCase().trim();
-        const coupon = AVAILABLE_COUPONS.find((c) => c.code === normalizedCode);
 
-        if (!coupon) {
-          return { success: false, message: 'Cupom inválido' };
-        }
-
+        // Verifica se ja foi usado localmente
         if (get().usedCoupons.includes(normalizedCode)) {
           return { success: false, message: 'Este cupom já foi utilizado' };
         }
 
-        if (coupon.minValue && orderTotal < coupon.minValue) {
-          return {
-            success: false,
-            message: `Pedido mínimo de R$ ${coupon.minValue.toFixed(2)} para este cupom`,
+        set({ isValidating: true });
+
+        try {
+          // Valida no servidor (cupons nao ficam mais expostos no cliente)
+          const response = await fetch('/api/coupons/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: normalizedCode, orderTotal }),
+          });
+
+          const data = await response.json();
+
+          if (!data.valid) {
+            set({ isValidating: false });
+            return { success: false, message: data.error || 'Cupom inválido' };
+          }
+
+          const coupon: Coupon = {
+            code: data.code,
+            discount: data.discount,
+            maxDiscount: data.maxDiscount,
           };
-        }
 
-        if (coupon.validUntil && new Date(coupon.validUntil) < new Date()) {
-          return { success: false, message: 'Cupom expirado' };
+          set({ appliedCoupon: coupon, isValidating: false });
+          return { success: true, message: `Cupom ${coupon.discount}% aplicado!` };
+        } catch (error) {
+          set({ isValidating: false });
+          return { success: false, message: 'Erro ao validar cupom. Tente novamente.' };
         }
-
-        set({ appliedCoupon: coupon });
-        return { success: true, message: `Cupom ${coupon.discount}% aplicado!` };
       },
 
       removeCoupon: () => {

@@ -321,8 +321,8 @@ export default function PedidosPage() {
                   <h4 className="font-medium mb-3">Itens do Pedido</h4>
                   <div className="space-y-2">
                     {selectedOrderData.items?.length > 0 ? (
-                      selectedOrderData.items.map((item) => (
-                      <div key={item.id || Math.random()} className="flex justify-between text-sm">
+                      selectedOrderData.items.map((item, index) => (
+                      <div key={item.id || `order-${selectedOrderData.id}-item-${index}`} className="flex justify-between text-sm">
                         <span>
                           {item.quantity}x {getProductName(item)}
                         </span>

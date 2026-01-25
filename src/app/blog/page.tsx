@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -8,6 +8,7 @@ import { ChevronLeft, Calendar, Clock, User, ArrowRight, Search } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface BlogPost {
   id: string;
@@ -103,6 +104,8 @@ const categories = ['Todos', 'Receitas', 'Dicas', 'Saude', 'Historia', 'Ingredie
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   const filteredPosts = blogPosts.filter((post) => {
     const matchesSearch =
@@ -210,9 +213,11 @@ export default function BlogPage() {
                       {featuredPost.readTime}
                     </span>
                   </div>
-                  <Button className="w-fit rounded-xl group">
-                    Ler mais
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <Button asChild className="w-fit rounded-xl group">
+                    <Link href={`/blog/${featuredPost.id}`}>
+                      Ler mais
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -228,35 +233,36 @@ export default function BlogPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {regularPosts.map((post, index) => (
-              <motion.article
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-all hover:shadow-lg"
-              >
-                <div className="relative h-48">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Badge className="absolute top-4 left-4">{post.category}</Badge>
-                </div>
-                <div className="p-5">
-                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {post.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{post.author}</span>
-                    <span>{post.readTime} de leitura</span>
+              <Link href={`/blog/${post.id}`} key={post.id}>
+                <motion.article
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/30 transition-all hover:shadow-lg cursor-pointer h-full"
+                >
+                  <div className="relative h-48">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <Badge className="absolute top-4 left-4">{post.category}</Badge>
                   </div>
-                </div>
-              </motion.article>
+                  <div className="p-5">
+                    <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {post.excerpt}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{post.author}</span>
+                      <span>{post.readTime} de leitura</span>
+                    </div>
+                  </div>
+                </motion.article>
+              </Link>
             ))}
           </div>
         )}
@@ -269,16 +275,40 @@ export default function BlogPage() {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Cadastre-se para receber receitas exclusivas e dicas de culinaria
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (!email.trim()) {
+                toast.error('Digite seu e-mail');
+                return;
+              }
+              setIsSubscribing(true);
+              // Simula envio (em producao, enviaria para API real)
+              setTimeout(() => {
+                toast.success('Inscricao realizada com sucesso!');
+                setEmail('');
+                setIsSubscribing(false);
+              }, 1000);
+            }}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
             <Input
               type="email"
               placeholder="Seu melhor e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="h-12 rounded-xl"
+              required
             />
-            <Button size="lg" className="rounded-xl whitespace-nowrap">
-              Inscrever-se
+            <Button
+              type="submit"
+              size="lg"
+              className="rounded-xl whitespace-nowrap"
+              disabled={isSubscribing}
+            >
+              {isSubscribing ? 'Inscrevendo...' : 'Inscrever-se'}
             </Button>
-          </div>
+          </form>
         </div>
       </main>
     </div>

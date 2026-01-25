@@ -17,9 +17,13 @@ export const useFavoritesStore = create<FavoritesState>()(
       favorites: [],
 
       addFavorite: (productId) => {
-        set((state) => ({
-          favorites: [...state.favorites, productId],
-        }));
+        set((state) => {
+          // Verifica se ja existe para evitar duplicatas
+          if (state.favorites.includes(productId)) {
+            return state;
+          }
+          return { favorites: [...state.favorites, productId] };
+        });
       },
 
       removeFavorite: (productId) => {

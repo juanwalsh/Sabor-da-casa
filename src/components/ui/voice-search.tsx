@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+
+// Tipo para SpeechRecognition (pode ser webkit ou padrao)
+type SpeechRecognitionType = typeof window extends { SpeechRecognition: infer T } ? T : any;
 
 interface VoiceSearchProps {
   onResult: (text: string) => void;
@@ -15,6 +18,7 @@ export function VoiceSearch({ onResult }: VoiceSearchProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<InstanceType<SpeechRecognitionType> | null>(null);
 
   useEffect(() => {
     // Verifica suporte a Web Speech API
@@ -31,6 +35,7 @@ export function VoiceSearch({ onResult }: VoiceSearchProps) {
 
     const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
 
     recognition.lang = 'pt-BR';
     recognition.continuous = false;
@@ -49,12 +54,14 @@ export function VoiceSearch({ onResult }: VoiceSearchProps) {
       if (event.results[current].isFinal) {
         onResult(result);
         setIsListening(false);
+        recognitionRef.current = null;
       }
     };
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
       setIsListening(false);
+      recognitionRef.current = null;
       if (event.error === 'not-allowed') {
         toast.error('Permissão de microfone negada');
       }
@@ -62,14 +69,29 @@ export function VoiceSearch({ onResult }: VoiceSearchProps) {
 
     recognition.onend = () => {
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.start();
   };
 
   const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
     setIsListening(false);
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
 
   if (!isSupported) return null;
 

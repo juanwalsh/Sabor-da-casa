@@ -164,11 +164,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Atualiza dados do cliente (resgatar pontos, etc)
+// PUT - Atualiza dados do cliente (resgatar pontos, definir pontos, etc)
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, pointsToRedeem, ...updates } = body;
+    const { id, pointsToRedeem, points: newPoints, ...updates } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -187,8 +187,12 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Resgate de pontos
-    if (pointsToRedeem && pointsToRedeem > 0) {
+    // Se está definindo um novo valor de pontos diretamente
+    if (typeof newPoints === 'number' && newPoints >= 0) {
+      customers[index].points = newPoints;
+    }
+    // Resgate de pontos (subtrai do atual)
+    else if (pointsToRedeem && pointsToRedeem > 0) {
       if (customers[index].points < pointsToRedeem) {
         return NextResponse.json(
           { success: false, error: 'Pontos insuficientes' },
@@ -198,9 +202,12 @@ export async function PUT(request: NextRequest) {
       customers[index].points -= pointsToRedeem;
     }
 
+    // Evita que campos protegidos sejam sobrescritos via spread
+    const { id: _, createdAt: __, ...safeUpdates } = updates;
+
     customers[index] = {
       ...customers[index],
-      ...updates,
+      ...safeUpdates,
       updatedAt: new Date(),
     };
 

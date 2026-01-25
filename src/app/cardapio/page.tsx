@@ -39,7 +39,7 @@ import { toast } from 'sonner';
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name';
 
 export default function CardapioPage() {
-  const { products, isLoading } = useProducts();
+  const { products, isLoading, isError, mutate } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('default');
@@ -287,6 +287,21 @@ export default function CardapioPage() {
              <div className="flex justify-center py-20">
                <div className="animate-spin w-10 h-10 border-4 border-primary border-t-transparent rounded-full" />
              </div>
+          ) : isError ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
+                <X className="w-12 h-12 text-destructive" />
+              </div>
+              <h3 className="font-sans text-lg sm:text-xl font-semibold mb-2">
+                Erro ao carregar produtos
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Não foi possível carregar o cardápio. Tente novamente.
+              </p>
+              <Button onClick={() => mutate()}>
+                Tentar novamente
+              </Button>
+            </div>
           ) : filteredAndSortedProducts.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">

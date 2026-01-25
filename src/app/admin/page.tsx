@@ -67,7 +67,8 @@ export default function AdminDashboard() {
         ? ((dashboardStats.ordersToday - dashboardStats.ordersYesterday) / dashboardStats.ordersYesterday) * 100
         : 0,
       icon: ShoppingBag,
-      color: 'primary',
+      bgClass: 'bg-primary/10',
+      textClass: 'text-primary',
     },
     {
       title: 'Receita Hoje',
@@ -76,21 +77,24 @@ export default function AdminDashboard() {
         ? ((dashboardStats.revenueToday - dashboardStats.revenueYesterday) / dashboardStats.revenueYesterday) * 100
         : 0,
       icon: DollarSign,
-      color: 'secondary',
+      bgClass: 'bg-secondary/10',
+      textClass: 'text-secondary',
     },
     {
       title: 'Ticket Médio',
       value: formatPrice(dashboardStats.averageTicket),
       change: null,
       icon: TrendingUp,
-      color: 'accent',
+      bgClass: 'bg-accent/10',
+      textClass: 'text-accent',
     },
     {
       title: 'Pedidos Pendentes',
       value: dashboardStats.pendingOrders,
       change: null,
       icon: Clock,
-      color: 'destructive',
+      bgClass: 'bg-destructive/10',
+      textClass: 'text-destructive',
     },
   ];
 
@@ -129,9 +133,9 @@ export default function AdminDashboard() {
               <CardContent className="p-3 sm:p-4 lg:p-6">
                 <div className="flex items-center justify-between mb-2 sm:mb-4">
                   <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl flex items-center justify-center bg-${stat.color}/10`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl flex items-center justify-center ${stat.bgClass}`}
                   >
-                    <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-${stat.color}`} />
+                    <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ${stat.textClass}`} />
                   </div>
                   {stat.change !== null && (
                     <div

@@ -23,10 +23,7 @@ export function CouponInput({ subtotal }: CouponInputProps) {
 
     setIsLoading(true);
 
-    // Simula delay de API
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const result = applyCoupon(code, subtotal);
+    const result = await applyCoupon(code, subtotal);
 
     if (result.success) {
       toast.success(result.message);
@@ -109,7 +106,8 @@ export function CouponInput({ subtotal }: CouponInputProps) {
       </AnimatePresence>
 
       {!appliedCoupon && (
-                          <p className="text-xs text-muted-foreground text-center">          Cupons disponiveis: BEMVINDO10, SABOR15
+        <p className="text-xs text-muted-foreground text-center">
+          Tem um cupom? Digite acima para aplicar
         </p>
       )}
     </div>

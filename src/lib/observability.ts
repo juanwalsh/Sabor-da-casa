@@ -38,6 +38,9 @@ let currentUser: User | null = null;
 const breadcrumbs: Breadcrumb[] = [];
 const MAX_BREADCRUMBS = 100;
 
+// Armazena observers para cleanup
+const performanceObservers: PerformanceObserver[] = [];
+
 // Interface para Sentry (quando instalado)
 interface SentryLike {
   captureException: (error: Error, options?: { extra?: Record<string, unknown>; level?: string }) => void;
@@ -103,6 +106,9 @@ export function initObservability(): void {
 
     // Performance Observer para Web Vitals
     if ('PerformanceObserver' in window) {
+      // Limpa observers anteriores (HMR)
+      cleanupObservers();
+
       try {
         // LCP
         const lcpObserver = new PerformanceObserver((list) => {
@@ -111,6 +117,7 @@ export function initObservability(): void {
           recordMetric('web_vital_lcp', lastEntry.startTime, 'ms', { vital: 'LCP' });
         });
         lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+        performanceObservers.push(lcpObserver);
 
         // FID
         const fidObserver = new PerformanceObserver((list) => {
@@ -120,6 +127,7 @@ export function initObservability(): void {
           });
         });
         fidObserver.observe({ type: 'first-input', buffered: true });
+        performanceObservers.push(fidObserver);
 
         // CLS
         const clsObserver = new PerformanceObserver((list) => {
@@ -133,6 +141,7 @@ export function initObservability(): void {
           recordMetric('web_vital_cls', clsValue, 'count', { vital: 'CLS' });
         });
         clsObserver.observe({ type: 'layout-shift', buffered: true });
+        performanceObservers.push(clsObserver);
       } catch {
         // Browser não suporta algum observer
       }
@@ -282,6 +291,20 @@ export function measureAsync<T>(
     const duration = performance.now() - start;
     recordMetric(name, Math.round(duration), 'ms', tags);
   });
+}
+
+/**
+ * Limpa todos os PerformanceObservers
+ */
+export function cleanupObservers(): void {
+  performanceObservers.forEach(obs => {
+    try {
+      obs.disconnect();
+    } catch {
+      // Ignora erros ao desconectar
+    }
+  });
+  performanceObservers.length = 0;
 }
 
 /**

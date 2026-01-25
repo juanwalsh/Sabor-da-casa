@@ -125,12 +125,22 @@ async function flushLogs(): Promise<void> {
   }
 }
 
+// Armazena referencia do interval para evitar memory leak
+let flushInterval: ReturnType<typeof setInterval> | null = null;
+
 // Flush periódico
 if (typeof window !== 'undefined') {
-  setInterval(flushLogs, FLUSH_INTERVAL);
+  // Limpa interval anterior se existir (HMR)
+  if (flushInterval) {
+    clearInterval(flushInterval);
+  }
+  flushInterval = setInterval(flushLogs, FLUSH_INTERVAL);
 
   // Flush antes de fechar a página
   window.addEventListener('beforeunload', () => {
+    if (flushInterval) {
+      clearInterval(flushInterval);
+    }
     flushLogs();
   });
 }

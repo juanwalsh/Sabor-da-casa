@@ -15,21 +15,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Em produção, idealmente EXIGE variáveis, mas para evitar travamento vamos usar fallback se não houver.
+    // SEGURANÇA: Exige variáveis de ambiente em produção
     const isProd = process.env.NODE_ENV === 'production';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'eplopesfortedogelo';
-    const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-change-me';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const jwtSecret = process.env.JWT_SECRET;
+
+    // Em produção, EXIGE que as variáveis estejam configuradas
+    if (isProd && (!adminPassword || !jwtSecret)) {
+      console.error('ERRO CRÍTICO: ADMIN_PASSWORD e JWT_SECRET devem estar configurados em produção');
+      return NextResponse.json(
+        { success: false, error: 'Erro de configuração do servidor' },
+        { status: 500 }
+      );
+    }
+
+    // Em desenvolvimento, usa fallback apenas se não configurado
+    const finalAdminPassword = adminPassword || (isProd ? '' : 'dev-password-change-me');
+    const finalJwtSecret = jwtSecret || (isProd ? '' : 'dev-jwt-secret-change-me');
     
     const usernameNormalized = String(username || '').trim().toLowerCase();
     const passwordNormalized = String(password || '').trim();
 
     // Comparison: username must be exactly 'admin' (case-insensitive), password is case-sensitive (trimmed)
     const isValidUser = usernameNormalized === 'admin';
-    const isValidPassword = passwordNormalized === adminPassword;
+    const isValidPassword = passwordNormalized === finalAdminPassword;
 
     if (isValidUser && isValidPassword) {
       // Gerar JWT
-      const secret = new TextEncoder().encode(jwtSecret);
+      const secret = new TextEncoder().encode(finalJwtSecret);
       const token = await new SignJWT({ role: 'admin', user: 'admin' })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
@@ -74,11 +87,15 @@ export async function POST(request: NextRequest) {
 // GET - Verificar sessao (cookie admin_token)
 export async function GET(request: NextRequest) {
   const isProd = process.env.NODE_ENV === 'production';
-  const jwtSecret = process.env.JWT_SECRET || 'dev-jwt-secret-change-me';
+  const jwtSecret = process.env.JWT_SECRET;
 
-  if (!jwtSecret) {
+  // Em produção, EXIGE JWT_SECRET
+  if (isProd && !jwtSecret) {
+    console.error('ERRO CRÍTICO: JWT_SECRET deve estar configurado em produção');
     return NextResponse.json({ success: false, error: 'Configuration Error' }, { status: 500 });
   }
+
+  const finalJwtSecret = jwtSecret || (isProd ? '' : 'dev-jwt-secret-change-me');
 
   const token = request.cookies.get('admin_token')?.value;
   if (!token) {
@@ -86,7 +103,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(jwtSecret);
+    const secret = new TextEncoder().encode(finalJwtSecret);
     await jwtVerify(token, secret);
     return NextResponse.json({
       success: true,

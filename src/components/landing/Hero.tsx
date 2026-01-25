@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Clock, Star, Flame, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
@@ -10,20 +11,32 @@ import { RESTAURANT_INFO } from '@/data/mockData';
 // Confetes de carnaval
 const confettiColors = ['#FF6B35', '#F7C41F', '#00D9FF', '#FF2D92', '#7B2FF7', '#00FF88'];
 
-function Confetti({ delay = 0, left = '10%' }: { delay?: number; left?: string }) {
-  const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+interface ConfettiData {
+  color: string;
+  xOffset: number;
+  rotateDirection: number;
+  duration: number;
+}
+
+function Confetti({ delay = 0, left = '10%', data }: { delay?: number; left?: string; data?: ConfettiData }) {
+  // Use valores fixos como fallback para evitar hydration mismatch
+  const color = data?.color || confettiColors[0];
+  const xOffset = data?.xOffset ?? 0;
+  const rotateDirection = data?.rotateDirection ?? 1;
+  const duration = data?.duration ?? 5;
+
   return (
     <motion.div
       className="absolute w-2 h-3 md:w-3 md:h-4 rounded-sm pointer-events-none"
       style={{ backgroundColor: color, left, top: '-20px' }}
       animate={{
         y: ['0vh', '100vh'],
-        x: [0, Math.random() * 100 - 50],
-        rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+        x: [0, xOffset],
+        rotate: [0, 360 * rotateDirection],
         opacity: [1, 1, 0],
       }}
       transition={{
-        duration: 4 + Math.random() * 2,
+        duration: duration,
         repeat: Infinity,
         delay: delay,
         ease: 'linear',
@@ -33,6 +46,19 @@ function Confetti({ delay = 0, left = '10%' }: { delay?: number; left?: string }
 }
 
 export default function Hero() {
+  const [confettiData, setConfettiData] = useState<ConfettiData[]>([]);
+
+  // Gera valores aleatorios apenas no cliente para evitar hydration mismatch
+  useEffect(() => {
+    const data = Array.from({ length: 12 }, () => ({
+      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      xOffset: Math.random() * 100 - 50,
+      rotateDirection: Math.random() > 0.5 ? 1 : -1,
+      duration: 4 + Math.random() * 2,
+    }));
+    setConfettiData(data);
+  }, []);
+
   return (
     <section
       id="inicio"
@@ -40,8 +66,8 @@ export default function Hero() {
     >
       {/* Confetes de Carnaval */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-        {[...Array(12)].map((_, i) => (
-          <Confetti key={i} delay={i * 0.3} left={`${5 + i * 8}%`} />
+        {confettiData.map((data, i) => (
+          <Confetti key={i} delay={i * 0.3} left={`${5 + i * 8}%`} data={data} />
         ))}
       </div>
 

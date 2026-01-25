@@ -186,21 +186,30 @@ export function Chatbot() {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin') || false;
 
-  // Render only on Home page ('/') or Admin pages
-  if (pathname !== '/' && !isAdmin) return null;
-
+  // IMPORTANTE: Todos os hooks devem ser chamados ANTES de qualquer return condicional
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Verificar se deve renderizar (mas depois dos hooks)
+  const shouldRender = pathname === '/' || isAdmin;
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      // Cleanup do timeout ao desmontar
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
+    if (!shouldRender) return;
     if (isOpen && messages.length === 0) {
       // Welcome message baseado no contexto
       const welcomeMessage = isAdmin
@@ -220,7 +229,7 @@ export function Chatbot() {
           };
       setMessages([welcomeMessage]);
     }
-  }, [isOpen, messages.length, isAdmin]);
+  }, [isOpen, messages.length, isAdmin, shouldRender]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -242,8 +251,13 @@ export function Chatbot() {
     setInputValue('');
     setIsTyping(true);
 
+    // Limpa timeout anterior se existir
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
     // Simulate typing delay
-    setTimeout(() => {
+    typingTimeoutRef.current = setTimeout(() => {
       const { response, quickReplies } = findBestResponse(messageText, isAdmin);
 
       const botMessage: Message = {
@@ -256,6 +270,7 @@ export function Chatbot() {
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
+      typingTimeoutRef.current = null;
     }, 800 + Math.random() * 500);
   };
 
@@ -278,7 +293,8 @@ export function Chatbot() {
     handleSend(reply);
   };
 
-  if (!mounted) return null;
+  // Não renderiza se não estiver montado ou não deve renderizar
+  if (!mounted || !shouldRender) return null;
 
   return (
     <>

@@ -177,10 +177,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isLoading, isAuthenticated, router]);
 
-  const handleLogout = useCallback(() => {
-    // Mantem a sessao ativa para auto-login futuro
+  const handleLogout = useCallback(async () => {
+    // Efetivamente faz logout limpando a sessão
+    await logout();
     router.push('/');
-  }, [router]);
+  }, [router, logout]);
 
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,7 +19,8 @@ export default function ThemeToggle() {
     );
   }
 
-  const isDark = theme === 'dark';
+  // Usar resolvedTheme para detectar corretamente quando tema é 'system'
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <motion.button

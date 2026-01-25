@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Clock, Users, Star, ShoppingBag } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from '@/types';
 import { formatPrice, categories } from '@/data/mockData';
 import { useCartStore } from '@/store/cartStore';
@@ -34,6 +34,14 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     getExtraPrice,
     reset: resetCustomization,
   } = useProductCustomization();
+
+  // Reseta quantidade e customizacao quando produto muda
+  useEffect(() => {
+    if (product?.id) {
+      setQuantity(1);
+      resetCustomization();
+    }
+  }, [product?.id, resetCustomization]);
 
   if (!product) return null;
 
