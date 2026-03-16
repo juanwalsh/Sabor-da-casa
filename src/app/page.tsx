@@ -2,6 +2,7 @@
 
 import Navbar from '@/components/shared/Navbar';
 import Hero from '@/components/landing/Hero';
+import EventBanner from '@/components/landing/EventBanner';
 import Features from '@/components/landing/Features';
 import MenuHighlights from '@/components/landing/MenuHighlights';
 import Testimonials from '@/components/landing/Testimonials';
@@ -13,6 +14,7 @@ export default function Home() {
     <main className="relative">
       <Navbar />
       <Hero />
+      <EventBanner />
       <Features />
       <MenuHighlights />
       <Testimonials />
