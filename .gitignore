@@ -46,4 +46,5 @@ keys.txt
 next-env.d.ts
 nul
 
-.vercel
+# test artifacts
+.playwright-mcp/
