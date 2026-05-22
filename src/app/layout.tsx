@@ -1,49 +1,44 @@
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
-import { CartNotification } from '@/components/ui/cart-notification';
-import { ServiceWorkerProvider } from '@/components/providers/service-worker-provider';
-import { Chatbot } from '@/components/ui/chatbot';
-import { BottomNav } from '@/components/ui/bottom-nav';
 import { SkipLink } from '@/components/ui/skip-link';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
-    template: '%s | EP LOPES FORTE DO GELO',
+    default: 'Sabor da Casa | Bandejão Caseiro - Monte Seu Prato',
+    template: '%s | Sabor da Casa',
   },
   description:
-    'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks, energeticos e muito mais! Delivery rapido e precos imbativeis.',
+    'Bandejão com comida feita na hora, tempero de casa. Monte seu prato do jeito que quiser nas marmitas P, M ou G. Almoço de segunda a sexta.',
   keywords: [
-    'deposito de bebidas',
-    'delivery',
-    'cerveja gelada',
-    'bebidas',
-    'drinks',
-    'energeticos',
-    'forte do gelo',
-    'ep lopes',
+    'bandejao',
+    'marmita',
+    'monte seu prato',
+    'comida caseira',
+    'almoco',
+    'prato feito',
+    'sabor da casa',
   ],
-  authors: [{ name: 'EP LOPES' }],
-  creator: 'EP LOPES',
-  publisher: 'EP LOPES',
+  authors: [{ name: 'Sabor da Casa' }],
+  creator: 'Sabor da Casa',
+  publisher: 'Sabor da Casa',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://eplopes.com.br'),
+  metadataBase: new URL('https://sabordacasa.com.br'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
+    title: 'Sabor da Casa | Bandejão Caseiro',
     description:
-      'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks, energeticos e muito mais!',
-    url: 'https://eplopes.com.br',
-    siteName: 'EP LOPES FORTE DO GELO',
+      'Bandejão com tempero de casa. Monte seu prato nas marmitas P, M ou G. Almoço servido na hora.',
+    url: 'https://sabordacasa.com.br',
+    siteName: 'Sabor da Casa',
     locale: 'pt_BR',
     type: 'website',
     images: [
@@ -51,15 +46,14 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'EP LOPES FORTE DO GELO - Deposito de Bebidas',
+        alt: 'Sabor da Casa - Bandejão Caseiro',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EP LOPES FORTE DO GELO | Deposito de Bebidas',
-    description:
-      'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks e muito mais!',
+    title: 'Sabor da Casa | Bandejão Caseiro',
+    description: 'Monte seu prato do jeito que quiser. Comida caseira, feita na hora.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -95,27 +89,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <ServiceWorkerProvider>
-            <SkipLink />
-            <ErrorBoundary>
-              <div id="main-content" className="pb-16 md:pb-0">
-                {children}
-              </div>
-            </ErrorBoundary>
-            <CartNotification />
-            <Chatbot />
-            <BottomNav />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--foreground)',
-                },
-              }}
-            />
-          </ServiceWorkerProvider>
+          <SkipLink />
+          <ErrorBoundary>
+            <div id="main-content">{children}</div>
+          </ErrorBoundary>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

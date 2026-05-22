@@ -3,19 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu } from 'lucide-react';
-import { useCartStore } from '@/store/cartStore';
+import { motion } from 'framer-motion';
+import { Menu, Utensils } from 'lucide-react';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import ThemeToggle from './ThemeToggle';
-import CartButton from './CartButton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
+import { RESTAURANT_INFO } from '@/data/mockData';
 
 const navLinks = [
   { href: '#inicio', label: 'Início', sectionId: 'inicio' },
-  { href: '#sobre', label: 'Sobre', sectionId: 'sobre' },
+  { href: '#como-funciona', label: 'Como funciona', sectionId: 'como-funciona' },
   { href: '#cardapio', label: 'Cardápio', sectionId: 'cardapio' },
   { href: '#depoimentos', label: 'Depoimentos', sectionId: 'depoimentos' },
   { href: '#contato', label: 'Contato', sectionId: 'contato' },
@@ -41,7 +39,7 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-background/80 backdrop-blur-xl shadow-lg shadow-primary/5 border-b border-border/50'
+          ? 'bg-background/80 backdrop-blur-xl shadow-lg shadow-amber-600/5 border-b border-border/50'
           : 'bg-transparent'
       }`}
     >
@@ -54,22 +52,16 @@ export default function Navbar() {
               transition={{ duration: 0.3 }}
               className="relative"
             >
-              <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg shadow-primary/30 group-hover:shadow-xl group-hover:shadow-primary/40 transition-shadow">
-                <Image
-                  src="/logo.jpg"
-                  alt="EP LOPES Logo"
-                  width={48}
-                  height={48}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-600/30 group-hover:shadow-xl group-hover:shadow-amber-600/40 transition-shadow">
+                <Utensils className="w-6 h-6 text-white" />
               </div>
             </motion.div>
             <div className="hidden sm:block">
               <h1 className="font-serif text-xl font-bold text-foreground leading-tight">
-                EP LOPES
+                {RESTAURANT_INFO.name}
               </h1>
               <p className="text-xs text-muted-foreground tracking-widest uppercase">
-                Forte do Gelo
+                Bandejão Caseiro
               </p>
             </div>
           </Link>
@@ -87,16 +79,14 @@ export default function Navbar() {
                   href={link.href}
                   className={`relative px-4 py-3 text-sm font-medium transition-colors group ${
                     activeSection === link.sectionId
-                      ? 'text-primary'
+                      ? 'text-amber-700 dark:text-amber-400'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {link.label}
                   <span
-                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary rounded-full transition-all duration-300 ${
-                      activeSection === link.sectionId
-                        ? 'w-1/2'
-                        : 'w-0 group-hover:w-1/2'
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-amber-600 rounded-full transition-all duration-300 ${
+                      activeSection === link.sectionId ? 'w-1/2' : 'w-0 group-hover:w-1/2'
                     }`}
                   />
                 </Link>
@@ -108,8 +98,12 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
 
-            {/* Cart Button */}
-            <CartButton />
+            <Button
+              asChild
+              className="hidden md:inline-flex h-10 rounded-xl text-sm font-semibold bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white border-0 shadow-md shadow-amber-600/20"
+            >
+              <Link href="/cardapio">Ver cardápio</Link>
+            </Button>
 
             {/* Mobile Menu */}
             <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
@@ -121,18 +115,12 @@ export default function Navbar() {
               <SheetContent side="right" className="w-80 bg-background/95 backdrop-blur-xl">
                 <div className="flex flex-col h-full pt-8">
                   <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden">
-                      <Image
-                        src="/logo.jpg"
-                        alt="EP LOPES Logo"
-                        width={48}
-                        height={48}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                      <Utensils className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="font-serif text-lg font-bold">EP LOPES</h2>
-                      <p className="text-xs text-muted-foreground">Forte do Gelo</p>
+                      <h2 className="font-serif text-lg font-bold">{RESTAURANT_INFO.name}</h2>
+                      <p className="text-xs text-muted-foreground">Bandejão Caseiro</p>
                     </div>
                   </div>
 
@@ -149,7 +137,7 @@ export default function Navbar() {
                           onClick={() => setIsMobileOpen(false)}
                           className={`flex items-center px-4 py-3 rounded-xl transition-colors font-medium ${
                             activeSection === link.sectionId
-                              ? 'bg-primary/10 text-primary'
+                              ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
                               : 'text-foreground hover:bg-muted'
                           }`}
                         >
@@ -162,11 +150,10 @@ export default function Navbar() {
                   <div className="mt-auto pt-6 border-t border-border">
                     <Button
                       asChild
-                      className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/30"
+                      className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-amber-600 to-orange-600 text-white border-0 shadow-lg shadow-amber-600/30"
                     >
                       <Link href="/cardapio" onClick={() => setIsMobileOpen(false)}>
-                        <ShoppingBag className="w-5 h-5 mr-2" />
-                        Ver Cardápio
+                        Ver cardápio
                       </Link>
                     </Button>
                   </div>

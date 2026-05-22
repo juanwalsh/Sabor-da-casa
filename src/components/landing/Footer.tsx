@@ -3,32 +3,20 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-  Heart,
-  ArrowUpRight,
-  Settings,
-  PartyPopper,
-} from 'lucide-react';
+import { MapPin, Phone, Clock, Heart, Settings, Utensils, Instagram } from 'lucide-react';
 import { RESTAURANT_INFO } from '@/data/mockData';
 
 const footerLinks = {
   menu: [
-    { label: 'Cervejas', href: '/cardapio#cervejas' },
-    { label: 'Refrigerantes', href: '/cardapio#refrigerantes' },
-    { label: 'Destilados', href: '/cardapio#destilados' },
-    { label: 'Gelo', href: '/cardapio#gelo' },
+    { label: 'Proteínas', href: '/cardapio#proteinas' },
+    { label: 'Arroz e Carboidratos', href: '/cardapio#arroz-carboidratos' },
+    { label: 'Saladas', href: '/cardapio#saladas' },
+    { label: 'Guarnições', href: '/cardapio#guarnicoes' },
   ],
   company: [
-    { label: 'Sobre Nós', href: '#sobre' },
+    { label: 'Como funciona', href: '#como-funciona' },
+    { label: 'Sobre', href: '#sobre' },
     { label: 'Depoimentos', href: '#depoimentos' },
-  ],
-  support: [
-    { label: 'FAQ', href: '/faq' },
   ],
 };
 
@@ -38,57 +26,50 @@ export default function Footer() {
 
   return (
     <footer id="contato" className="relative overflow-hidden">
-      {/* Newsletter Section - Compacto e Carnaval */}
-      <div className="bg-gradient-to-r from-[#FF6B35]/5 to-[#F7C41F]/5 border-t border-border">
+      {/* Faixa CTA */}
+      <div className="bg-gradient-to-r from-amber-500/5 to-orange-500/5 border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <motion.div
             ref={ref}
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-[#FF6B35] via-[#FF2D92] to-[#F7C41F] rounded-2xl p-5 md:p-8 relative overflow-hidden"
+            className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl p-6 md:p-10 relative overflow-hidden text-center"
           >
-            {/* Decorative Elements */}
             <div className="absolute top-0 right-0 w-32 md:w-48 h-32 md:h-48 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-black/10 rounded-full blur-3xl" />
 
-            <div className="relative flex flex-col items-center justify-center text-center py-2">
+            <div className="relative">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <PartyPopper className="w-6 h-6 text-white" />
+                <Utensils className="w-6 h-6 text-white" />
                 <h3 className="font-serif text-xl md:text-3xl font-bold text-white">
-                  Ofertas de carnaval
+                  Almoço servido todo dia útil
                 </h3>
               </div>
-              <p className="text-white text-lg md:text-2xl font-bold">
-                Produtos com até 30% de desconto!
+              <p className="text-white text-base md:text-lg">
+                {RESTAURANT_INFO.hours.weekdays} &bull; Tempero de casa, prato cheio
               </p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Main Footer - Compacto */}
+      {/* Footer principal */}
       <div className="bg-card border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {/* Brand Column */}
+            {/* Marca */}
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-[#FF6B35]/30">
-                  <Image
-                    src="/logo.jpg"
-                    alt="EP LOPES Logo"
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-600/30">
+                  <Utensils className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h2 className="font-serif text-base font-bold text-foreground">
-                    EP LOPES
+                    {RESTAURANT_INFO.name}
                   </h2>
                   <p className="text-[9px] text-muted-foreground tracking-wider uppercase">
-                    Forte do Gelo
+                    Bandejão Caseiro
                   </p>
                 </div>
               </Link>
@@ -97,10 +78,18 @@ export default function Footer() {
                 {RESTAURANT_INFO.slogan}
               </p>
 
-
+              <a
+                href={`https://instagram.com/${RESTAURANT_INFO.social.instagram.replace('@', '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+              >
+                <Instagram className="w-3.5 h-3.5" />
+                {RESTAURANT_INFO.social.instagram}
+              </a>
             </div>
 
-            {/* Links Column */}
+            {/* Cardápio */}
             <div>
               <h4 className="font-semibold text-foreground text-sm mb-3">Cardápio</h4>
               <ul className="space-y-1">
@@ -108,7 +97,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-xs text-muted-foreground hover:text-[#FF6B35] transition-colors py-1.5 block"
+                      className="text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors py-1.5 block"
                     >
                       {link.label}
                     </Link>
@@ -117,15 +106,15 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Links Column */}
+            {/* Links */}
             <div>
-              <h4 className="font-semibold text-foreground text-sm mb-3">Links</h4>
+              <h4 className="font-semibold text-foreground text-sm mb-3">Saiba mais</h4>
               <ul className="space-y-1">
-                {[...footerLinks.company, ...footerLinks.support].map((link) => (
+                {footerLinks.company.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-xs text-muted-foreground hover:text-[#FF6B35] transition-colors py-1.5 block"
+                      className="text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors py-1.5 block"
                     >
                       {link.label}
                     </Link>
@@ -134,29 +123,30 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Contact Info */}
+            {/* Contato */}
             <div>
               <h4 className="font-semibold text-foreground text-sm mb-3">Contato</h4>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#FF6B35] shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <a
                     href={`tel:${RESTAURANT_INFO.phone}`}
-                    className="text-xs text-muted-foreground hover:text-[#FF6B35] transition-colors"
+                    className="text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
                   >
                     {RESTAURANT_INFO.phone}
                   </a>
                 </li>
                 <li className="flex items-start gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-[#FF6B35] shrink-0 mt-0.5" />
+                  <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                   <span className="text-xs text-muted-foreground break-words">
-                    Rua Independencia, Bairro Tamoios, Número 9
+                    {RESTAURANT_INFO.address}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Clock className="w-3.5 h-3.5 text-[#FF6B35] shrink-0 mt-0.5" />
+                  <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                   <div className="text-xs text-muted-foreground">
-                    <p>Seg-Dom: 10:00 - 23:00</p>
+                    <p>Seg-Sex: {RESTAURANT_INFO.hours.weekdays}</p>
+                    <p>Fim de semana: fechado</p>
                   </div>
                 </li>
               </ul>
@@ -164,16 +154,16 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar - Compacto */}
+        {/* Bottom Bar */}
         <div className="border-t border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
               <p className="text-xs text-muted-foreground">
-                © {new Date().getFullYear()} EP LOPES
+                © {new Date().getFullYear()} {RESTAURANT_INFO.name}
               </p>
               <div className="flex items-center gap-4">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  Feito com <Heart className="w-3 h-3 text-[#FF2D92] fill-[#FF2D92]" />
+                  Feito com <Heart className="w-3 h-3 text-amber-600 fill-amber-600" /> e tempero de casa
                 </p>
                 <Link
                   href="/login"

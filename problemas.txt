@@ -1,0 +1,99 @@
+ ALTOS
+
+  10. UPLOAD DE ARQUIVO SEM VALIDAÇÃO REAL (src/app/api/upload/route.ts)
+
+  - Linhas 19-20, 36-37: Validação de MIME type é por header (pode ser falsificado)
+
+  11. MEMORY LEAK - VOICE SEARCH (src/components/ui/voice-search.tsx)
+
+  - Linhas 70-72: SpeechRecognition não é parado no cleanup
+
+  12. HYDRATION MISMATCH (src/components/landing/Hero.tsx)
+
+  - Linhas 13-33: Math.random() no render causa diferença server/client
+
+  13. COLLECTION NAME INCONSISTENTE (src/store/firestoreStore.ts)
+
+  - Linhas 186-197 vs 142: Usa 'products' em um lugar e 'produtos' em outro
+
+  14. RETURN TYPE MISMATCH (src/app/admin/produtos/page.tsx)
+
+  - Linhas 598-628: createProduct retorna boolean, mas código espera objeto
+
+  15. RACE CONDITIONS NOS STORES
+
+  - cartStore.ts linhas 60-82: setTimeout aninhado com state updates
+  - firestoreStore.ts linhas 140-166: Stock decrement sem transação
+  - authStore.ts linhas 22-47: Login pode ser chamado duas vezes
+
+  16. CPF HARDCODED (src/lib/store-config.ts)
+
+  - Linha 7: CPF exposto no código fonte
+
+  ---
+  🟡 MÉDIOS
+
+  17. SEO - PÁGINAS SEM METADATA
+
+  - /cardapio, /checkout, /faq, /blog, /termos, /privacidade, /entrega, /carreiras - todas sem metadata específica
+
+  18. THEME TOGGLE INCORRETO (src/components/shared/ThemeToggle.tsx)
+
+  - Linha 22: Usa theme ao invés de resolvedTheme para modo sistema
+
+  19. CUPONS HARDCODED NO CLIENTE (src/store/couponStore.ts)
+
+  - Linhas 13-17: Códigos de cupom visíveis no código fonte
+
+  20. MODAL DE PRODUTO NÃO RESETA STATE (src/components/menu/ProductModal.tsx)
+
+  - Linhas 26-36: Quantidade não reseta ao abrir produto diferente
+
+  21. BLOG SEM LINKS FUNCIONAIS (src/app/blog/page.tsx)
+
+  - Linhas 213-260: Posts não são clicáveis, newsletter não funciona
+
+  22. MENU SEM ERROR STATE (src/app/cardapio/page.tsx)
+
+  - Linhas 42, 286-289: Não mostra UI quando produtos falham ao carregar
+
+  23. MEMORY LEAKS EM UTILITIES
+
+  - logger.ts linha 130: Interval nunca limpo
+  - rate-limit.ts linhas 258-274: Interval nunca limpo
+  - observability.ts linhas 108-136: PerformanceObservers nunca desconectados
+
+  24. RANDOM KEY NO MAP (src/app/admin/pedidos/page.tsx)
+
+  - Linha 325: Math.random() como key causa bugs de reconciliação
+
+  25. FAVORITOS PERMITEM DUPLICATAS (src/store/favoritesStore.ts)
+
+  - Linhas 19-22: addFavorite não verifica se já existe
+
+  ---
+  🟢 BAIXOS
+
+  26. IMPORTS NÃO USADOS
+
+  - src/app/admin/page.tsx linha 16: Users importado mas não usado
+  - src/app/admin/produtos/page.tsx linha 3: useEffect não usado
+  - src/components/ui/product-rating.tsx linha 73: Estado global em módulo
+
+  27. TIPOS any em vários lugares
+
+  - src/app/api/payments/create/route.ts linha 77
+  - src/app/api/orders/route.ts linha 157
+  - src/lib/mercadopago.ts linhas 67, 164, 179
+
+  28. AUTH STORE - TIPO ERRADO (src/store/authStore.ts)
+
+  - Linhas 49-56, 58-80: Funções declaradas como sync mas implementadas como async
+
+  29. ORDER HISTORY - ID NÃO ÚNICO (src/store/orderHistoryStore.ts)
+
+  - Linha 29: Date.now() pode gerar IDs duplicados
+
+  30. SCHEDULE STORE - CÁLCULO DE HORA (src/store/scheduleStore.ts)
+
+  - Linhas 29-32: Não considera minutos no cálculo de slot

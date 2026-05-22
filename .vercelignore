@@ -1,0 +1,36 @@
+# Screenshots e artefatos de teste local
+*.png
+*.jpg
+*.jpeg
+*.txt
+*.sh
+test-*.js
+test-*.ts
+patch-*.js
+fix-*.js
+check-*.js
+
+# Testes
+playwright-report/
+test-results/
+tests/
+.playwright-mcp/
+
+# Build artifacts
+.next/
+out/
+
+# Logs e cache
+*.log
+.cache/
+.eslintcache
+
+# Editor
+.vscode/
+.idea/
+
+# Misc
+nul
+weppy-project-sync/
+app-vendedor/
+.claude/

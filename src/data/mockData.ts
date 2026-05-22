@@ -13,6 +13,7 @@ export {
   DELIVERY_FEE,
   FREE_DELIVERY_MIN,
   RESTAURANT_INFO,
+  MARMITA_SIZES,
   getProductsByCategory,
   getFeaturedProducts,
   getCategoryBySlug,

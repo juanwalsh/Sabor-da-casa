@@ -1,0 +1,650 @@
+================================================================================
+RELATORIO DE BUGS - PRIORIDADE ALTA E MEDIA
+Projeto: EP LOPES - Sistema de Delivery
+Data: 24/01/2026
+================================================================================
+
+INSTRUCOES: Este arquivo contem bugs identificados no codigo e instrucoes
+detalhadas de como corrigir cada um. Os bugs criticos ja foram corrigidos.
+
+================================================================================
+                            BUGS DE PRIORIDADE ALTA
+================================================================================
+
+--------------------------------------------------------------------------------
+BUG #10: UPLOAD DE ARQUIVO SEM VALIDACAO REAL
+--------------------------------------------------------------------------------
+Arquivo: src/app/api/upload/route.ts
+Linhas: 19-20, 36-37
+
+PROBLEMA:
+A validacao de tipo de arquivo (MIME type) e feita apenas pelo header enviado
+pelo cliente, que pode ser facilmente falsificado. Um atacante pode enviar um
+arquivo PHP ou JS disfarfado de imagem.
+
+COMO CORRIGIR:
+1. Instalar a biblioteca 'file-type': npm install file-type
+2. Apos receber o arquivo, ler os primeiros bytes (magic bytes) para verificar
+   o tipo real do arquivo
+3. Comparar o tipo detectado com os tipos permitidos
+
+CODIGO DE CORRECAO:
+```typescript
+import { fileTypeFromBuffer } from 'file-type';
+
+// Dentro da funcao POST, apos receber o buffer do arquivo:
+const buffer = Buffer.from(await file.arrayBuffer());
+const fileType = await fileTypeFromBuffer(buffer);
+
+const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+if (!fileType || !allowedMimes.includes(fileType.mime)) {
+  return NextResponse.json(
+    { success: false, error: 'Tipo de arquivo invalido' },
+    { status: 400 }
+  );
+}
+```
+
+--------------------------------------------------------------------------------
+BUG #11: MEMORY LEAK - VOICE SEARCH
+--------------------------------------------------------------------------------
+Arquivo: src/components/ui/voice-search.tsx
+Linhas: 70-72
+
+PROBLEMA:
+O objeto SpeechRecognition e criado dentro da funcao startListening() mas nao
+e armazenado em uma ref. Quando stopListening() e chamado, ele apenas muda o
+state para false mas nao chama recognition.stop(). O reconhecimento continua
+rodando em background.
+
+COMO CORRIGIR:
+1. Criar uma ref para armazenar a instancia do SpeechRecognition
+2. No stopListening, chamar recognition.stop() usando a ref
+3. No cleanup do useEffect, tambem parar o recognition
+
+CODIGO DE CORRECAO:
+```typescript
+// No inicio do componente, adicionar:
+const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+// Na funcao startListening, armazenar na ref:
+const recognition = new SpeechRecognition();
+recognitionRef.current = recognition;
+// ... resto do codigo
+
+// Na funcao stopListening:
+const stopListening = () => {
+  if (recognitionRef.current) {
+    recognitionRef.current.stop();
+    recognitionRef.current = null;
+  }
+  setIsListening(false);
+};
+
+// Adicionar useEffect de cleanup:
+useEffect(() => {
+  return () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  };
+}, []);
+```
+
+--------------------------------------------------------------------------------
+BUG #12: HYDRATION MISMATCH - HERO
+--------------------------------------------------------------------------------
+Arquivo: src/components/landing/Hero.tsx
+Linhas: 13-33
+
+PROBLEMA:
+O componente usa Math.random() diretamente no render para gerar posicoes e
+tamanhos de confetti. Como Math.random() gera valores diferentes no servidor
+e no cliente, isso causa um hydration mismatch no Next.js.
+
+COMO CORRIGIR:
+1. Gerar os valores aleatorios apenas no cliente usando useEffect
+2. Ou usar valores fixos pre-definidos
+3. Ou usar seed-based random para garantir mesmos valores
+
+CODIGO DE CORRECAO (opcao com useEffect):
+```typescript
+const [confettiItems, setConfettiItems] = useState<Array<{
+  left: string;
+  width: number;
+  height: number;
+  delay: number;
+  duration: number;
+}>>([]);
+
+useEffect(() => {
+  // Gera valores aleatorios apenas no cliente
+  const items = Array.from({ length: 20 }, () => ({
+    left: `${Math.random() * 100}%`,
+    width: Math.random() * 10 + 5,
+    height: Math.random() * 10 + 5,
+    delay: Math.random() * 5,
+    duration: Math.random() * 3 + 2,
+  }));
+  setConfettiItems(items);
+}, []);
+
+// No JSX, usar confettiItems.map(...) ao inves de gerar inline
+```
+
+--------------------------------------------------------------------------------
+BUG #13: COLLECTION NAME INCONSISTENTE - FIRESTORE
+--------------------------------------------------------------------------------
+Arquivo: src/store/firestoreStore.ts
+Linhas: 142 vs 186-197
+
+PROBLEMA:
+O codigo usa 'produtos' em alguns lugares e 'products' em outros para se
+referir a mesma colecao. Isso pode causar dados serem salvos em colecoes
+diferentes ou atualizacoes falharem silenciosamente.
+
+COMO CORRIGIR:
+1. Definir uma constante para o nome da colecao
+2. Usar essa constante em todos os lugares
+3. Decidir se vai usar 'produtos' ou 'products' e padronizar
+
+CODIGO DE CORRECAO:
+```typescript
+// No topo do arquivo, definir constante:
+const COLLECTIONS = {
+  PRODUCTS: 'produtos',
+  ORDERS: 'orders',
+} as const;
+
+// Substituir todas as referencias:
+// Trocar: collection(db, 'products')
+// Por: collection(db, COLLECTIONS.PRODUCTS)
+
+// Trocar: doc(db, 'products', id)
+// Por: doc(db, COLLECTIONS.PRODUCTS, id)
+```
+
+--------------------------------------------------------------------------------
+BUG #14: RETURN TYPE MISMATCH - CREATE PRODUCT
+--------------------------------------------------------------------------------
+Arquivo: src/app/admin/produtos/page.tsx (linhas 598-628)
+Arquivo: src/hooks/useProducts.ts (linhas 15-32)
+
+PROBLEMA:
+A funcao createProduct no hook useProducts retorna boolean (true/false), mas
+o codigo em admin/produtos espera receber o objeto do produto criado e faz
+verificacao 'if (product)' que sempre sera true para boolean true.
+
+COMO CORRIGIR:
+Opcao A - Mudar o hook para retornar o produto:
+```typescript
+// Em useProducts.ts, na funcao createProduct:
+const createProduct = async (productData: Partial<Product>) => {
+  try {
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(productData),
+    });
+    const data = await response.json();
+    if (data.success) {
+      mutate(); // Revalida cache
+      return data.product; // Retorna o produto criado
+    }
+    return null;
+  } catch (err) {
+    toast.error('Erro ao criar produto');
+    return null;
+  }
+};
+```
+
+Opcao B - Ajustar a pagina para esperar boolean:
+```typescript
+// Em admin/produtos/page.tsx:
+const success = await createProduct(newProduct);
+if (success) {
+  toast.success('Produto criado!');
+  // ... resto do codigo
+}
+```
+
+--------------------------------------------------------------------------------
+BUG #15: RACE CONDITIONS NOS STORES
+--------------------------------------------------------------------------------
+Arquivos:
+- src/store/cartStore.ts (linhas 60-82)
+- src/store/firestoreStore.ts (linhas 140-166)
+- src/store/authStore.ts (linhas 22-47)
+
+PROBLEMA:
+Varios stores tem race conditions onde operacoes assincronas podem sobrescrever
+dados entre si se chamadas rapidamente.
+
+COMO CORRIGIR CARTSTORE (setTimeout aninhado):
+```typescript
+// Usar uma ref para o timeout ID e limpar antes de criar novo
+const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+// Na funcao addItem:
+if (animationTimeoutRef.current) {
+  clearTimeout(animationTimeoutRef.current);
+}
+set({ lastAddedProductId: productId, isAnimating: true });
+animationTimeoutRef.current = setTimeout(() => {
+  set({ isAnimating: false });
+  animationTimeoutRef.current = setTimeout(() => {
+    set({ lastAddedProductId: null });
+  }, 300);
+}, 1000);
+```
+
+COMO CORRIGIR FIRESTORESTORE (stock decrement):
+```typescript
+// Usar transacao do Firestore para garantir atomicidade
+import { runTransaction } from 'firebase/firestore';
+
+// Na funcao criarPedido, usar:
+await runTransaction(db, async (transaction) => {
+  // Ler todos os produtos primeiro
+  for (const item of items) {
+    const prodRef = doc(db, 'produtos', item.product.id);
+    const prodSnap = await transaction.get(prodRef);
+    if (!prodSnap.exists()) continue;
+
+    const currentStock = prodSnap.data().estoque || 0;
+    if (currentStock < item.quantity) {
+      throw new Error(`Estoque insuficiente para ${item.product.name}`);
+    }
+  }
+
+  // Decrementar estoque
+  for (const item of items) {
+    const prodRef = doc(db, 'produtos', item.product.id);
+    transaction.update(prodRef, {
+      estoque: increment(-item.quantity)
+    });
+  }
+
+  // Criar pedido
+  const orderRef = doc(collection(db, 'orders'));
+  transaction.set(orderRef, orderData);
+
+  return orderRef.id;
+});
+```
+
+--------------------------------------------------------------------------------
+BUG #16: CPF HARDCODED
+--------------------------------------------------------------------------------
+Arquivo: src/lib/store-config.ts
+Linha: 7
+
+PROBLEMA:
+Um CPF esta exposto no codigo fonte: "213.552.527-02"
+
+COMO CORRIGIR:
+1. Mover para variavel de ambiente
+2. Ou remover se nao for necessario
+
+```typescript
+// Trocar:
+key: "213.552.527-02",
+
+// Por:
+key: process.env.STORE_PIX_KEY || "",
+
+// E adicionar no .env:
+STORE_PIX_KEY=213.552.527-02
+```
+
+================================================================================
+                            BUGS DE PRIORIDADE MEDIA
+================================================================================
+
+--------------------------------------------------------------------------------
+BUG #17: SEO - PAGINAS SEM METADATA
+--------------------------------------------------------------------------------
+Arquivos afetados:
+- src/app/cardapio/page.tsx
+- src/app/checkout/page.tsx
+- src/app/faq/page.tsx
+- src/app/blog/page.tsx
+- src/app/termos/page.tsx
+- src/app/privacidade/page.tsx
+- src/app/entrega/page.tsx
+- src/app/carreiras/page.tsx
+
+PROBLEMA:
+Nenhuma dessas paginas exporta metadata especifica. Todas usam apenas o
+metadata do layout raiz, perdendo oportunidades de SEO.
+
+COMO CORRIGIR:
+Para cada pagina, adicionar export de metadata no topo do arquivo.
+
+EXEMPLO PARA cardapio/page.tsx:
+```typescript
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Cardapio | EP LOPES - Delivery de Bebidas',
+  description: 'Confira nosso cardapio completo de bebidas, cervejas, destilados e mais. Entrega rapida em Cabo Frio.',
+  openGraph: {
+    title: 'Cardapio | EP LOPES',
+    description: 'Delivery de bebidas em Cabo Frio',
+  },
+};
+```
+
+NOTA: Paginas com 'use client' precisam ter o metadata em um arquivo
+separado (layout.tsx ou generateMetadata em arquivo server).
+
+--------------------------------------------------------------------------------
+BUG #18: THEME TOGGLE INCORRETO
+--------------------------------------------------------------------------------
+Arquivo: src/components/shared/ThemeToggle.tsx
+Linha: 22
+
+PROBLEMA:
+O codigo usa 'theme' ao inves de 'resolvedTheme' para verificar o tema atual.
+Quando o tema esta em 'system', a comparacao 'theme === "dark"' retorna false
+mesmo que o sistema esteja em modo escuro.
+
+COMO CORRIGIR:
+```typescript
+// Trocar:
+const { theme, setTheme } = useTheme();
+
+// Por:
+const { theme, setTheme, resolvedTheme } = useTheme();
+
+// E na comparacao:
+// Trocar: theme === 'dark'
+// Por: resolvedTheme === 'dark'
+```
+
+--------------------------------------------------------------------------------
+BUG #19: CUPONS HARDCODED NO CLIENTE
+--------------------------------------------------------------------------------
+Arquivo: src/store/couponStore.ts
+Linhas: 13-17
+
+PROBLEMA:
+Os codigos de cupom estao visiveis no codigo fonte do cliente. Qualquer
+usuario pode abrir o DevTools e ver todos os cupons disponiveis.
+
+COMO CORRIGIR:
+1. Mover validacao de cupons para o backend
+2. Criar endpoint /api/coupons/validate
+3. O cliente envia o codigo, o servidor valida e retorna o desconto
+
+CODIGO BACKEND (criar src/app/api/coupons/validate/route.ts):
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+const VALID_COUPONS = {
+  'BEMVINDO10': { discount: 0.10, minValue: 30 },
+  'SABOR15': { discount: 0.15, minValue: 50 },
+  'FIDELIDADE20': { discount: 0.20, minValue: 80 },
+};
+
+export async function POST(request: NextRequest) {
+  const { code, orderTotal } = await request.json();
+
+  const coupon = VALID_COUPONS[code.toUpperCase()];
+
+  if (!coupon) {
+    return NextResponse.json({ valid: false, error: 'Cupom invalido' });
+  }
+
+  if (orderTotal < coupon.minValue) {
+    return NextResponse.json({
+      valid: false,
+      error: `Pedido minimo de R$${coupon.minValue}`
+    });
+  }
+
+  return NextResponse.json({
+    valid: true,
+    discount: coupon.discount,
+    discountValue: orderTotal * coupon.discount,
+  });
+}
+```
+
+CODIGO FRONTEND (atualizar couponStore.ts):
+```typescript
+applyCoupon: async (code: string, orderTotal: number) => {
+  const response = await fetch('/api/coupons/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, orderTotal }),
+  });
+  const data = await response.json();
+
+  if (!data.valid) {
+    return { success: false, error: data.error };
+  }
+
+  set({ appliedCoupon: { code, discount: data.discount } });
+  return { success: true };
+}
+```
+
+--------------------------------------------------------------------------------
+BUG #20: MODAL DE PRODUTO NAO RESETA STATE
+--------------------------------------------------------------------------------
+Arquivo: src/components/menu/ProductModal.tsx
+Linhas: 26-36
+
+PROBLEMA:
+Quando o modal abre com um produto diferente, o state de quantity e
+customization nao sao resetados. Se o usuario adicionou 3 unidades de um
+produto, fechou o modal e abriu outro produto, a quantidade ainda mostra 3.
+
+COMO CORRIGIR:
+Adicionar useEffect para resetar quando o produto mudar:
+```typescript
+const [quantity, setQuantity] = useState(1);
+
+useEffect(() => {
+  // Reseta quantidade quando produto muda
+  setQuantity(1);
+  resetCustomization();
+}, [product?.id, resetCustomization]);
+```
+
+--------------------------------------------------------------------------------
+BUG #21: BLOG SEM LINKS FUNCIONAIS
+--------------------------------------------------------------------------------
+Arquivo: src/app/blog/page.tsx
+Linhas: 213-260, 273-280
+
+PROBLEMA:
+1. Os cards de posts nao sao clicaveis
+2. O botao "Ler mais" nao navega para lugar nenhum
+3. O formulario de newsletter nao funciona
+
+COMO CORRIGIR:
+
+Para os posts, adicionar Link:
+```typescript
+import Link from 'next/link';
+
+// Envolver cada card com Link:
+<Link href={`/blog/${post.slug}`} key={post.id}>
+  <article className="...">
+    {/* conteudo do card */}
+  </article>
+</Link>
+```
+
+Para newsletter, adicionar handler:
+```typescript
+const [email, setEmail] = useState('');
+
+const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  // Enviar para API ou servico de email
+  toast.success('Inscricao realizada!');
+  setEmail('');
+};
+
+// No form:
+<form onSubmit={handleNewsletterSubmit}>
+  <Input
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    type="email"
+    required
+  />
+  <Button type="submit">Inscrever</Button>
+</form>
+```
+
+--------------------------------------------------------------------------------
+BUG #22: MENU SEM ERROR STATE
+--------------------------------------------------------------------------------
+Arquivo: src/app/cardapio/page.tsx
+Linhas: 42, 286-289
+
+PROBLEMA:
+O hook useProducts retorna isError mas a pagina so verifica isLoading.
+Se a requisicao falhar, nao mostra nenhum feedback para o usuario.
+
+COMO CORRIGIR:
+```typescript
+const { products, isLoading, isError, mutate } = useProducts();
+
+// Adicionar verificacao de erro:
+if (isError) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <p className="text-destructive mb-4">Erro ao carregar produtos</p>
+        <Button onClick={() => mutate()}>Tentar novamente</Button>
+      </div>
+    </div>
+  );
+}
+```
+
+--------------------------------------------------------------------------------
+BUG #23: MEMORY LEAKS EM UTILITIES
+--------------------------------------------------------------------------------
+Arquivos:
+- src/lib/logger.ts (linha 130)
+- src/lib/rate-limit.ts (linhas 258-274)
+- src/lib/observability.ts (linhas 108-136)
+
+PROBLEMA:
+Intervals e observers sao criados mas nunca sao limpos. Em desenvolvimento
+com HMR, isso causa multiplos intervals rodando simultaneamente.
+
+COMO CORRIGIR:
+
+Para logger.ts e rate-limit.ts:
+```typescript
+// Armazenar referencia do interval
+let flushInterval: NodeJS.Timeout | null = null;
+
+// Limpar antes de criar novo
+if (flushInterval) {
+  clearInterval(flushInterval);
+}
+flushInterval = setInterval(flushLogs, FLUSH_INTERVAL);
+
+// Adicionar cleanup no beforeunload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    if (flushInterval) {
+      clearInterval(flushInterval);
+    }
+    flushLogs();
+  });
+}
+```
+
+Para observability.ts:
+```typescript
+// Armazenar referencias dos observers
+const observers: PerformanceObserver[] = [];
+
+// Ao criar cada observer:
+observers.push(lcpObserver);
+
+// Criar funcao de cleanup exportavel:
+export function cleanupObservers() {
+  observers.forEach(obs => obs.disconnect());
+  observers.length = 0;
+}
+```
+
+--------------------------------------------------------------------------------
+BUG #24: RANDOM KEY NO MAP
+--------------------------------------------------------------------------------
+Arquivo: src/app/admin/pedidos/page.tsx
+Linha: 325
+
+PROBLEMA:
+Usar Math.random() como key causa re-render desnecessario e pode causar
+bugs de estado em componentes filhos.
+
+COMO CORRIGIR:
+```typescript
+// Trocar:
+key={item.id || Math.random()}
+
+// Por:
+key={item.id || `item-${index}`}
+
+// Ou garantir que todos os items tenham id:
+key={item.id || `order-${order.id}-item-${index}`}
+```
+
+--------------------------------------------------------------------------------
+BUG #25: FAVORITOS PERMITEM DUPLICATAS
+--------------------------------------------------------------------------------
+Arquivo: src/store/favoritesStore.ts
+Linhas: 19-22
+
+PROBLEMA:
+A funcao addFavorite nao verifica se o produto ja esta nos favoritos,
+permitindo adicionar o mesmo produto multiplas vezes.
+
+COMO CORRIGIR:
+```typescript
+addFavorite: (productId: string) => {
+  set((state) => {
+    // Verifica se ja existe
+    if (state.favorites.includes(productId)) {
+      return state; // Nao faz nada se ja existe
+    }
+    return { favorites: [...state.favorites, productId] };
+  });
+},
+```
+
+================================================================================
+                              NOTAS ADICIONAIS
+================================================================================
+
+1. VARIAVEIS DE AMBIENTE NECESSARIAS:
+   Apos as correcoes, adicionar ao .env:
+   - MERCADO_PAGO_WEBHOOK_SECRET (para validacao de webhook)
+   - STORE_PIX_KEY (se mover CPF para env)
+
+2. DEPENDENCIAS A INSTALAR:
+   - file-type (para validacao de upload)
+   npm install file-type
+
+3. TESTES RECOMENDADOS:
+   Apos cada correcao, testar:
+   - Build: npm run build
+   - TypeScript: npx tsc --noEmit
+   - Funcionalidade manual no browser
+
+================================================================================
+                              FIM DO RELATORIO
+================================================================================

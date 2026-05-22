@@ -3,30 +3,54 @@ import { products } from './products';
 import { categories } from './categories';
 
 // ========================
-// CONSTANTES DE ENTREGA
+// TAMANHOS DE MARMITA
 // ========================
-export const DELIVERY_FEE = 8.00;
-export const FREE_DELIVERY_MIN = 80.00;
+export const MARMITA_SIZES = [
+  {
+    id: 'P',
+    name: 'Pequena',
+    price: 20.0,
+    description: 'Pra matar a fome sem exagero',
+    capacity: 'Aprox. 400g',
+    portions: '1 proteína + acompanhamentos',
+  },
+  {
+    id: 'M',
+    name: 'Média',
+    price: 28.0,
+    description: 'A escolha campeã do almoço',
+    capacity: 'Aprox. 600g',
+    portions: '1 proteína + acompanhamentos à vontade',
+  },
+  {
+    id: 'G',
+    name: 'Grande',
+    price: 35.0,
+    description: 'Pra quem chegou com fome de leão',
+    capacity: 'Aprox. 800g',
+    portions: '2 proteínas + acompanhamentos à vontade',
+  },
+] as const;
 
 // ========================
 // INFORMACOES DO ESTABELECIMENTO
 // ========================
 export const RESTAURANT_INFO = {
-  name: 'EP LOPES',
-  slogan: 'Forte do Gelo - Deposito de Bebidas',
-  description: 'O melhor deposito de bebidas da regiao. Cerveja gelada, drinks e muito mais!',
+  name: 'Sabor da Casa',
+  slogan: 'Bandejão Caseiro - Monte Seu Prato',
+  description: 'Comida feita na hora, tempero de casa. Escolha o tamanho da sua marmita e monte do seu jeito.',
   phone: '(22) 99999-5200',
   whatsapp: '5522999995200',
-  email: 'contato@eplopes.com.br',
+  email: 'contato@sabordacasa.com.br',
   address: 'Rua Independencia, Bairro Tamoios, Número 9',
   hours: {
-    weekdays: '10:00 - 23:00',
-    weekends: '10:00 - 23:00'
+    weekdays: '11:00 - 15:00',
+    weekends: 'Fechado'
   },
-  deliveryTime: '30-45 min',
+  deliveryTime: 'Almoço quentinho na hora',
   social: {
-    instagram: '@eplopesfortedogelo',
-    facebook: 'eplopesfortedogelo'
+    instagram: '@sabordacasa',
+    facebook: 'sabordacasa'
   }
 };
 
@@ -57,15 +81,9 @@ export const formatPrice = (price: number): string => {
   });
 };
 
-// Estima tempo de entrega baseado no horario
+// Mantido por compatibilidade com componentes legados (não usado no fluxo de bandejão)
+export const DELIVERY_FEE = 0;
+export const FREE_DELIVERY_MIN = 0;
 export const getEstimatedDeliveryTime = (): { min: number; max: number; formatted: string } => {
-  const now = new Date();
-  const hour = now.getHours();
-  const isPeakHour = (hour >= 12 && hour <= 14) || (hour >= 19 && hour <= 21);
-  const baseMin = 25;
-  const baseMax = 40;
-  const peakExtra = 15;
-  const min = isPeakHour ? baseMin + peakExtra : baseMin;
-  const max = isPeakHour ? baseMax + peakExtra : baseMax;
-  return { min, max, formatted: `${min}-${max} min` };
+  return { min: 0, max: 0, formatted: 'Almoço servido na hora' };
 };

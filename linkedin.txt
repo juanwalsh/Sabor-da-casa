@@ -1,0 +1,16 @@
+🚀 Escalar operações de delivery não é apenas sobre código, é sobre impacto real no negócio. Acabo de entregar uma solução full-stack onde a engenharia se traduz diretamente em resultados.
+
+Os números confirmam a eficiência da nova arquitetura:
+
+📊 **Métricas de Impacto:**
+- **+60%** na conversão de pedidos com fluxo simplificado.
+- **4x** mais velocidade no checkout comparado a soluções tradicionais.
+- **Alta Disponibilidade** com arquitetura Serverless escalável.
+
+🛠 **Engenharia sob o Capô:**
+- **Performance:** Next.js (App Router) e React Server Components garantindo carregamento instantâneo.
+- **Mobile First:** App do vendedor (React Native) com sincronização em tempo real via Firebase.
+- **Segurança:** Bloqueio de abusos com Rate Limiting (Upstash) e validação rigorosa (Zod).
+- **Confiabilidade:** CI/CD com GitHub Actions e bateria de testes automatizados (Vitest/Playwright).
+
+Stack: Next.js, TypeScript, Zustand, Firebase, Mercado Pago, GitHub Actions.qq
