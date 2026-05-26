@@ -56,7 +56,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-4 md:mb-6"
             >
-              <span className="text-foreground">Monte seu prato</span>
+              <span className="text-foreground">Pegue e monte</span>
               <br />
               <span className="relative">
                 <span className="text-primary">da Lu</span>
